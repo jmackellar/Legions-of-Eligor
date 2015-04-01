@@ -1,0 +1,141 @@
+--- Game.lua
+--- Main game loop.  
+
+--- data files
+require "data/tiles"
+require "data/branch"
+require "data/monster"
+require "data/items"
+require "data/class"
+
+--- dependencies
+require "map"
+require "player"
+require "creature"
+require "item"
+require "message"
+
+local redrawMap = true
+local redrawPlayer = true
+local redrawCreature = true
+local redrawItem = true
+
+local playerTurn = true
+
+function gameEnter()
+	mapInit(80, 21)
+	--name, level, health, mana, vit, ment, endur, will, perStat, perAmnt, class
+	playerInit("Jesse", 1, 100, 100, 5, 5, 5, 5, 'Vagrant')
+	playerLoad()
+	if not mapLoad() then
+		mapGenDungeon(mapGetWidth(), mapGetHeight()) 
+	end
+	messageInit(26)
+	redrawMap = true
+	redrawPlayer = true
+end
+
+function gameClearSave()
+	local s = love.filesystem.getDirectoryItems("")
+	for i = 1, # s do
+		love.filesystem.remove(s[i])
+	end
+end
+
+function gameUpdate(dt)
+
+	--- if not playerTurn, then creatures take turn
+	if not playerTurn then
+		creatureTurn()
+	end
+
+	if redrawMap then
+		mapDraw()
+		redrawMap = false
+	end
+	if redrawItem then
+		itemDraw()
+		redrawItem = false
+	end
+	if redrawPlayer then
+		playerDraw()
+		redrawPlayer = false
+	end
+	if redrawCreature then
+		creatureDraw()
+		redrawCreature = false
+	end
+	
+	--- inventory menu
+	if itemGetInventoryOpen() then
+		itemDrawInventory()
+	end
+	
+	playerDrawHud()
+	messageUpdate(dt)
+	messageDraw()
+	playerDrawMenu()
+end
+
+function gameKeypressed(key)
+	if itemKeypressed(key) then return end
+	if not messageGetRestrictKeypress() then
+		if debugGetMenuOpen() then return end
+		if playerTurn then
+			if playerKeypressed(key) then return end
+		end
+	end
+	messageKeypressed(key)
+end
+
+--- gameSave
+--- saves the entire game.
+function gameSave()
+	playerSave()
+	mapSave()
+end
+
+--- gameSetRedrawAll
+--- Sets the game to redraw everything.
+function gameSetRedrawAll()
+	redrawMap = true
+	redrawPlayer = true
+	redrawCreature = true
+	redrawItem = true
+end
+
+--- gameSetRedrawItem
+--- sets redrawItem to true.
+function gameSetRedrawItem()
+	redrawItem = true
+end
+
+--- gameSetRedrawMap
+--- Sets redrawMap to true.
+function gameSetRedrawMap()
+	redrawMap = true
+end
+
+--- gameSetRedrawPlayer
+--- Sets redrawPlayer to true
+function gameSetRedrawPlayer()
+	redrawPlayer = true
+end
+
+--- gameSetRedrawCreature
+--- Sets redrawCreature to true
+function gameSetRedrawCreature()
+	redrawCreature = true
+end
+
+--- gameFlipPlayerTurn
+--- Flips playerTurn between true and false.
+function gameFlipPlayerTurn()
+	if playerTurn then
+		playerTurn = false
+		playerRegenTurn()
+		playerModifierUpdate()
+	else
+		playerTurn = true
+	end
+end
