@@ -20,9 +20,26 @@ mapBranch = {
 		items = { {name = 'stone', perc = 55}, {name = 'dart', perc = 25}, {name = 'bandage', perc = 20} },
 		extraItems = { 'tunic', 'clothpants', 'sandels', 'shortsword', 'potionhealing', 'potionmanagain', 'potionpoison', 
 						'dagger', 'bandage', 'stone', 'dart', 'potionspeed', 'potionslow', },
-		connections = { {branch = 'Caves', floor = 4, drop = 1}, {branch = 'Jails', floor = 7, drop = 1}, },
+		connections = { {branch = 'Caves', floor = 4, drop = 1}, {branch = 'Storehouse', floor = 7, drop = 1}, },
 		tiles = { {name = 'identify', floor = 6, x = 'random', y = 'random'}, 
 					 },
+		},
+		
+	Storehouse = {
+		gen = 'mapGenBSP',
+		intro = 'Storehouse',
+		floors = 6,
+		minCreatures = 12,
+		maxCreatures = 15,
+		extraItemsChance = 65,
+		maxExtraItems = 3,
+		creatures = { {name = 'Fox', perc = 100}, },
+		minItems = 1,
+		maxItems = 3,
+		items = { {name = 'stone', perc = 100}, },
+		extraItems = { 'stone', },
+		connections = { {branch = 'Dungeon', floor = 1, drop = 7}, },
+		tiles = { },
 		},
 
 	Caves = {
@@ -39,22 +56,6 @@ mapBranch = {
 		items = { {name = 'shortsword', perc = 100} },
 		extraItems = { 'shortsword', 'clothpants', 'tunic' },
 		connections = { {branch = 'Dungeon', floor = 1, drop = 4} },
-		},
-		
-	Jails = {
-		gen = 'mapGenJails',
-		intro = 'Jails',
-		floors = 4,
-		minCreatures = 13,
-		maxCreatures = 16,
-		maxExtraItems = 4,
-		extraItemsChance = 65,
-		creatures = { {name = 'Skeleton', perc = 55}, {name = 'Hound', perc = 25}, {name = 'Spitbug', perc = 20 } },
-		minItems = 1,
-		maxItems = 3,
-		items = { {name = 'bandage', perc = 50}, {name = 'potionmanagain', perc = 50} },
-		extraItems = { 'bandage', 'potionhealing', 'potionpoison', 'dagger', 'tunic', 'leathergloves', 'stone' },
-		connections = { {branch = 'Dungeon', floor = 1, drop = 6}, },
 		},
 		
 }

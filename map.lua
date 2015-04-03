@@ -164,6 +164,8 @@ function mapChangeFloor(dy, save)
 			mapGenDungeon(mapWidth, mapHeight)
 		elseif mapBranch[mapCurrentBranch].gen == 'mapGenJails' then
 			mapGenJails(mapWidth, mapHeight)
+		elseif mapBranch[mapCurrentBranch].gen == 'mapGenBSP' then
+			mapGenBSP(mapWidth, mapHeight)
 		end
 	else
 		playerDisableFog()
@@ -232,6 +234,111 @@ function mapDrawTile(x, y)
 		local tC = map[x][y].textColor
 		consolePut({x = xx, y = yy, char = map[x][y].char, backColor = map[x][y].backColor, textColor = tC})
 	end
+end
+
+--- mapGenBSP
+--- Rooms directly connected to each other.  No corridors.
+function mapGenBSP(w, h)
+	mapInit(w, h)
+	
+	local make = true
+	local wall = 1
+	local base = 1
+	local minw = 9
+	local maxw = 19
+	local minh = 7
+	local maxh = 12
+	local door = { }
+	local rooms = { }
+	local w = math.random(minw, maxw)
+	local h = math.random(minh, maxh)
+	local x = math.random(10, 70 - w)
+	local y = math.random(3, 17 - h)
+	table.insert(rooms, {x = x, y = y, w = w, h = h})
+	while # rooms < 8 do
+		make = true
+		door = false
+		--- Pick a random base room
+		base = math.random(1, # rooms)
+		--- random room dimensions
+		w = math.random(minw, maxw) - math.floor(#rooms/2)
+		h = math.random(minh, maxh) - math.floor(#rooms/2)
+		--- pick a wall from the base room for the new room to
+		--- be adjacent to
+		wall = math.random(1, 2)	--- 1 = horizontal wall, 2 = vertical wall
+		if wall == 1 then
+			--- slide room around a little
+			x = math.random(rooms[base].x - 2, rooms[base].x + rooms[base].w - 3)
+			--- pick if the top or bottom wall
+			if math.random(1, 2) == 1 then	--- top
+				y = rooms[base].y - h
+				door = {x = x+2, y = y+h}
+			else
+				y = rooms[base].y + rooms[base].h
+				door = {x = x+2, y = y}
+			end
+		elseif wall == 2 then
+			--- slide room around a little
+			y = math.random(rooms[base].y - 2, rooms[base].y + rooms[base].h - 3)
+			--- pick if right or left wall
+			if math.random(1, 2) == 1 then --- left
+				x = rooms[base].x - w
+				door = {x = x+w, y = y+2}
+			else
+				x = rooms[base].x + rooms[base].w
+				door = {x = x, y = y+2}
+			end
+		end
+		--- check if the room in question is not outside the map
+		if x > 2 and x + w < mapWidth - 1 and y > 2 and y + h < mapHeight - 1 then
+			--- check for collisions with other rooms
+			for i = 1, # rooms do
+				if rooms[i] ~= rooms[base] then
+					if x <= rooms[i].x + rooms[i].w and 
+					   x + w >= rooms[i].x and
+					   y <= rooms[i].y + rooms[i].h and
+					   y + h >= rooms[i].y then
+					   make = false
+					end
+				end
+			end
+		else
+			make = false
+		end
+		--- If we can make the room then do so
+		if make then
+			for xx = x, x + w do
+				if map[xx][y] == mapTiles.floor then map[xx][y] = mapTiles.smoothwall end
+				if map[xx][y+h] == mapTiles.floor then map[xx][y+h] = mapTiles.smoothwall end
+			end
+			for yy = y, y + h do
+				if map[x][yy] == mapTiles.floor then map[x][yy] = mapTiles.smoothwall end
+				if map[x+w][yy] == mapTiles.floor then map[x+w][yy] = mapTiles.smoothwall end
+			end
+			if door then
+				map[door.x][door.y] = mapTiles.closeddoor
+			end
+			table.insert(rooms, {x = x, y = y, w = w, h = h})
+		end
+	end
+	
+	--- Boundary walls
+	for x = 1, mapWidth do
+		map[x][1] = mapTiles.smoothwall
+		map[x][mapHeight] = mapTiles.smoothwall
+	end
+	for y = 1, mapHeight do
+		map[1][y] = mapTiles.smoothwall
+		map[mapWidth][y] = mapTiles.smoothwall
+	end
+	
+	mapMovePlayerToSObject()
+	playerCastFog()
+	mapGenerateCreatures()
+	itemGenerate()
+	mapPlaceSpecialTiles()
+	mapPlaceConnections()
+	gameSetRedrawAll()
 end
 
 --- mapGenJails
