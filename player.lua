@@ -290,7 +290,7 @@ function playerSpellShoutout(spell)
 	local sy = playerY
 	for xx = math.max(1, sx - spell.dist), math.min(mapGetWidth(), sx + spell.dist) do
 		for yy = math.max(1, sy - spell.dist), math.min(mapGetHeight(), sy + spell.dist) do
-			creatureAddModAt({mod = 'armor', val = spell.armor}, xx , yy)
+			creatureAddModAt({mod = 'armor', val = spell.armor, turn = spell.turns}, xx , yy)
 		end
 	end
 	messageRecieve(spell.castmsg)
@@ -646,3 +646,4 @@ function playerGetX() return playerX end
 function playerGetY() return playerY end
 function playerGetDirectionVar() return playerDirection end
 function playerGetSpeed() return playerSpeed + playerGetMod('speed') end
+function playerGetHealth() return playerHealth end

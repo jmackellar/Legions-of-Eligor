@@ -49,6 +49,7 @@ end
 --- spawns the maps creatures.
 function mapGenerateCreatures()
 	creatureClearAll()
+	--- Generate normal creatures.
 	local c = mapBranch[mapCurrentBranch].creatures
 	local cMin = mapBranch[mapCurrentBranch].minCreatures
 	local cMax = mapBranch[mapCurrentBranch].maxCreatures
@@ -63,6 +64,21 @@ function mapGenerateCreatures()
 					creatureSpawn(x, y, c[i].name)
 					placed = true
 				end
+			end
+		end
+	end
+	--- Generate rare creatures.
+	local c = mapBranch[mapCurrentBranch].rareCreatures
+	if not c then return end
+	for i = 1, # c do
+		local total = math.random(c[i].min, c[i].max)
+		local placed = 0
+		while placed < total do
+			local x = math.random(2, mapWidth - 1)
+			local y = math.random(2, mapHeight - 1)
+			if map[x][y].walkThru and playerIsTileFree(x, y) and creatureIsTileFree(x, y) then
+				placed = placed + 1
+				creatureSpawn(x, y, c[i].name)
 			end
 		end
 	end
@@ -1020,6 +1036,7 @@ function mapUseIdentificationStand(x, y, item)
 				itemAddIdentify(item)
 				if map[x][y].charge == 0 then
 					messageRecieve("Sparks fly and the identification stand begins to smoke.")
+				end
 			else
 				if item.data.idname then
 					messageRecieve("The identification stand glows green for a moment...")

@@ -7,6 +7,7 @@ local messagesUnread = { }
 local messagesMax = 20
 
 local messageRestrictKeypress = false
+local acceptMessages = true
 
 function messageInit(mx)
 	messagesMax = mx
@@ -17,6 +18,10 @@ end
 
 --- fuck i think i spelled this shit wrong -_-
 function messageRecieve(msg)
+	if not acceptMessages then return end
+	if msg == 'Game Over' then 
+		acceptMessages = false
+	end
 	table.insert(messagesUnread, msg)
 	if # messagesUnread > 1 then
 		if string.len(messagesUnread[#messagesUnread-1] .. "  " .. messagesUnread[#messagesUnread]) <= 72 then

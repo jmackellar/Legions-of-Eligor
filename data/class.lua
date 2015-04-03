@@ -18,7 +18,7 @@ gameClasses = {
 					desc = 'Roll forward in target direction.', 
 					castmsg = 'You roll forward.',
 					},
-					{name = 'Shoutout', dist = 5, armor = -6, mana = 10, level = 3,
+					{name = 'Shoutout', dist = 5, armor = -6, mana = 10, level = 3, turns = 15,
 					desc = 'Let out a commanding shout that reduces armor of nearby enemies.',
 					castmsg = 'You let out a commanding shout.',
 					},

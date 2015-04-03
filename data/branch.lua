@@ -11,6 +11,8 @@ mapBranch = {
 					  {name = 'Spitbug', perc = 15}, 
 					  {name = 'Littlefairy', perc = 40},
 					  },
+		rareCreatures = { {name = 'Fairymystic', min = 1, max = 2},
+							},
 		minItems = 1,
 		maxItems = 2,
 		maxExtraItems = 9,

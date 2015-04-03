@@ -51,14 +51,29 @@ function creatureTurn()
 		--- speed value then they take turns until the speed value is
 		--- greater than the speed check.
 		creatures[i].speed = creatures[i].speed + playerGetSpeed()
+		--- Tick down modifiers every turn
+		creatureTickMod(creatures[i])
 		while creatures[i].speed >= creatures[i].data.speed do
 			if creatures[i].seen then
-				--- Creature AI states
-				if creatures[i].data.ai == 'grunt' then
+				--- Creature AI 
+				
+				--- Modifiers may change what AI the creature is using
+				--- for a few turns.  If the creature doesn't have any
+				--- AI modifiers then use the default AI for that creature
+				--- instead.
+				local ai = creatureGetModVal(creatures[i], 'ai')
+				if ai == 1 then 
+					ai = 'grunt'
+				elseif ai == 0 then
+					ai = creatures[i].data.ai
+				end
+				
+				--- Take turn passed on current AI state
+				if ai == 'grunt' then
 					creatureGrunt(creatures[i])
-				elseif creatures[i].data.ai == 'ranged' then
+				elseif ai == 'ranged' then
 					creatureRanged(creatures[i])
-				elseif creatures[i].data.ai == 'scared' then
+				elseif ai == 'scared' then
 					creatureScared(creatures[i])
 				end
 			else
@@ -112,6 +127,91 @@ function creatureWander(c)
 			c.seen = true
 		end
 	end
+end
+
+--- creatureAddMod(c, s)
+--- Adds a mod to nearby creatures of the spells targeted monster name.
+--- If target name is 'all' then all monsters get the mod, else only
+--- monsters with the name that is targeted get the modifier.
+function creatureAddMod(c, s)
+	local x1 = math.max(1, c.x - 6)
+	local x2 = math.min(mapGetWidth(), c.x + 6)
+	local y1 = math.max(1, c.y - 6)
+	local y2 = math.min(mapGetHeight(), c.y + 6)
+	local montype = s.monster
+	if montype == 'all' then
+		messageRecieve(c.data.prefix .. c.data.name .. " modifies all nearby monsters.")
+	else
+		messageRecieve(c.data.prefix .. c.data.name .. " modifies all nearby " .. montype)
+	end
+	for xx = x1, x2 do
+		for yy = y1, y2 do
+			if not creatureIsTileFree(xx, yy) then
+				local mon = creatureGetCreatureAtTile(xx, yy)
+				if mon.data.name == montype or montype == 'all' then
+					creatureAddModAt({mod = s.mod, val = s.val, turn = s.turns}, xx, yy)
+				end
+			end
+		end
+	end
+end
+
+--- creatureSummon(c, s)
+--- Takes passed creature and passed spell and summons nasties around the
+--- creature.
+function creatureSummon(c, s)
+	local x1 = math.max(1, c.x - 3)
+	local x2 = math.min(mapGetWidth(), c.x + 3)
+	local y1 = math.max(1, c.y - 3)
+	local y2 = math.min(mapGetHeight(), c.y + 3)
+	local placed = 0
+	local attempt = 0
+	while placed < s.amnt do
+		if attempt >= 50 then break end
+		for xx = x1, x2 do
+			for yy = y1, y2 do
+				--- Summon monster at targeted tile with a chance
+				if math.random(1, 100) <= 25 and placed < s.amnt then
+					if creatureSpawn(xx, yy, s.monster) then
+						placed = placed + 1
+					else
+						attempt = attempt + 1
+					end
+				end
+			end
+		end
+	end
+	messageRecieve(c.data.prefix .. c.data.name .. " summons other creatures.")
+end
+
+--- creatureCastSpell(c)
+--- Takes a creature and attempts to cast any spells.  Will not cast spells
+--- that don't make sense in certain situations, and will not cast spells that
+--- are on cool down.  Returns true if a spell was succesfully cast, false if
+--- no spell was cast.
+function creatureCastSpell(c)
+	if not c.data.spells then return false end
+	for i = 1, # c.data.spells do
+		--- Initialize cd if it doesn't already exist
+		if not c.data.spells[i].cd then
+			c.data.spells[i]['cd'] = 0
+		end
+		--- Tick down cooldown.  If cooldown is reset then cast the spell if possible
+		c.data.spells[i].cd = c.data.spells[i].cd - 1
+		if c.data.spells[i].cd <= 0 then
+			--- Summoning
+			if c.data.spells[i].name == 'summon' then
+				creatureSummon(c, c.data.spells[i])
+				c.data.spells[i].cd = c.data.spells[i].cooldown
+				return true
+			elseif c.data.spells[i].name == 'addmod' then
+				creatureAddMod(c, c.data.spells[i])
+				c.data.spells[i].cd = c.data.spells[i].cooldown
+				return true
+			end
+		end
+	end
+	return false
 end
 
 --- Takes a creatures ranged attack properties and tries to shoot the player.
@@ -187,32 +287,35 @@ function creatureScared(c)
 			move = true
 		end
 	end
-	--- Now move the creature.
-	if move then
-		--- Targeted tile is free so move towards it.
-		if mapGetWalkThru(c.x + dx, c.y + dy) and creatureIsTileFree(c.x + dx, c.y + dy) and playerIsTileFree(c.x + dx, c.y + dy) then
-			c.x = c.x + dx
-			c.y = c.y + dy
-		--- Player is on targeted tile.  Attack!
-		elseif not playerIsTileFree(c.x + dx, c.y + dy) then
-			playerAttackedByCreature(c.data.name, c.data.prefix, creatureCalcDamage(c.data.damage))
-		--- Else if we can't move to that tile at all pick a new one and try again.
-		else
-			move = false
-		end
-	end
-	--- Creature didn't move, time to do random movement that
-	--- makes zero sense whatsoever.
-	if not move then
-		local tries = 0
-		while not move and tries <= 8 do
-			tries = tries + 1
-			dx = math.random(-1, 1)
-			dy = math.random(-1, 1)
+	--- Have the creature try to cast a spell. If it cant cast anything 
+	--- then move instead.
+	if not creatureCastSpell(c) then
+		if move then
+			--- Targeted tile is free so move towards it.
 			if mapGetWalkThru(c.x + dx, c.y + dy) and creatureIsTileFree(c.x + dx, c.y + dy) and playerIsTileFree(c.x + dx, c.y + dy) then
-				move = true
 				c.x = c.x + dx
 				c.y = c.y + dy
+			--- Player is on targeted tile.  Attack!
+			elseif not playerIsTileFree(c.x + dx, c.y + dy) then
+				playerAttackedByCreature(c.data.name, c.data.prefix, creatureCalcDamage(c.data.damage))
+			--- Else if we can't move to that tile at all pick a new one and try again.
+			else
+				move = false
+			end
+		end
+		--- Creature didn't move, time to do random movement that
+		--- makes zero sense whatsoever.
+		if not move then
+			local tries = 0
+			while not move and tries <= 8 do
+				tries = tries + 1
+				dx = math.random(-1, 1)
+				dy = math.random(-1, 1)
+				if mapGetWalkThru(c.x + dx, c.y + dy) and creatureIsTileFree(c.x + dx, c.y + dy) and playerIsTileFree(c.x + dx, c.y + dy) then
+					move = true
+					c.x = c.x + dx
+					c.y = c.y + dy
+				end
 			end
 		end
 	end
@@ -249,17 +352,19 @@ function creatureRanged(c)
 			end
 		end
 	--- If their is distance between the player and the creature
-	--- has enough range to hit the player then shoot.  Else the 
-	--- creature needs to move closer.
+	--- has enough range to hit the player then shoot or cast a spell.  
+	--- Else the creature needs to move closer.
 	elseif dist < r then
 		if not creatureShootPlayer(c) then
-			--- Player was not in creatures line of fire.  Move randomly now.
-			dx = math.random(-1, 1)
-			dy = math.random(-1, 1)
-			--- Random movement
-			if mapGetWalkThru(c.x + dx, c.y + dy) and creatureIsTileFree(c.x + dx, c.y + dy) and playerIsTileFree(c.x + dx, c.y + dy) then
-				c.x = c.x + dx
-				c.y = c.y + dy
+			if not creatureCastSpell(c) then
+				--- Player was not in creatures line of fire.  Move randomly now.
+				dx = math.random(-1, 1)
+				dy = math.random(-1, 1)
+				--- Random movement
+				if mapGetWalkThru(c.x + dx, c.y + dy) and creatureIsTileFree(c.x + dx, c.y + dy) and playerIsTileFree(c.x + dx, c.y + dy) then
+					c.x = c.x + dx
+					c.y = c.y + dy
+				end
 			end
 		end
 	--- Move towards the player.  Attack the player if the creature
@@ -274,6 +379,18 @@ function creatureRanged(c)
 			c.y = c.y + dy
 		elseif not playerIsTileFree(c.x + dx, c.y + dy) then
 			playerAttackedByCreature(c.data.name, c.data.prefix, creatureCalcDamage(c.data.damage))
+		end
+	end
+end
+
+--- creatureTickMod
+--- Ticks mods down and removes when time is out.
+function creatureTickMod(c)
+	if not c.mod then return end
+	for i = # c.mod, 1, -1 do
+		c.mod[i].turn = c.mod[i].turn - 1
+		if c.mod[i].turn <= 0 then
+			table.remove(c.mod, i)
 		end
 	end
 end
@@ -312,22 +429,25 @@ function creatureGrunt(c)
 	if playerGetX() < c.x then dx = -1 end
 	if playerGetY() > c.y then dy = 1 end
 	if playerGetY() < c.y then dy = -1 end
-	if mapGetWalkThru(c.x + dx, c.y + dy) and creatureIsTileFree(c.x + dx, c.y + dy) and playerIsTileFree(c.x + dx, c.y + dy) then
-		if math.random(1, 100) <= 50 then
-			--- Attempt to shoot the player.  If the creature doesn't have a ranged attack
-			--- then the function will return false and the creature will move instead.  The
-			--- function will also return false if the player isn't in the creature's line of 
-			--- fire.
-			if not creatureShootPlayer(c) then
+	--- Attempt to cast a spell.  If not then move
+	if not creatureCastSpell(c) then
+		if mapGetWalkThru(c.x + dx, c.y + dy) and creatureIsTileFree(c.x + dx, c.y + dy) and playerIsTileFree(c.x + dx, c.y + dy) then
+			if math.random(1, 100) <= 50 then
+				--- Attempt to shoot the player.  If the creature doesn't have a ranged attack
+				--- then the function will return false and the creature will move instead.  The
+				--- function will also return false if the player isn't in the creature's line of 
+				--- fire.
+				if not creatureShootPlayer(c) then
+					c.x = c.x + dx
+					c.y = c.y + dy
+				end
+			else
 				c.x = c.x + dx
 				c.y = c.y + dy
 			end
-		else
-			c.x = c.x + dx
-			c.y = c.y + dy
+		elseif not playerIsTileFree(c.x + dx, c.y + dy) then
+			playerAttackedByCreature(c.data.name, c.data.prefix, creatureCalcDamage(c.data.damage))
 		end
-	elseif not playerIsTileFree(c.x + dx, c.y + dy) then
-		playerAttackedByCreature(c.data.name, c.data.prefix, creatureCalcDamage(c.data.damage))
 	end
 end
 
@@ -336,8 +456,19 @@ function creatureSpawn(x, y, name)
 		if creatureIsTileFree(x, y) and playerIsTileFree(x, y) then
 			table.insert(creatures, {data = gameMonsters[name], health = gameMonsters[name].health, x = x, y = y, speed = 0, seen = false, mod = { }})
 			gameSetRedrawCreature()
+			return true
 		end
 	end
+	return false
+end
+
+function creatureGetCreatureAtTile(x, y)
+	for i = 1, # creatures do
+		if creatures[i].x == x and creatures[i].y == y then
+			return creatures[i]
+		end
+	end
+	return false
 end
 
 function creatureIsTileFree(x, y)
