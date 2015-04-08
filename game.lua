@@ -66,12 +66,11 @@ function gameUpdate(dt)
 		redrawCreature = false
 	end
 	
+	playerDrawHud()
 	--- inventory menu
 	if itemGetInventoryOpen() then
 		itemDrawInventory()
 	end
-	
-	playerDrawHud()
 	messageUpdate(dt)
 	messageDraw()
 	playerDrawMenu()
