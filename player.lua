@@ -239,6 +239,7 @@ function playerCastSpell(i)
 				if not spell.direction or playerDirection then
 					if spell.name == 'Roll' then playerSpellRoll(spell) end
 					if spell.name == 'Shoutout' then playerSpellShoutout(spell) end
+					if spell.name == 'Spin Slice' then playerSpellSpinSlice(spell) end
 					--- Spell has been cast.  Turn off getting direction, 
 					--- Subtract mana, close spell menu, and end player turn.
 					playerGetDirection = false
@@ -254,11 +255,29 @@ function playerCastSpell(i)
 				playerCastingSpell = false
 				playerDirection = false
 				playerMenu = false
+				gameSetRedrawAll()
 				return false
 			end
 		end
 	end
 	return false
+end
+
+--- playerSpellSpinSlice
+--- Spin Slice.  Hits all adjacent enemies to the player.
+function playerSpellSpinSlice(spell)
+	local sx = playerX
+	local sy = playerY
+	--- We want the message to be seen before
+	--- any hit messages.  Immersion!!!
+	messageRecieve(spell.castmsg)
+	for xx = sx-1, sx+1 do
+		for yy = sy-1, sy+1 do
+			creatureAttackedByPlayer(xx, yy, playerCalcDamage())
+		end
+	end
+	playerCastFog()
+	gameSetRedrawAll()
 end
 
 --- playerSpellRoll
@@ -275,6 +294,7 @@ function playerSpellRoll(spell)
 			break
 		end
 	end
+	playerAddMod({mod = 'dam', val = 3 * playerLevel, turn = 2, msgend = "You lower your weapon."})
 	messageRecieve(spell.castmsg)
 	playerX = sx
 	playerY = sy
@@ -572,6 +592,7 @@ end
 --- calculates player melee damage from equiped items and returns it.
 function playerCalcDamage()
 	local dam = itemGetEquipmentBonus()
+	dam = dam + playerGetMod('dam')
 	if dam == 0 then
 		dam = math.random(1, 3)
 	end
