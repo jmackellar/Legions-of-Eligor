@@ -535,9 +535,47 @@ function playerDrawMenu()
 				local spell = gameClasses[playerClass].spells[i]
 				consolePrint({string = "Cast which spell?  a-z select spell, return or spacebar to cancel.", x = 1, y = 1})
 				if spell.level <= playerLevel then
-					consolePrint({string = alphabet[alpha]:gsub("^%l", string.upper) .. " - " .. spell.name .. ", Mana:" .. spell.mana, x = 2, y = y})
-					consolePrint({string = spell.desc, x = 6, y = y + 1})
-					y = y + 2
+					--- Spell name, letter, mana cost, and description
+					local spellselect = alphabet[alpha]:gsub("^%l", string.upper) .. " - " .. spell.name
+					consolePrint({string = spellselect, x = 2, y = y, textColor = {234, 255, 0, 255}})
+					consolePrint({string = ",", x = 2 + spellselect:len(), y = y})
+					consolePrint({string = "Mana Cost:", x = 4 + spellselect:len(), y = y, textColor = {100, 100, 255, 255}})
+					consolePrint({string = spell.mana, x = 14 + spellselect:len(), y = y})
+					consolePrint({string = spell.desc, x = 6, y = y + 2})
+					
+					--- Spell scaling stats
+					local x = 5
+					if spell.scaling then
+						consolePrint({string = 'Scaling: ', x = 6, y = y + 1, textColor = {219, 192, 149, 255}})
+						x = x + 10
+						for k,v in pairs(spell.scaling) do
+							local str = k
+							local color = {255, 255, 255, 255}
+							if k == 'vit' then
+								str = 'Vitality:'
+								color = {224, 119, 119, 255}
+							elseif k == 'endur' then
+								str = 'Endurance:'
+								color = {119, 224, 119, 255}
+							elseif k == 'ment' then
+								str = 'Mentality:'
+								color = {119, 119, 224, 255}
+							elseif k == 'will' then
+								str = 'Willpower:'
+								color = {213, 115, 240, 255}
+							end
+							consolePrint({string = str, x = x, y = y + 1, textColor = color})
+							consolePrint({string = v * 100 .. "%", x = x + str:len(), y = y + 1})
+							x = x + str:len() + 5
+						end
+					end
+					
+					--- borders
+					consolePrint({string = "----------------------------------------------------------------------------------", x = 1, y = y -1})
+					consolePrint({string = "----------------------------------------------------------------------------------", x = 1, y = y +3})
+					
+					--- increment y-draw value and alphabet value
+					y = y + 4
 					alpha = alpha + 1
 				end
 			end
