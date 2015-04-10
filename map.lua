@@ -25,6 +25,7 @@ function mapInit(w, h)
 	mapHeight = h
 	map = { }
 	mapFog = { }
+	mapObjects = { }
 	for x = 1, mapWidth do
 		map[x] = { }
 		mapFog[x] = { }
@@ -156,6 +157,7 @@ function mapChangeFloor(dy, save)
 	if dy == 1 and mapCurrentFloor == mapBranch[mapCurrentBranch].floors then return end
 	if s == 'yes' then mapSave() end
 	mapCurrentFloor = mapCurrentFloor + dy
+	mapObjects = { }
 	if not mapLoad() then
 		--- a map for this level doesnt already exist, generate a new one
 		if mapBranch[mapCurrentBranch].gen == 'mapGenCave' then
@@ -241,28 +243,56 @@ end
 function mapGenBSP(w, h)
 	mapInit(w, h)
 	
+	--- Fill map with walls
+	for x = 1, mapWidth do
+		for y = 1, mapHeight do
+			map[x][y] = mapTiles.smoothwall
+		end
+	end
+	
 	local make = true
 	local wall = 1
 	local base = 1
 	local minw = 9
-	local maxw = 19
+	local maxw = 13
 	local minh = 7
-	local maxh = 12
+	local maxh = 7
 	local door = { }
 	local rooms = { }
 	local w = math.random(minw, maxw)
 	local h = math.random(minh, maxh)
 	local x = math.random(10, 70 - w)
 	local y = math.random(3, 17 - h)
+	local tries = 0
+	local dir = " "
+
+	--- Create first room
 	table.insert(rooms, {x = x, y = y, w = w, h = h})
-	while # rooms < 8 do
+	for xx = x, x + w do
+		for yy = y, y + h do
+			map[xx][yy] = mapTiles.floor
+		end
+	end
+	for xx = x, x + w do
+		if map[xx][y] == mapTiles.floor then map[xx][y] = mapTiles.smoothwall end
+		if map[xx][y+h] == mapTiles.floor then map[xx][y+h] = mapTiles.smoothwall end
+	end
+	for yy = y, y + h do
+		if map[x][yy] == mapTiles.floor then map[x][yy] = mapTiles.smoothwall end
+		if map[x+w][yy] == mapTiles.floor then map[x+w][yy] = mapTiles.smoothwall end
+	end
+	print("adding room #" .. #rooms+1 .. " " .. dir .. " at (" .. x .. "," .. y .. ") with W:" .. w .. ", H:" ..h)
+	
+	while # rooms < 12 do
+		tries = tries + 1
+		if tries >= 100 then break end
 		make = true
 		door = false
 		--- Pick a random base room
 		base = math.random(1, # rooms)
 		--- random room dimensions
-		w = math.random(minw, maxw) - math.floor(#rooms/2)
-		h = math.random(minh, maxh) - math.floor(#rooms/2)
+		w = math.random(minw, maxw)
+		h = math.random(minh, maxh)
 		--- pick a wall from the base room for the new room to
 		--- be adjacent to
 		wall = math.random(1, 2)	--- 1 = horizontal wall, 2 = vertical wall
@@ -271,9 +301,11 @@ function mapGenBSP(w, h)
 			x = math.random(rooms[base].x - 2, rooms[base].x + rooms[base].w - 3)
 			--- pick if the top or bottom wall
 			if math.random(1, 2) == 1 then	--- top
+				dir = 'top'
 				y = rooms[base].y - h
 				door = {x = x+2, y = y+h}
 			else
+				dir = 'bot'
 				y = rooms[base].y + rooms[base].h
 				door = {x = x+2, y = y}
 			end
@@ -282,9 +314,11 @@ function mapGenBSP(w, h)
 			y = math.random(rooms[base].y - 2, rooms[base].y + rooms[base].h - 3)
 			--- pick if right or left wall
 			if math.random(1, 2) == 1 then --- left
+				dir = 'left'
 				x = rooms[base].x - w
 				door = {x = x+w, y = y+2}
 			else
+				dir = 'right'
 				x = rooms[base].x + rooms[base].w
 				door = {x = x, y = y+2}
 			end
@@ -308,6 +342,11 @@ function mapGenBSP(w, h)
 		--- If we can make the room then do so
 		if make then
 			for xx = x, x + w do
+				for yy = y, y + h do
+					map[xx][yy] = mapTiles.floor
+				end
+			end
+			for xx = x, x + w do
 				if map[xx][y] == mapTiles.floor then map[xx][y] = mapTiles.smoothwall end
 				if map[xx][y+h] == mapTiles.floor then map[xx][y+h] = mapTiles.smoothwall end
 			end
@@ -318,6 +357,7 @@ function mapGenBSP(w, h)
 			if door then
 				map[door.x][door.y] = mapTiles.closeddoor
 			end
+			print("adding room #" .. #rooms+1 .. " " .. dir .. " at (" .. x .. "," .. y .. ") with W:" .. w .. ", H:" ..h)
 			table.insert(rooms, {x = x, y = y, w = w, h = h})
 		end
 	end
@@ -330,6 +370,21 @@ function mapGenBSP(w, h)
 	for y = 1, mapHeight do
 		map[1][y] = mapTiles.smoothwall
 		map[mapWidth][y] = mapTiles.smoothwall
+	end
+	
+	--- place upstairs in room 1 if applicable
+	if mapCurrentFloor > 1 then
+		local r = rooms[1]
+		local x = math.random(r.x + 1, r.x + r.w - 1)
+		local y = math.random(r.y + 1, r.y + r.h - 1)
+		mapPlaceUpstairs(x, y)
+	end
+	--- place downstairs in last room if applicable
+	if mapCurrentFloor < mapBranch[mapCurrentBranch].floors then
+		local r = rooms[#rooms]
+		local x = math.random(r.x + 1, r.x + r.w - 1)
+		local y = math.random(r.y + 1, r.y + r.h - 1)
+		mapPlaceDownstairs(x, y) 
 	end
 	
 	mapMovePlayerToSObject()
