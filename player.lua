@@ -294,7 +294,11 @@ function playerSpellRoll(spell)
 			break
 		end
 	end
-	playerAddMod({mod = 'dam', val = 3 * playerLevel, turn = 2, msgend = "You lower your weapon."})
+	
+	--- Damage bonus
+	local dam = 3 + playerScaling(spell.scaling)
+	playerAddMod({mod = 'dam', val = dam, turn = 2, msgend = "You lower your weapon."})
+	
 	messageRecieve(spell.castmsg)
 	playerX = sx
 	playerY = sy
@@ -308,6 +312,7 @@ end
 function playerSpellShoutout(spell)
 	local sx = playerX
 	local sy = playerY
+	local armor = spell.armor + playerScaling(spell.scaling)
 	for xx = math.max(1, sx - spell.dist), math.min(mapGetWidth(), sx + spell.dist) do
 		for yy = math.max(1, sy - spell.dist), math.min(mapGetHeight(), sy + spell.dist) do
 			creatureAddModAt({mod = 'armor', val = spell.armor, turn = spell.turns}, xx , yy)
@@ -545,9 +550,9 @@ function playerDrawMenu()
 					
 					--- Spell scaling stats
 					local x = 5
-					if spell.scaling then
-						consolePrint({string = 'Scaling: ', x = 6, y = y + 1, textColor = {219, 192, 149, 255}})
-						x = x + 10
+					consolePrint({string = 'Scaling: ', x = 6, y = y + 1, textColor = {219, 192, 149, 255}})
+					x = x + 10
+					if spell.scaling then	
 						for k,v in pairs(spell.scaling) do
 							local str = k
 							local color = {255, 255, 255, 255}
@@ -568,6 +573,8 @@ function playerDrawMenu()
 							consolePrint({string = v * 100 .. "%", x = x + str:len(), y = y + 1})
 							x = x + str:len() + 5
 						end
+					else
+						consolePrint({string = 'None', x = x, y = y + 1})
 					end
 					
 					--- borders
@@ -696,6 +703,26 @@ function playerAddExp(xp)
 		playerMent = playerMent + gameClasses[playerClass].levelup.ment
 		playerWill = playerWill + gameClasses[playerClass].levelup.will
 	end
+end
+
+--- playerScaling
+--- Takes passed scaling table and returns bonus value from
+--- scaled attributes
+function playerScaling(scale)
+	local bonus = 0
+	if not scale then return bonus end
+	for k,v in pairs(scale) do
+		if k == 'vit' then
+			bonus = bonus + math.floor(playerVit * v)
+		elseif k == 'endur' then
+			bonus = bonus + math.floor(playerEndur * v)
+		elseif k == 'ment' then
+			bonus = bonus + math.floor(playerMent * v)
+		elseif k == 'will' then
+			bonus = bonus + math.floor(playerWill * v)
+		end
+	end
+	return bonus
 end
 
 --- Getters
