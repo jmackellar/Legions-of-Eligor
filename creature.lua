@@ -57,6 +57,16 @@ function creatureTurn()
 			if creatures[i].seen then
 				--- Creature AI 
 				
+				--- If the creature has been seen and is out of range of the
+				--- player for a set time then revert seen to false.
+				if not mapFog[creatures[i].x][creatures[i].y].lit then
+					creatures[i].lastseen = creatures[i].lastseen + 1
+					if creatures[i].lastseen >= 15 then
+						creatures[i].seen = false
+						creatures[i].lastseen = 0
+					end
+				end
+				
 				--- Modifiers may change what AI the creature is using
 				--- for a few turns.  If the creature doesn't have any
 				--- AI modifiers then use the default AI for that creature
@@ -77,6 +87,7 @@ function creatureTurn()
 					creatureScared(creatures[i])
 				end
 			else
+				creatures[i].lastseen = 0
 				creatureWander(creatures[i])
 			end
 			--- Subtract speed check by speed value
@@ -125,6 +136,7 @@ function creatureWander(c)
 	if c.data.ai ~= 'wander' then
 		if mapIsLit(c.x, c.y) then
 			c.seen = true
+			c.lastseen = 0
 		end
 	end
 end
@@ -492,7 +504,7 @@ end
 function creatureSpawn(x, y, name)
 	if gameMonsters[name] and x > 0 and y > 0 and x <= mapGetWidth() and y <= mapGetHeight() and mapGetWalkThru(x, y) then
 		if creatureIsTileFree(x, y) and playerIsTileFree(x, y) then
-			table.insert(creatures, {data = gameMonsters[name], health = gameMonsters[name].health, x = x, y = y, speed = 0, seen = false, mod = { }})
+			table.insert(creatures, {data = gameMonsters[name], lastseen = 0, health = gameMonsters[name].health, x = x, y = y, speed = 0, seen = false, mod = { }})
 			gameSetRedrawCreature()
 			return true
 		end
