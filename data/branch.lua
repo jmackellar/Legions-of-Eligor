@@ -58,7 +58,26 @@ mapBranch = {
 		maxItems = 3,
 		items = { {name = 'shortsword', perc = 100} },
 		extraItems = { 'shortsword', 'clothpants', 'tunic' },
-		connections = { {branch = 'Dungeon', floor = 1, drop = 4} },
+		connections = { {branch = 'Dungeon', floor = 1, drop = 4},
+						{branch = 'Graves', floor = 4, drop = 1}, 
+						},
+		},
+		
+	Graves = {
+		gen = 'mapGenGrave',
+		intor = 'Graves',
+		floors = 1,
+		minCreatures = 18,
+		maxCreatures = 20,
+		maxExtraItems = 4,
+		extraItemsChance = 95,
+		creatures = { {name = 'Vulture', perc = 10}, {name = 'Spitbug', perc = 15},
+						},
+		minItems = 1,
+		maxItems = 3,
+		items = { {name = 'shortsword', perc = 100} },
+		extraItems = { 'shortsword', 'clothpants', 'tunic' },
+		connections = { {branch = 'Caves', floor = 1, drop = 4} },
 		},
 		
 }

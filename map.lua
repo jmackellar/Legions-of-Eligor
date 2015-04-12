@@ -190,6 +190,8 @@ function mapChangeFloor(dy, save)
 			mapGenJails(mapWidth, mapHeight)
 		elseif mapBranch[mapCurrentBranch].gen == 'mapGenBSP' then
 			mapGenBSP(mapWidth, mapHeight)
+		elseif mapBranch[mapCurrentBranch].gen == 'mapGenGrave' then
+			mapGenGrave(mapWidth, mapHeight)
 		end
 	else
 		playerDisableFog()
@@ -335,6 +337,19 @@ function mapDrawTile(x, y)
 		local tC = map[x][y].textColor
 		consolePut({x = xx, y = yy, char = map[x][y].char, backColor = map[x][y].backColor, textColor = tC})
 	end
+end
+
+--- mapGenGrave
+--- Graveyard with boss holding the Rusted Key
+function mapGenGrave(w, h)
+	mapInit(w, h)
+	mapMovePlayerToSObject()
+	playerCastFog()
+	mapGenerateCreatures()
+	itemGenerate()
+	mapPlaceSpecialTiles()
+	mapPlaceConnections()
+	gameSetRedrawAll()
 end
 
 --- mapGenBSP
