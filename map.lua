@@ -8,6 +8,7 @@ local mapWidth = 80
 local mapHeight = 20
 local map = { }
 local mapSeen = { }
+local mapEffect = { }
 
 local mapCurrentBranch = 'Dungeon'
 local mapCurrentFloor = 1
@@ -26,12 +27,15 @@ function mapInit(w, h)
 	map = { }
 	mapFog = { }
 	mapObjects = { }
+	mapEffect = { }
 	for x = 1, mapWidth do
 		map[x] = { }
 		mapFog[x] = { }
+		mapEffect[x] = { }
 		for y = 1, mapHeight do
 			map[x][y] = mapTiles.floor
 			mapFog[x][y] = {seen = false, lit = false}
+			mapEffect[x][y] = false
 		end
 	end
 end
@@ -44,6 +48,18 @@ function mapDraw()
 			mapDrawTile(x, y)
 		end
 	end
+end
+
+--- mapDrawEffects
+--- Draws all map effects
+function mapDrawEffects()
+	for x = 1, mapWidth do
+		for y = 1, mapHeight do
+			mapDrawTileEffect(x, y)
+		end
+	end
+	gameSetRedrawPlayer()
+	gameSetRedrawCreature()
 end
 
 --- mapGenerateCreatures
@@ -121,12 +137,15 @@ function mapSave()
 	m = tostring(mapCurrentBranch .. mapCurrentFloor .. ".lua")
 	mf = tostring(mapCurrentBranch .. mapCurrentFloor .. "fog.lua")
 	mo = tostring(mapCurrentBranch .. mapCurrentFloor .. "objects.lua")
+	me = tostring(mapCurrentBranch .. mapCurrentFloor .. "effect.lua")
 	love.filesystem.newFile(m)
 	love.filesystem.newFile(mf)
 	love.filesystem.newFile(mo)
+	love.filesystem.newFile(me)
 	love.filesystem.write(m, Ser(map))
 	love.filesystem.write(mf, Ser(mapFog))
 	love.filesystem.write(mo, Ser(mapObjects))
+	love.filesystem.write(me, Ser(mapEffect))
 end
 
 --- mapLoad
@@ -137,13 +156,16 @@ function mapLoad()
 	m = tostring(mapCurrentBranch .. mapCurrentFloor .. ".lua")
 	mf = tostring(mapCurrentBranch .. mapCurrentFloor .. "fog.lua")
 	mo = tostring(mapCurrentBranch .. mapCurrentFloor .. "objects.lua")
-	if love.filesystem.exists(m) and love.filesystem.exists(mf) and love.filesystem.exists(mo) then
+	me = tostring(mapCurrentBranch .. mapCurrentFloor .. "effect.lua")
+	if love.filesystem.exists(m) and love.filesystem.exists(mf) and love.filesystem.exists(mo) and love.filesystem.exists(me) then
 		local c1 = love.filesystem.load(m)
 		local c2 = love.filesystem.load(mf)
 		local c3 = love.filesystem.load(mo)
+		local c4 = love.filesystem.load(me)
 		map = c1()
 		mapFog = c2()
 		mapObjects = c3()
+		mapEffect = c4()
 		return true
 	end
 	return false
@@ -216,6 +238,82 @@ function mapUseConnection(x, y)
 	playerCastFog()
 end
 
+--- mapAddTileEffect
+--- Adds a passed effect with type and turn count to passed tile coordinates.
+function mapAddTileEffect(x, y, efct)
+	--- Create a new effect table passed on the passed table
+	--- this is because we want all map tiles to have their own unique 
+	--- table, and when declaring new tables that equal an old table
+	--- Lua doesn't duplicate the table, it points the new one to the old one.
+	local effect = { }
+	for k,v in pairs(efct) do
+		effect[k] = v
+	end
+	if x > 1 and x < mapWidth and y > 1 and y < mapHeight then
+		mapEffect[x][y] = effect
+		gameSetRedrawAll()
+	end
+end
+
+--- mapUpdateTileEffect
+--- Updates tile effects every turn.
+function mapUpdateTileEffect()
+	local msg = { }
+	for x = 1, mapWidth do
+		for y = 1, mapHeight do
+			--- If a mapTile has an effect table then update
+			--- all the effects in that table.
+			if mapEffect[x][y] then
+			
+				--- Tick turn counter
+				mapEffect[x][y].turn = mapEffect[x][y].turn - 1
+				
+				--- If effects time has run out playe end message and
+				--- then delete the effect
+				if mapEffect[x][y].turn <= 0 then
+					--- Add the end message to the msg table if that
+					--- message isn't already in the table
+					local intable = false
+					for i = 1, # msg do
+						if msg[i] == mapEffect[x][y].endmsg then
+							intable = true
+						end
+					end
+					if not intable then
+						table.insert(msg, mapEffect[x][y].endmsg)
+					end
+					--- Now remove the effect
+					mapEffect[x][y] = false
+					
+				--- The effect still exists, if the player is on
+				--- the effected tile then take damage and display
+				--- hurt message.
+				else
+					if playerGetX() == x and playerGetY() == y then
+						messageRecieve(mapEffect[x][y].hurtmsg)
+						playerRecieveDamage(mapEffect[x][y].dam)
+					end
+				end
+			end
+		end
+	end
+	--- Send all messages from the msg table to the message handler
+	for i = 1, # msg do
+		messageRecieve(msg[i])
+	end
+end
+
+--- mapDrawTileEffect
+--- Draws targeted tile's map effect if one exists.
+function mapDrawTileEffect(x, y)
+	if mapEffect[x][y] then
+		local xx = mapStartX + (x - 1)
+		local yy = mapStartY + (y - 1)
+		print("TRUE " .. x .. " " .. y)
+		consolePut({x = xx, y = yy, char = mapEffect[x][y].char, backColor = mapEffect[x][y].backColor, textColor = mapEffect[x][y].textColor})
+	end
+end
+
 --- mapDrawTile
 --- draws specified tile.
 function mapDrawTile(x, y)
@@ -225,6 +323,7 @@ function mapDrawTile(x, y)
 	if not debugDisableFog then
 		local tC = map[x][y].textColor		
 		if mapFog[x][y].lit then		
+			--- If mapTile is currently visible to the player then draw the tile lit up
 			consolePut({x = xx, y = yy, char = map[x][y].char, backColor = map[x][y].backColor, textColor = tC})
 		elseif mapFog[x][y].seen then
 			local tc = {tC[1], tC[2], tC[3], 100}

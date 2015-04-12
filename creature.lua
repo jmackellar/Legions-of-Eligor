@@ -184,6 +184,39 @@ function creatureSummon(c, s)
 	messageRecieve(c.data.prefix .. c.data.name .. " summons other creatures.")
 end
 
+--- creatureMapEffectSpell(c)
+--- Takes a passed spell that adds effects to the map.
+function creatureMapEffectSpell(c, s)
+	--- First find the right target.
+	local x = c.x
+	local y = c.y
+	if s.target == 'player' then
+		x = playerGetX()
+		y = playerGetY()
+	end
+	
+	--- Next add effect to the map based on spell shape centered 
+	--- around the target.
+	if s.shape == 'square' then
+		---		.....
+		---		.XXX.
+		---		.XCX.
+		---		.XXX.
+		---		.....
+		local sx = x - math.floor(s.size / 2)
+		local sy = y - math.floor(s.size / 2)
+		for xx = sx, sx + s.size do
+			for yy = sy, sy + s.size do
+				mapAddTileEffect(xx, yy, s.effect)
+			end
+		end
+	end
+	
+	--- Now print the spell casting message.
+	gameSetRedrawAll()
+	messageRecieve(c.data.prefix .. c.data.name .. " " .. s.effect.castmsg)
+end
+
 --- creatureCastSpell(c)
 --- Takes a creature and attempts to cast any spells.  Will not cast spells
 --- that don't make sense in certain situations, and will not cast spells that
@@ -204,8 +237,14 @@ function creatureCastSpell(c)
 				creatureSummon(c, c.data.spells[i])
 				c.data.spells[i].cd = c.data.spells[i].cooldown
 				return true
+			--- Modify nearby monsters
 			elseif c.data.spells[i].name == 'addmod' then
 				creatureAddMod(c, c.data.spells[i])
+				c.data.spells[i].cd = c.data.spells[i].cooldown
+				return true
+			--- Add tile effects
+			elseif c.data.spells[i].name == 'mapeffect' then
+				creatureMapEffectSpell(c, c.data.spells[i])
 				c.data.spells[i].cd = c.data.spells[i].cooldown
 				return true
 			end
@@ -265,7 +304,6 @@ function creatureScared(c)
 	local dy = 0
 	local dist = math.sqrt( (c.x - playerGetX())^2 + (c.y - playerGetY())^2 )
 	local move = false
-	print(dist)
 	--- Attempt to stay more than three tiles away from the player.
 	--- If creature health is less than 6 then also run away from the player.
 	if (dist <= 5 and dist > 2) or c.data.health <= 5 then

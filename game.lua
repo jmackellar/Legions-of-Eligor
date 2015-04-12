@@ -57,6 +57,9 @@ function gameUpdate(dt)
 		itemDraw()
 		redrawItem = false
 	end
+	
+	mapDrawEffects()
+
 	if redrawPlayer then
 		playerDraw()
 		redrawPlayer = false
@@ -135,6 +138,7 @@ function gameFlipPlayerTurn()
 		playerTurn = false
 		playerRegenTurn()
 		playerModifierUpdate()
+		mapUpdateTileEffect()
 	else
 		playerTurn = true
 	end
