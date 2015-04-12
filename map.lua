@@ -1218,6 +1218,7 @@ end
 --- Places guaranteed special tiles as defined in data/branch.lua
 function mapPlaceSpecialTiles()
 	local specialTiles = mapBranch[mapCurrentBranch].tiles
+	if not specialTiles then return end
 	for i = 1, # specialTiles do
 		if mapGetCurrentFloor() == specialTiles[i].floor then
 			local tile = specialTiles[i]

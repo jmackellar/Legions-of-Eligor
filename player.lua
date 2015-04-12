@@ -189,7 +189,7 @@ function playerSave()
 	local t = {playerX = playerX, playerY = playerY, playerHealth = playerHealth, playerHealthMax = playerHealthMax, 
 				playerMana = playerMana, playerManaMax = playerManaMax, playerVit = playerVit, playerMent = playerMent, 
 				playerEnd = playerEnd, playerWill = playerWill, mapCurrentBranch = mapGetCurrentBranch(),
-				mapCurrentFloor = mapGetCurrentFloor()}
+				mapCurrentFloor = mapGetCurrentFloor(), playerLevel = playerLevel, playerExp = playerExp}
 	love.filesystem.write(p, Ser(t))
 end
 
@@ -209,6 +209,8 @@ function playerLoad()
 		playerMent = t1.playerMent
 		playerEnd = t1.playerEnd
 		playerWill = t1.playerWill 
+		playerLevel = t1.playerLevel
+		playerExp = t1.playerExp
 		mapSetCurrentBranch(t1.mapCurrentBranch)
 		mapSetCurrentFloor(t1.mapCurrentFloor)
 		return true

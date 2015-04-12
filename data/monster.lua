@@ -91,6 +91,20 @@ gameMonsters = {
 		xp = 2,
 		},
 		
+	Vulture = {
+		name = 'Vulture',
+		prefix = 'the ',
+		char = 'v',
+		textColor = {237, 233, 228, 255},
+		backColor = {0, 0, 0, 255},
+		health = 12,
+		armor = 0,
+		damage = {dice = 1, sides = 2, bonus = 0},
+		ai = 'scared',
+		speed = 50,
+		xp = 3,
+		},
+		
 	Skeleton = {
 		name = 'Skeleton',
 		prefix = 'the ',

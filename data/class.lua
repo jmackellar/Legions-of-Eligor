@@ -19,7 +19,7 @@ gameClasses = {
 					castmsg = 'You roll forward.  You pounce off the ground and raise your weapon.',
 					scaling = {endur = 0.50, will = 0.1},
 					},
-					{name = 'Spin Slice', direction = false, dist = 1, mana = 10, level = 1,
+					{name = 'Spin Slice', direction = false, dist = 1, mana = 10, level = 2,
 					desc = 'Swing your weapon in a circle around yourself hitting adjacent enemies.',
 					castmsg = 'You spin around swinging in a circle.',
 					},
