@@ -88,8 +88,9 @@ mapBranch = {
 							},
 		minItems = 1,
 		maxItems = 3,
-		items = { {name = 'shortsword', perc = 100} },
-		extraItems = { 'shortsword', 'clothpants', 'tunic' },
+		items = { {name = 'stone', perc = 55}, {name = 'dart', perc = 25}, {name = 'bandage', perc = 20} },
+		extraItems = { 'tunic', 'clothpants', 'sandels', 'shortsword', 'potionhealing', 'potionmanagain', 'potionpoison', 
+						'dagger', 'bandage', 'stone', 'dart', 'potionspeed', 'potionslow', },
 		connections = { {branch = 'Caves', floor = 1, drop = 4} },
 		},
 		
