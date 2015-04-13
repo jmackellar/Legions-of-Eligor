@@ -81,15 +81,18 @@ function gameUpdate(dt)
 end
 
 function gameKeypressed(key)
-	if playerGetHealth() <= 0 then return end
-	if itemKeypressed(key) then return end
-	if not messageGetRestrictKeypress() then
-		if debugGetMenuOpen() then return end
-		if playerTurn then
-			if playerKeypressed(key) then return end
+	if playerGetHealth() > 0 then
+		if itemKeypressed(key) then return end
+		if not messageGetRestrictKeypress() then
+			if debugGetMenuOpen() then return end
+			if playerTurn then
+				if playerKeypressed(key) then return end
+			end
 		end
+		messageKeypressed(key)
+	else
+		messageKeypressed(key)
 	end
-	messageKeypressed(key)
 end
 
 --- gameSave

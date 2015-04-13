@@ -34,8 +34,9 @@ function creatureLoad(prefix)
 	return false
 end
 
-function creatureCalcDamage(dam)
-	local d = 0
+function creatureCalcDamage(c)
+	local dam = c.data.damage
+	local d = 0 + creatureGetModVal(c, 'damage')
 	for i = 1, dam.sides do
 		d = d + math.random(1, dam.dice)
 		d = d + dam.bonus
@@ -50,7 +51,7 @@ function creatureTurn()
 		--- If creatures speed check is greater than or equal to their
 		--- speed value then they take turns until the speed value is
 		--- greater than the speed check.
-		creatures[i].speed = creatures[i].speed + playerGetSpeed()
+		creatures[i].speed = (creatures[i].speed + creatureGetModVal(creatures[i], 'speed') ) + playerGetSpeed()
 		--- Tick down modifiers every turn
 		creatureTickMod(creatures[i])
 		while creatures[i].speed >= creatures[i].data.speed do
@@ -113,6 +114,14 @@ function creatureAttackedByPlayer(x, y, dam, msg3)
 				msg = "You hit " .. creatures[i].data.prefix .. creatures[i].data.name .. "."
 			end
 			if creatures[i].health < 1 then
+				--- Death drops
+				if creatures[i].data.deathItem then
+					for j = 1, # creatures[i].data.deathItem do
+						local item = gameItems[creatures[i].data.deathItem[j]]
+						itemPlace(item, creatures[i].x, creatures[i].y)
+					end
+				end
+				--- die
 				msg = msg .. "  You killed " .. creatures[i].data.prefix .. creatures[i].data.name .. "."			
 				mapDrawTile(x, y)
 				playerAddExp(creatures[i].data.xp)
@@ -131,7 +140,7 @@ function creatureWander(c)
 		c.x = c.x + dx
 		c.y = c.y + dy
 	elseif not playerIsTileFree(c.x + dx, c.y + dy) then
-		playerAttackedByCreature(c.data.name, c.data.prefix, creatureCalcDamage(c.data.damage))
+		playerAttackedByCreature(c.data.name, c.data.prefix, creatureCalcDamage(c))
 	end
 	if c.data.ai ~= 'wander' then
 		if mapIsLit(c.x, c.y) then
@@ -146,15 +155,19 @@ end
 --- If target name is 'all' then all monsters get the mod, else only
 --- monsters with the name that is targeted get the modifier.
 function creatureAddMod(c, s)
-	local x1 = math.max(1, c.x - 6)
-	local x2 = math.min(mapGetWidth(), c.x + 6)
-	local y1 = math.max(1, c.y - 6)
-	local y2 = math.min(mapGetHeight(), c.y + 6)
+	local x1 = math.max(1, c.x - s.range)
+	local x2 = math.min(mapGetWidth(), c.x + s.range)
+	local y1 = math.max(1, c.y - s.range)
+	local y2 = math.min(mapGetHeight(), c.y + s.range)
 	local montype = s.monster
-	if montype == 'all' then
-		messageRecieve(c.data.prefix .. c.data.name .. " modifies all nearby monsters.")
+	if not s.castmsg then
+		if montype == 'all' then
+			messageRecieve(c.data.prefix .. c.data.name .. " modifies all nearby monsters.")
+		else
+			messageRecieve(c.data.prefix .. c.data.name .. " modifies all nearby " .. montype)
+		end
 	else
-		messageRecieve(c.data.prefix .. c.data.name .. " modifies all nearby " .. montype)
+		messageRecieve(s.castmsg)
 	end
 	for xx = x1, x2 do
 		for yy = y1, y2 do
@@ -347,7 +360,7 @@ function creatureScared(c)
 				c.y = c.y + dy
 			--- Player is on targeted tile.  Attack!
 			elseif not playerIsTileFree(c.x + dx, c.y + dy) then
-				playerAttackedByCreature(c.data.name, c.data.prefix, creatureCalcDamage(c.data.damage))
+				playerAttackedByCreature(c.data.name, c.data.prefix, creatureCalcDamage(c))
 			--- Else if we can't move to that tile at all pick a new one and try again.
 			else
 				move = false
@@ -428,7 +441,7 @@ function creatureRanged(c)
 			c.x = c.x + dx
 			c.y = c.y + dy
 		elseif not playerIsTileFree(c.x + dx, c.y + dy) then
-			playerAttackedByCreature(c.data.name, c.data.prefix, creatureCalcDamage(c.data.damage))
+			playerAttackedByCreature(c.data.name, c.data.prefix, creatureCalcDamage(c))
 		end
 	end
 end
@@ -496,7 +509,7 @@ function creatureGrunt(c)
 				c.y = c.y + dy
 			end
 		elseif not playerIsTileFree(c.x + dx, c.y + dy) then
-			playerAttackedByCreature(c.data.name, c.data.prefix, creatureCalcDamage(c.data.damage))
+			playerAttackedByCreature(c.data.name, c.data.prefix, creatureCalcDamage(c))
 		end
 	end
 end

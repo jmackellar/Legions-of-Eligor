@@ -143,6 +143,7 @@ end
 
 --- itemDrawInventory
 --- draws the inventory screen.
+--- This shits a disgusting mess.
 function itemDrawInventory()
 	if itemsInventoryDrawInventoryOff then
 		return 
@@ -444,6 +445,12 @@ function itemPickup(x, y)
 		messageRecieve("You don't have enough room in your bag to pick anything up.")
 	end
 	gameSetRedrawAll()
+end
+
+--- itemPlace
+--- Takes passed item data and places it on the map
+function itemPlace(item, x , y)
+	table.insert(items, {data = item, x = x, y = y})
 end
 
 --- itemGenerate
