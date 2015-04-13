@@ -428,6 +428,7 @@ function itemPickup(x, y)
 	else
 		messageRecieve("You don't have enough room in your bag to pick anything up.")
 	end
+	gameSetRedrawAll()
 end
 
 --- itemGenerate
