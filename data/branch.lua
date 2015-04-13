@@ -69,7 +69,7 @@ mapBranch = {
 		
 	Graves = {
 		gen = 'mapGenGrave',
-		intor = 'Graves',
+		intro = 'Graves',
 		floors = 1,
 		minCreatures = 18,
 		maxCreatures = 20,

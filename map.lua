@@ -343,12 +343,102 @@ end
 --- Graveyard with boss holding the Rusted Key
 function mapGenGrave(w, h)
 	mapInit(w, h)
+	
+	--- Grass
+	for x = 1, mapWidth do
+		for y = 1, mapHeight do
+			map[x][y] = mapTiles.grass
+		end
+	end
+	
+	--- Outside Fence
+	for x = 1, mapWidth do
+		map[x][1] = mapTiles.fence
+		map[x][mapHeight - 1] = mapTiles.fence
+	end
+	for y = 1, mapHeight do
+		map[1][y] = mapTiles.fence
+		map[mapWidth - 1][y] = mapTiles.fence
+	end
+	
+	--- tombstones
+	for x = 6, mapWidth - 7, 3 do
+		for y = 5, mapHeight - 5, 3 do
+			if love.math.random(1, 100) <= 65 then
+				map[x][y] = mapTiles.tombstone
+				map[x][y+1] = mapTiles.floor
+			end
+		end
+	end
+	
+	--- trees
+	local placed = 0
+	while placed < 15 do
+		local x = love.math.random(4, mapWidth - 4)
+		local y = love.math.random(4, mapHeight - 4)
+		if map[x][y] == mapTiles.grass then
+			map[x][y] = mapTiles.deadtree
+			placed = placed + 1
+		end
+	end
+	
+	--- Central tomb
+	---	###...###
+	--- #.......#
+	--- .........
+	--- .........
+	--- #.......#
+	--- ###...###
+	local sx = love.math.random(21, 55)
+	local sy = love.math.random(6, 9)
+	local w = 8
+	local h = 5
+	for x = sx - 1, sx + w + 1 do
+		for y = sy - 1, sy + h + 1 do
+			map[x][y] = mapTiles.grass
+		end
+	end
+	map[sx+4][sy+2] = mapTiles.smoothwall
+	map[sx+4][sy+3] = mapTiles.floor
+	for x = sx, sx + 2 do
+		map[x][sy] = mapTiles.fence
+		map[x][sy+h] = mapTiles.fence
+	end
+	map[sx][sy+1] = mapTiles.fence
+	map[sx][sy+4] = mapTiles.fence
+	for x = sx+6, sx+w do
+		map[x][sy] = mapTiles.fence
+		map[x][sy+h] = mapTiles.fence
+	end
+	map[sx+w][sy+1] = mapTiles.fence
+	map[sx+w][sy+4] = mapTiles.fence
+	
+	--- inner fence
+	for x = 5, mapWidth - 6 do
+		if x < 30 or x > 50 then
+			map[x][4] = mapTiles.fence
+			map[x][mapHeight - 4] = mapTiles.fence
+		end
+	end
+	for y = 4, mapHeight - 4 do
+		if y < 7 or y > 13 then
+			map[5][y] = mapTiles.fence
+			map[mapWidth - 5][y] = mapTiles.fence
+		end
+	end
+	
+	--- Stairway connection
+	local stairs = {{3, 10}, {40, 3}, {40, 18}, {77, 10}}
+	local dice = love.math.random(1, 4)
+	--- name connection drop x y
+	map[stairs[dice][1]][stairs[dice][2]] = mapTiles.connection
+	table.insert(mapObjects, {name = 'connection', connection = 'Caves', drop = 4, x = stairs[dice][1], y = stairs[dice][2]})
+	
 	mapMovePlayerToSObject()
 	playerCastFog()
 	mapGenerateCreatures()
 	itemGenerate()
 	mapPlaceSpecialTiles()
-	mapPlaceConnections()
 	gameSetRedrawAll()
 end
 

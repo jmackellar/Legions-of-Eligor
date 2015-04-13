@@ -90,6 +90,42 @@ mapTiles = {
 		textColor = {120, 255, 255, 255},
 		},
 		
+	fence = {
+		char = '#',
+		name = 'fence',
+		walkThru = false,
+		seeThru = true,
+		backColor = {0, 0, 0, 255},
+		textColor = {150, 150, 150, 255},
+		},
+		
+	grass = {
+		char = '.',
+		name = 'floor',
+		walkThru = true,
+		seeThru = true,
+		backColor = {0, 25, 0, 255},
+		textColor = {0, 255, 0, 255},
+		},
+		
+	tombstone = {
+		char = '+',
+		name = 'tombstone',
+		walkThru = false,
+		seeThru = true,
+		backColor = {55, 55, 55, 255},
+		textColor = {185, 185, 185, 255},
+		},
+		
+	deadtree = {
+		char = 'T',
+		name = 'deadtree',
+		walkThru = false,
+		seeThru = true,
+		backColor = {74, 62, 53, 255},
+		textColor = {171, 133, 84, 255},
+		},
+		
 	identify = {
 		char = '÷',
 		name = 'identify',
