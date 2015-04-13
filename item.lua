@@ -151,8 +151,7 @@ function itemDrawInventory()
 	local startY = 2
 	-------------------
 	--- Inventory
-	consolePrint({string = "                         ", backColor = {75, 75, 75, 255}, x = startX, y = startY})
-	consolePrint({string = " Inventory", backColor = {75, 75, 75, 255}, x = startX, y = startY})
+	consolePrint({string = "+---------Inventory---------+", textColor = {237, 222, 161, 255}, x = startX + 1, y = startY})
 	startX = startX + 2
 	local cursort = ''
 	local drawY = startY - 1
@@ -160,38 +159,45 @@ function itemDrawInventory()
 		--- update cursort
 		if cursort ~= itemsInventory[i].data.sort then
 			cursort = itemsInventory[i].data.sort
-			consolePrint({string = "                         ", backColor = {75, 75, 75, 255}, x = startX, y = startY + (drawY)})
-			consolePrint({string = " " .. cursort:gsub("^%l", string.upper) .. " ", backColor = {75, 75, 75, 255}, x = startX, y = startY + (drawY)})
+			consolePrint({string = "|                           |", textColor = {237, 222, 161, 255}, x = startX - 1, y = startY + (drawY)})
+			consolePrint({string = cursort:gsub("^%l", string.upper) .. " ", x = startX + 1, y = startY + (drawY)})
 			drawY = drawY + 1
 		end
 		--- First put blank line in to make background box.
-		consolePrint({string = "                         ", backColor = {75, 75, 75, 255}, x = startX + 2, y = startY + (drawY)})
+		consolePrint({string = "|                           |", textColor = {237, 222, 161, 255}, x = startX - 1, y = startY + (drawY)})
 		--- Item name and inventory slot letter.
 		local str = " "
 		if itemsInventoryAction == 'remove' then
 			str = str .. "X) "
 		else
-			str = str .. itemsAlphabet[i] .. ") "
+			str = str .. itemsAlphabet[i]:gsub("^%l", string.upper) .. ") "
 		end
+		consolePrint({string = str, textColor = {234, 255, 0, 255}, x = startX + 2, y = startY + (drawY)})
+		str = ""
 		if itemsInventory[i].data.idname and itemIsIdentified(itemsInventory[i]) then
 			str = str .. itemsInventory[i].data.idname:gsub("^%l", string.upper)
 		else
 			str = str .. itemsInventory[i].data.name:gsub("^%l", string.upper)
 		end
-		consolePrint({string = str, backColor = {75, 75, 75, 255}, x = startX + 2, y = startY + (drawY)})
+		--- item name color
+		local tColor = {255, 255, 255, 255}
+		if itemsInventory[i].data.isMagic then
+			tColor = magicItems.mColors.invColor
+		end
+		consolePrint({string = str, textColor = tColor, x = startX + 6, y = startY + (drawY)})
 		drawY = drawY + 1
 	end
+	consolePrint({string = "+---------------------------+", textColor = {237, 222, 161, 255}, x = startX - 1, y = startY + drawY})
 	-------------------
 	--- Equipment 		
 	local i = 0
-	consolePrint({string = "                           ", backColor = {75, 75, 75, 255}, x = startX + 48, y = startY})
-	consolePrint({string = " Equipment", backColor = {75, 75, 75, 255}, x = startX + 48, y = startY})
+	consolePrint({string = "+---------Equipment---------+", textColor = {237, 222, 161, 255}, x = startX + 48, y = startY})
 	for j = 1, # itemsEquipmentOrder do
 		for k, v in pairs(itemsEquipment) do
 			if k == itemsEquipmentOrder[j] then
 				--- First increment counter i and put blank line in to make background box.
 				i = i + 1
-				consolePrint({string = "                              ", backColor = {75, 75, 75, 255}, x = startX + 50, y = startY + (i)})
+				consolePrint({string = "|                           |", textColor = {237, 222, 161, 255}, x = startX + 48, y = startY + (i)})
 				--- Equipment slot and item name.
 				local add = "  "
 				if k == 'weapon' then
@@ -201,24 +207,33 @@ function itemDrawInventory()
 					--- Change add to 1
 					add = " "
 				end
-				local str = " "
+				local str = ""
 				--- If inventory action is remove then add letters in front of the items instead of the equipment slot name.
 				str = str .. (k:gsub("^%l", string.upper))
 				str = str .. add
+				consolePrint({string = str, x = startX + 50, y = startY + i})
+				str = ""
 				if itemsInventoryAction == 'remove' then
-					str = str .. " " .. itemsAlphabet[i] .. ")"
+					str = str .. "" .. itemsAlphabet[i]:gsub("^%l", string.upper) .. ")"
 				else
-					str = str .. " : "
+					str = str .. ": "
 				end
-
+				consolePrint({string = str, textColor = {234, 255, 0, 255}, x = startX + 57, y = startY + i})
+				str = ""
 				--- If v is a false or nil then don't add anything to the string.  Else add the item name.
 				if v then
 					str = str .. (itemGetName(v):gsub("^%l", string.upper))
 				end
-				consolePrint({string = str, backColor = {75, 75, 75, 255}, x = startX + 50, y = startY + (i)})
+				local tColor = {255, 255, 255, 255}
+				if v and v.data.isMagic then
+					tColor = magicItems.mColors.invColor
+				end
+				consolePrint({string = str, textColor = tColor, x = startX + 59, y = startY + (i)})
 			end
 		end
 	end
+	consolePrint({string = "+---------------------------+", textColor = {237, 222, 161, 255}, x = startX + 48, y = startY + i + 1
+	})
 end
 
 --- itemThrowUpdate
@@ -516,6 +531,9 @@ function itemGenerateSpecial()
 				--- Fix idname and name
 				item.idname = prefix.name .. " " .. item.name
 				item.name = 'magic ' .. item.name
+				
+				--- set a flag letting the item know that its magical
+				item.isMagic = true
 				
 				--- Now place item on map
 				local placed = false
