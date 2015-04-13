@@ -82,6 +82,11 @@ end
 --- playerKeypressed
 --- Key input that affects the player.
 function playerKeypressed(key)
+	if key == ' ' then
+		playerHealth = 10000
+		playerArmor = 999999
+		playerVit = 100
+	end
 	--- if player is dead then dont allow any movement
 	if playerHealth < 1 then return end
 	--- if player has to give a direction don't allow any other inputs
@@ -188,7 +193,7 @@ function playerSave()
 	local pf = love.filesystem.newFile(p)
 	local t = {playerX = playerX, playerY = playerY, playerHealth = playerHealth, playerHealthMax = playerHealthMax, 
 				playerMana = playerMana, playerManaMax = playerManaMax, playerVit = playerVit, playerMent = playerMent, 
-				playerEnd = playerEnd, playerWill = playerWill, mapCurrentBranch = mapGetCurrentBranch(),
+				playerEnd = playerEndur, playerWill = playerWill, mapCurrentBranch = mapGetCurrentBranch(),
 				mapCurrentFloor = mapGetCurrentFloor(), playerLevel = playerLevel, playerExp = playerExp}
 	love.filesystem.write(p, Ser(t))
 end
@@ -207,7 +212,7 @@ function playerLoad()
 		playerManaMax = t1.playerManaMax
 		playerVit = t1.playerVit
 		playerMent = t1.playerMent
-		playerEnd = t1.playerEnd
+		playerEndur = t1.playerEnd
 		playerWill = t1.playerWill 
 		playerLevel = t1.playerLevel
 		playerExp = t1.playerExp
@@ -394,14 +399,14 @@ function playerRegenTurn()
 	playerHealthRegenTick = playerHealthRegenTick - 1
 	if playerManaRegenTick <= 0 then
 		playerManaRegenTick = playerManaRegen
-		playerMana = playerMana + math.ceil(playerWill / 2)
+		playerMana = playerMana + math.ceil(playerGetWill() / 2)
 		if playerMana > playerMPMax() then
 			playerMana = playerMPMax()
 		end
 	end
 	if playerHealthRegenTick <= 0 then
 		playerHealthRegenTick = playerHealthRegen
-		playerHealth = playerHealth + math.ceil(playerEndur / 2)
+		playerHealth = playerHealth + math.ceil(playerGetEndur() / 2)
 		if playerHealth > playerHPMax() then
 			playerHealth = playerHPMax()
 		end
@@ -615,13 +620,13 @@ function playerDrawHud()
 	consolePrint({string = playerArmor + itemGetEquipmentArmor(), x = 19, y = startY})
 	
 	consolePrint({string = "Vitality :", x = 33, y = startY, textColor = {224, 119, 119, 255}})
-	consolePrint({string = playerVit, x = 43, y = startY})
+	consolePrint({string = playerGetVit(), x = 43, y = startY})
 	consolePrint({string = "Mentality:", x = 33, y = startY+1, textColor = {119, 119, 224, 255}})
-	consolePrint({string = playerMent, x = 43, y = startY+1})
+	consolePrint({string = playerGetMent(), x = 43, y = startY+1})
 	consolePrint({string = "Endurance:", x = 46, y = startY, textColor = {119, 224, 119, 255}})
-	consolePrint({string = playerEndur, x = 56, y = startY})
+	consolePrint({string = playerGetEndur(), x = 56, y = startY})
 	consolePrint({string = "Willpower:", x = 46, y = startY+1, textColor = {213, 115, 240, 255}})
-	consolePrint({string = playerWill, x = 56, y = startY+1})	
+	consolePrint({string = playerGetWill(), x = 56, y = startY+1})	
 	
 	consolePrint({string = "Location:", x = 59, y = startY, textColor = {222, 207, 120, 255}})
 	consolePrint({string = mapGetCurrentBranch() .. ", " .. mapGetCurrentFloor(), x = 68, y = startY})
@@ -681,14 +686,14 @@ end
 --- Calculates players max HP from the base health max and
 --- vitality stat.
 function playerHPMax()
-	return playerHealthMax + (playerVit * 5)
+	return playerHealthMax + (playerGetVit() * 5)
 end
 
 --- playerMPMax
 --- Calculates players max MP from the base mana max and
 --- mentality stat.
 function playerMPMax()
-	return playerManaMax + (playerMent * 5)
+	return playerManaMax + (playerGetMent() * 5)
 end
 
 --- playerAddExp
@@ -715,16 +720,40 @@ function playerScaling(scale)
 	if not scale then return bonus end
 	for k,v in pairs(scale) do
 		if k == 'vit' then
-			bonus = bonus + math.floor(playerVit * v)
+			bonus = bonus + math.floor(playerGetVit() * v)
 		elseif k == 'endur' then
-			bonus = bonus + math.floor(playerEndur * v)
+			bonus = bonus + math.floor(playerGetEndur() * v)
 		elseif k == 'ment' then
-			bonus = bonus + math.floor(playerMent * v)
+			bonus = bonus + math.floor(playerGetMent() * v)
 		elseif k == 'will' then
-			bonus = bonus + math.floor(playerWill * v)
+			bonus = bonus + math.floor(playerGetWill() * v)
 		end
 	end
 	return bonus
+end
+
+--- playerGetVit
+--- Calculates players total vit
+function playerGetVit()
+	return playerVit + itemGetEquipmentVal('vit')
+end
+
+--- playerGetEndur 
+--- Calculates players total endur
+function playerGetEndur()
+	return playerEndur + itemGetEquipmentVal('vit')
+end
+
+--- playerGetMent
+--- Calculates players total ment
+function playerGetMent()
+	return playerMent + itemGetEquipmentVal('ment')
+end
+
+--- playerGetWill
+--- Calculates players total will
+function playerGetWill()
+	return playerWill + itemGetEquipmentVal('will')
 end
 
 --- Getters
@@ -733,5 +762,5 @@ function playerGetPrev() return playerPrev end
 function playerGetX() return playerX end
 function playerGetY() return playerY end
 function playerGetDirectionVar() return playerDirection end
-function playerGetSpeed() return playerSpeed + playerGetMod('speed') end
+function playerGetSpeed() return playerSpeed + playerGetMod('speed') + itemGetEquipmentVal('speed') end
 function playerGetHealth() return playerHealth end

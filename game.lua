@@ -7,6 +7,7 @@ require "data/branch"
 require "data/monster"
 require "data/items"
 require "data/class"
+require "data/magicitems"
 
 --- dependencies
 require "map"

@@ -465,7 +465,69 @@ function itemGenerate()
 			until placed
 		end
 	end
+	itemGenerateSpecial()
 	gameSetRedrawItem()
+end
+
+--- itemGenerateSpecial
+--- Generates random magical items and places them on the map.
+------ Important Branch Variables ------
+--- branch.
+--- \--magicItemsTier
+--- \--magicChance
+--- \--maxMagicItems
+function itemGenerateSpecial()
+	local branch = mapBranch[mapGetCurrentBranch()]
+	print(branch.magicItemsTier)
+	if branch.magicItemsTier then
+		--- Roll for every item chance
+		for itemroll = 1, branch.maxMagicItems do
+		
+			--- Roll if the item can be created.
+			if math.random(1, 100) <= branch.magicChance then
+			
+				print('placing special item')
+			
+				local itemOrig = magicItems.mItems[math.random(1, #magicItems.mItems)]
+				local prefix = magicItems.mPrefix[itemOrig.type][math.random(1, #magicItems.mPrefix[itemOrig.type])]
+				
+				--- Create a new item out of the orig
+				local item = { }
+				itemOrig = gameItems[itemOrig.name]
+				for k,v in pairs(itemOrig) do
+					item[k] = v
+				end
+				
+				--- Apply prefix values to the item
+				for k,v in pairs(prefix.val) do
+					local val = v * branch.magicItemsTier
+					if item[k] then
+						item[k] = item[k] + val
+					else
+						item[k] = val
+					end
+				end
+				
+				--- Fix idname and name
+				item.idname = prefix.name .. " " .. item.name
+				item.name = 'magic ' .. item.name
+				
+				--- Now place item on map
+				local placed = false
+				repeat
+					local x = love.math.random(1, mapGetWidth())
+					local y = love.math.random(1, mapGetHeight())
+					if mapGetWalkThru(x, y) then
+						placed = true
+						table.insert(items, {data = item, x = x , y = y})
+					end
+				until placed
+					
+			end
+		
+		end
+		
+	end
 end
 
 --- itemSave
@@ -582,9 +644,28 @@ function itemGetEquipmentBonus()
 				dam = dam + love.math.random(1, v.data.damage.sides)
 			end
 			dam = dam + v.data.damage.bonus
+			if v.data.damagebonus then
+				dam = dam + v.data.damagebonus
+			end
 		end
 	end
 	return dam
+end
+
+--- itemGetEquipmentVal
+--- returns passed target val sum of all equiped items
+function itemGetEquipmentVal(val)
+	local ret = 0
+	for kk,vv in pairs(itemsEquipment) do
+		if vv and vv.data then
+			for k, v in pairs(vv.data) do
+				if k == val then 
+					ret = ret + v
+				end
+			end
+		end
+	end
+	return ret
 end
 
 --- itemGetEquipmentArmor
