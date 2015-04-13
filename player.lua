@@ -82,11 +82,6 @@ end
 --- playerKeypressed
 --- Key input that affects the player.
 function playerKeypressed(key)
-	if key == ' ' then
-		playerHealth = 10000
-		playerArmor = 999999
-		playerVit = 100
-	end
 	--- if player is dead then dont allow any movement
 	if playerHealth < 1 then return end
 	--- if player has to give a direction don't allow any other inputs

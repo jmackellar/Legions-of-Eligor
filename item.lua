@@ -508,6 +508,10 @@ function itemGenerateSpecial()
 					end
 				end
 				
+				--- Apply color changes
+				item.backColor = magicItems.mColors.backColor
+				item.textColor = magicItems.mColors.textColor
+				
 				--- Fix idname and name
 				item.idname = prefix.name .. " " .. item.name
 				item.name = 'magic ' .. item.name

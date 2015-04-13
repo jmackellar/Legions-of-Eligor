@@ -1,11 +1,11 @@
 magicItems = {
 
+	mColors = {backColor = {92, 140, 145}, textColor = {255, 255, 255, 255}},
 	mItems = {
 		{name = 'shortsword', type = 'sword'},
 		{name = 'dagger', type = 'dagger'},
 		{name = 'tunic', type = 'body'},
-		},
-		
+		},		
 	mPrefix = {
 		sword = {
 			{name = 'valient', val = {damagebonus = 5, vit = 1}},
