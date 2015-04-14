@@ -6,13 +6,25 @@ require "data/class"
 local font = love.graphics.newFont("font.ttf", 16)
 love.graphics.setFont(font)
 
-local menu = { 'New Game', 'Load Game' }
-local menuX = 5
-local menuY = 15
+local menu = { 'New Game', 'Load Game', 'Exit Game', }
+local menuX = 36
+local menuY = 17
 local cursor = 1
+
+local menuImage = love.graphics.newImage("menu.png"):getData()
 
 function newgameEnter()
 	consoleFlush()
+	
+	--- create menu image
+	for x = 0, 79 do
+		for y = 0, 25 do
+			local r, g, b, a = menuImage:getPixel(x, y)
+			print(r, g, b, a)
+			consolePut({char = ' ', backColor = {r, g, b, a}, x = x + 1, y = y + 1})
+		end
+	end
+	
 	if love.filesystem.exists("playersave.lua") then
 		cursor = 2
 	end
@@ -48,6 +60,8 @@ function newgameKeypressed(key)
 			gameStateChangeState('game')
 		elseif cursor == 2 then
 			gameStateChangeState('game')
+		elseif cursor == 3 then
+			love.event.push('quit')
 		end
 	end
 end
