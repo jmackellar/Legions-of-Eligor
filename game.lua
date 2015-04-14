@@ -26,7 +26,7 @@ local playerTurn = true
 function gameEnter()
 	mapInit(80, 21)
 	--name, level, health, mana, vit, ment, endur, will, perStat, perAmnt, class
-	playerInit("Jesse", 1, 100, 100, 5, 5, 5, 5, 'Vagrant')
+	playerInit("Jesse", 1, 100, 100, 5, 5, 5, 5, 'Arcanist')
 	playerLoad()
 	if not mapLoad() then
 		mapGenDungeon(mapGetWidth(), mapGetHeight()) 
@@ -140,6 +140,7 @@ end
 function gameFlipPlayerTurn()
 	if playerTurn then
 		playerTurn = false
+		playerIncTurns()
 		playerRegenTurn()
 		playerModifierUpdate()
 		mapUpdateTileEffect()

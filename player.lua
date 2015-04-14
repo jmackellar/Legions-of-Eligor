@@ -7,6 +7,7 @@ local playerLevel = 1
 local playerExp = 0
 local playerExpBase = 7
 local playerClass = 'Vagrant'
+local playerTurns = 0
 
 local playerHealth = 100
 local playerHealthMax = 100
@@ -189,7 +190,8 @@ function playerSave()
 	local t = {playerX = playerX, playerY = playerY, playerHealth = playerHealth, playerHealthMax = playerHealthMax, 
 				playerMana = playerMana, playerManaMax = playerManaMax, playerVit = playerVit, playerMent = playerMent, 
 				playerEnd = playerEndur, playerWill = playerWill, mapCurrentBranch = mapGetCurrentBranch(),
-				mapCurrentFloor = mapGetCurrentFloor(), playerLevel = playerLevel, playerExp = playerExp}
+				mapCurrentFloor = mapGetCurrentFloor(), playerLevel = playerLevel, playerExp = playerExp,
+				playerClass = playerClass, playerTurns = playerTurns,}
 	love.filesystem.write(p, Ser(t))
 end
 
@@ -211,6 +213,8 @@ function playerLoad()
 		playerWill = t1.playerWill 
 		playerLevel = t1.playerLevel
 		playerExp = t1.playerExp
+		playerClass = t1.playerClass
+		playerTurns = t1.playerTurns
 		mapSetCurrentBranch(t1.mapCurrentBranch)
 		mapSetCurrentFloor(t1.mapCurrentFloor)
 		return true
@@ -242,6 +246,7 @@ function playerCastSpell(i)
 					if spell.name == 'Roll' then playerSpellRoll(spell) end
 					if spell.name == 'Shoutout' then playerSpellShoutout(spell) end
 					if spell.name == 'Spin Slice' then playerSpellSpinSlice(spell) end
+					if spell.name == 'Arcane Dart' then playerSpellArcaneDart(spell) end
 					--- Spell has been cast.  Turn off getting direction, 
 					--- Subtract mana, close spell menu, and end player turn.
 					playerGetDirection = false
@@ -265,6 +270,41 @@ function playerCastSpell(i)
 	return false
 end
 
+--- playerSpellAranceDart
+--- Straight projectile.
+function playerSpellArcaneDart(spell)
+	local sx = playerX
+	local sy = playerY
+	
+	--- Add the lastTurn flag if not set yet
+	if not spell.lastTurn then
+		spell.lastTurn = playerTurns
+	end
+	
+	--- If dart was fired in the last few turns
+	--- give the player some mana back.
+	if spell.lastTurn ~= playerTurns then
+		local t = playerTurns - spell.lastTurn
+		if t <= spell.chaintime then
+			local m = spell.chaintime - t + 1
+			playerManaGain(m, m)
+		end
+	end
+	
+	--- Print message.
+	messageRecieve(spell.castmsg)
+	
+	--- Shoot dart
+	for range = 1, spell.dist do
+		sx = sx + playerDirection.dx
+		sy = sy + playerDirection.dy
+		creatureAttackedByPlayer(sx, sy, spell.damage + playerScaling(spell.scaling))
+	end	
+	
+	gameFlipPlayerTurn()
+	gameSetRedrawAll()
+end
+
 --- playerSpellSpinSlice
 --- Spin Slice.  Hits all adjacent enemies to the player.
 function playerSpellSpinSlice(spell)
@@ -278,6 +318,7 @@ function playerSpellSpinSlice(spell)
 			creatureAttackedByPlayer(xx, yy, playerCalcDamage())
 		end
 	end
+	gameFlipPlayerTurn()
 	playerCastFog()
 	gameSetRedrawAll()
 end
@@ -301,6 +342,7 @@ function playerSpellRoll(spell)
 	local dam = 3 + playerScaling(spell.scaling)
 	playerAddMod({mod = 'dam', val = dam, turn = 2, msgend = "You lower your weapon."})
 	
+	gameFlipPlayerTurn()
 	messageRecieve(spell.castmsg)
 	playerX = sx
 	playerY = sy
@@ -320,6 +362,7 @@ function playerSpellShoutout(spell)
 			creatureAddModAt({mod = 'armor', val = spell.armor, turn = spell.turns}, xx , yy)
 		end
 	end
+	gameFlipPlayerTurn()
 	messageRecieve(spell.castmsg)
 	playerCastFog()
 	gameSetRedrawAll()
@@ -749,6 +792,12 @@ end
 --- Calculates players total will
 function playerGetWill()
 	return playerWill + itemGetEquipmentVal('will')
+end
+
+--- playerIncTurns
+--- Increments turns by 1
+function playerIncTurns()
+	playerTurns = playerTurns + 1
 end
 
 --- Getters
