@@ -26,7 +26,7 @@ local playerTurn = true
 function gameEnter()
 	mapInit(80, 21)
 	--name, level, health, mana, vit, ment, endur, will, perStat, perAmnt, class
-	playerInit("Jesse", 1, 100, 100, 5, 5, 5, 5, 'Arcanist')
+	playerInit("Jesse", 1, 100, 100, 5, 5, 5, 5, newgameGetClass())
 	playerLoad()
 	if not mapLoad() then
 		mapGenDungeon(mapGetWidth(), mapGetHeight()) 
