@@ -50,7 +50,7 @@ gameClasses = {
 					castmsg = 'You fire an arcane dart.',
 					scaling = {ment = 0.65, will = 0.65},
 					},
-					{name = 'Unstable Concoction', direction = true, dist = 6, mana = 1, level = 1, damage = 6,
+					{name = 'Unstable Concoction', direction = true, dist = 6, mana = 12, level = 2, damage = 6,
 					desc = 'Lob a ball of magical energy that explodes on contact.',
 					castmsg = 'You throw a ball of magical energy.  It explodes!',
 					scaling = {ment = 0.25, will = 0.25},
