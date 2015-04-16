@@ -15,6 +15,7 @@ require "player"
 require "creature"
 require "item"
 require "message"
+require "asciieffects"
 
 local redrawMap = true
 local redrawPlayer = true
@@ -32,6 +33,7 @@ function gameEnter()
 		mapGenDungeon(mapGetWidth(), mapGetHeight()) 
 	end
 	messageInit(26)
+	aeInit()
 	redrawMap = true
 	redrawPlayer = true
 end
@@ -45,9 +47,12 @@ end
 
 function gameUpdate(dt)
 
+	aeUpdateEffects(dt)
+
 	--- if not playerTurn, then creatures take turn
-	if not playerTurn then
+	if not playerTurn and not aeHasEffects() then
 		creatureTurn()
+		gameSetRedrawAll()
 	end
 
 	if redrawMap then
@@ -70,6 +75,8 @@ function gameUpdate(dt)
 		redrawCreature = false
 	end
 	
+	aeDrawEffects()
+	
 	playerDrawHud()
 	--- inventory menu
 	if itemGetInventoryOpen() then
@@ -81,17 +88,19 @@ function gameUpdate(dt)
 end
 
 function gameKeypressed(key)
-	if playerGetHealth() > 0 then
-		if itemKeypressed(key) then return end
-		if not messageGetRestrictKeypress() then
-			if debugGetMenuOpen() then return end
-			if playerTurn then
-				if playerKeypressed(key) then return end
+	if not aeHasEffects() then
+		if playerGetHealth() > 0 then
+			if itemKeypressed(key) then return end
+			if not messageGetRestrictKeypress() then
+				if debugGetMenuOpen() then return end
+				if playerTurn then
+					if playerKeypressed(key) then return end
+				end
 			end
+			messageKeypressed(key)
+		else
+			messageKeypressed(key)
 		end
-		messageKeypressed(key)
-	else
-		messageKeypressed(key)
 	end
 end
 

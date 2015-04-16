@@ -276,6 +276,9 @@ end
 function playerSpellUnstableConcoction(spell)
 	local sx = playerX
 	local sy = playerY
+	local ssX = playerX + playerDirection.dx
+	local ssY = playerY + playerDirection.dy
+	local r = 0
 	
 	--- Print message.
 	messageRecieve(spell.castmsg)
@@ -284,7 +287,8 @@ function playerSpellUnstableConcoction(spell)
 	for range = 1, spell.dist do
 		sx = sx + playerDirection.dx
 		sy = sy + playerDirection.dy
-		if not mapGetWalkThru(sx, sy) or creatureIsTileFree(sx, sy) then
+		r = r + 1
+		if not mapGetWalkThru(sx, sy) or not creatureIsTileFree(sx, sy) then
 			for xx = sx - 1, sx + 1 do
 				for yy = sy - 1, sy + 1 do
 					creatureAttackedByPlayer(xx, yy, spell.damage + playerScaling(spell.scaling))
@@ -293,6 +297,9 @@ function playerSpellUnstableConcoction(spell)
 			break
 		end
 	end	
+	
+	aeProjectile(ssX, ssY, playerDirection.dx, playerDirection.dy, r - 1, 'o', {100, 100, 255, 255})
+	aeExplosion(sx, sy, 1, {100, 100, 255, 255})
 	
 	gameFlipPlayerTurn()
 	gameSetRedrawAll()
@@ -303,6 +310,9 @@ end
 function playerSpellArcaneDart(spell)
 	local sx = playerX
 	local sy = playerY
+	local ssX = playerX + playerDirection.dx
+	local ssY = playerY + playerDirection.dy
+	local r = 0
 	
 	--- Add the lastTurn flag if not set yet
 	if not spell.lastTurn then
@@ -326,11 +336,14 @@ function playerSpellArcaneDart(spell)
 	for range = 1, spell.dist do
 		sx = sx + playerDirection.dx
 		sy = sy + playerDirection.dy
-		if not mapGetWalkThru(sx, sy) or creatureIsTileFree(sx, sy) then
+		r = r + 1
+		if not mapGetWalkThru(sx, sy) or not creatureIsTileFree(sx, sy) then
 			creatureAttackedByPlayer(sx, sy, spell.damage + playerScaling(spell.scaling))
 			break
 		end
 	end	
+	
+	aeProjectile(ssX, ssY, playerDirection.dx, playerDirection.dy, r - 1, 'o', {100, 100, 255, 255})
 	
 	gameFlipPlayerTurn()
 	gameSetRedrawAll()
