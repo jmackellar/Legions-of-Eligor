@@ -247,6 +247,7 @@ function playerCastSpell(i)
 					if spell.name == 'Shoutout' then playerSpellShoutout(spell) end
 					if spell.name == 'Spin Slice' then playerSpellSpinSlice(spell) end
 					if spell.name == 'Arcane Dart' then playerSpellArcaneDart(spell) end
+					if spell.name == 'Unstable Concoction' then playerSpellUnstableConcoction(spell) end
 					--- Spell has been cast.  Turn off getting direction, 
 					--- Subtract mana, close spell menu, and end player turn.
 					playerGetDirection = false
@@ -268,6 +269,33 @@ function playerCastSpell(i)
 		end
 	end
 	return false
+end
+
+--- playerSpellUnstableConcoction
+--- Projectile that explodes on contact.  AoE damage
+function playerSpellUnstableConcoction(spell)
+	local sx = playerX
+	local sy = playerY
+	
+	--- Print message.
+	messageRecieve(spell.castmsg)
+	
+	--- Shoot dart
+	for range = 1, spell.dist do
+		sx = sx + playerDirection.dx
+		sy = sy + playerDirection.dy
+		if not mapGetWalkThru(sx, sy) or creatureIsTileFree(sx, sy) then
+			for xx = sx - 1, sx + 1 do
+				for yy = sy - 1, sy + 1 do
+					creatureAttackedByPlayer(xx, yy, spell.damage + playerScaling(spell.scaling))
+				end
+			end
+			break
+		end
+	end	
+	
+	gameFlipPlayerTurn()
+	gameSetRedrawAll()
 end
 
 --- playerSpellAranceDart
@@ -298,7 +326,10 @@ function playerSpellArcaneDart(spell)
 	for range = 1, spell.dist do
 		sx = sx + playerDirection.dx
 		sy = sy + playerDirection.dy
-		creatureAttackedByPlayer(sx, sy, spell.damage + playerScaling(spell.scaling))
+		if not mapGetWalkThru(sx, sy) or creatureIsTileFree(sx, sy) then
+			creatureAttackedByPlayer(sx, sy, spell.damage + playerScaling(spell.scaling))
+			break
+		end
 	end	
 	
 	gameFlipPlayerTurn()
