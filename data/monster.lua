@@ -107,7 +107,7 @@ gameMonsters = {
 		char = 'S',
 		backColor = {150, 150, 150, 255},
 		textColor = {0, 0, 0, 255},
-		health = 75,
+		health = 150,
 		armor = 3,
 		damage = {dice = 3, sides = 3, bonus = 1},
 		spells = { {name = 'addmod', monster = 'all', mod = 'speed', range = 20, val = 25, 

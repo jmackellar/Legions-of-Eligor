@@ -275,7 +275,7 @@ gameItems = {
 		msg = 'You wrap the bandage around yourself.  You feel better',
 		char = '\\',
 		backColor = {0, 0, 0, 255},
-		textColor = {187, 217, 158, 255},
+		textColor = {255, 0, 0, 255},
 		},
 		
 	stone = {
