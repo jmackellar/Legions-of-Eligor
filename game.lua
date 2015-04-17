@@ -49,6 +49,7 @@ function gameUpdate(dt)
 
 	aeUpdateEffects(dt)
 	creatureUpdate(dt)
+	playerUpdate(dt)
 
 	--- if not playerTurn, then creatures take turn
 	if not playerTurn and not aeHasEffects() then

@@ -1442,6 +1442,19 @@ function mapPlaceSpecialTiles()
 	end
 end
 
+--- mapIsCreatureInVision
+--- Returns true if a lit tile has a creature on it.  False if not.
+function mapIsCreatureInVision(x, y)
+	for xx = x - playerGetViewRadius(), x + playerGetViewRadius() do
+		for yy = y - playerGetViewRadius(), y + playerGetViewRadius() do
+			if mapFog[xx][yy] and mapFog[xx][yy].lit and not creatureIsTileFree(xx, yy) then
+				return true
+			end
+		end
+	end
+	return false
+end
+
 --- Getters
 function mapGetWalkThru(x, y) return map[x][y].walkThru end
 function mapGetWidth() return mapWidth end

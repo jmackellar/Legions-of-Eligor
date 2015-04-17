@@ -125,11 +125,12 @@ function playerKeypressed(key)
 		elseif key == 'i' then itemInventorySetAction('look') itemInventoryOpenFlip() return true 
 		elseif key == 'd' then itemInventorySetAction('drop') itemInventoryOpenFlip() return true 
 		elseif key == 'e' then itemInventorySetAction('equip') itemInventoryOpenFlip() return true 
-		elseif key == 'r' then itemInventorySetAction('remove') itemInventoryOpenFlip() return true 
+		elseif key == 'r' and not (love.keyboard.isDown('rshift') or love.keyboard.isDown('lshift')) then itemInventorySetAction('remove') itemInventoryOpenFlip() return true 
 		elseif key == 'a' then itemInventorySetAction('apply') itemInventoryOpenFlip() return true 
 		elseif key == 't' then itemInventorySetAction('throw') itemInventoryOpenFlip() return true
 		elseif key == 'z' then playerMenu = 'spell'
 		elseif key == 'm' then playerMenu = 'messages' 
+		elseif key == 'r' and (love.keyboard.isDown('rshift') or love.keyboard.isDown('lshift')) then playerAction = 'rest' messageRecieve("Resting... press any to stop resting.")
 		elseif key == '/' and (love.keyboard.isDown('lshift') or love.keyboard.isDown('rshift')) then playerMenu = 'help' end	
 		--- downstairs
 		if (love.keyboard.isDown('rshift') or love.keyboard.isDown('lshift')) and key == '.' and mapGetTileName(playerX, playerY) == 'downstairs' then
@@ -156,6 +157,10 @@ function playerKeypressed(key)
 		elseif key == 'kp1' then playerUseDoor(playerX + -1, playerY + 1) return true
 		elseif key == 'kp4' then playerUseDoor(playerX + -1, playerY + 0) return true
 		elseif key == 'kp7' then playerUseDoor(playerX + -1, playerY + -1)return true end
+	elseif playerAction == 'rest' then
+		if key then
+			playerAction = false
+		end
 	elseif playerMenu == 'messages' then
 		if key then playerMenu = false gameSetRedrawAll() end
 	elseif playerMenu == 'help' then
@@ -181,6 +186,25 @@ function playerKeypressed(key)
 		return false
 	end
 	return false
+end
+
+--- playerUpdate
+function playerUpdate(dt)
+	if playerAction == 'rest' then
+		gameFlipPlayerTurn()
+		gameSetRedrawAll()
+		--- If a creature is in vision of the player then 
+		--- stop resting.
+		if mapIsCreatureInVision(playerX, playerY) then
+			playerAction = false
+			messageRecieve("You stop resting.")
+		--- If players health and mana are max then stop
+		--- resting as well.
+		elseif playerHealth == playerHPMax() and playerMana == playerMPMax() then
+			playerAction = false
+			messageRecieve("You've finished resting.")
+		end
+	end
 end
 
 --- playerSave
