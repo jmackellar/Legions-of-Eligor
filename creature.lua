@@ -154,17 +154,53 @@ end
 function creatureWander(c)
 	local dx = math.random(-1, 1)
 	local dy = math.random(-1, 1)
+	
+	--- If no hasnt moved in # turns variable then create one
+	if not c.turnsImmobile then c.turnsImmobile = 0 end
+	
+	--- If the creature is wandering then it needs to be wandering
+	--- across dijkstra path map.
+	
+	--- If the creature doesn't have a dijkstra map then get a random
+	--- one.
+	if not c.dijkstra then
+		c.dijkstra = mapGetRandomDijkstra()
+	end
+	
+	--- Take creatures dijkstra map and decide which coordinates to move to.
+	local path = c.dijkstra
+	for x = c.x - 1, c.x + 1 do
+		for y = c.y - 1, c.y + 1 do
+			if path[x][y] < path[c.x][c.y] then
+				if c.x > x then dx = - 1 elseif c.x < x then dx = 1 else dx = 0 end
+				if c.y > y then dy = - 1 elseif c.y < y then dy = 1 else dy = 0 end
+			end
+		end
+	end
+
+	--- Move and Update status
 	if mapGetWalkThru(c.x + dx, c.y + dy) and creatureIsTileFree(c.x + dx, c.y + dy) and playerIsTileFree(c.x + dx, c.y + dy) then
 		c.x = c.x + dx
 		c.y = c.y + dy
+		c.turnsImmobile = 0
 	elseif not playerIsTileFree(c.x + dx, c.y + dy) then
 		playerAttackedByCreature(c.data.name, c.data.prefix, creatureCalcDamage(c))
+		c.turnsImmobile = 0
+	else
+		c.turnsImmobile = c.turnsImmobile + 1
 	end
 	if c.data.ai ~= 'wander' then
 		if mapIsLit(c.x, c.y) then
 			c.seen = true
 			c.lastseen = 0
 		end
+	end
+	
+	--- If the creature is on the dijkstra map's goal then delete 
+	--- the dijkstra map
+	if path[c.x][c.y] == 0 or c.turnsImmobile >= 5 then
+		c.dijkstra = false
+		c.turnsImmobile = 0
 	end
 end
 

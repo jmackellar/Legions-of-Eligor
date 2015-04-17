@@ -34,6 +34,7 @@ function gameEnter()
 	end
 	messageInit(26)
 	aeInit()
+	mapGenWanderDijkstras(3)
 	redrawMap = true
 	redrawPlayer = true
 end

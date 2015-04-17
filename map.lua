@@ -10,6 +10,8 @@ local map = { }
 local mapSeen = { }
 local mapEffect = { }
 
+local mapDijkstra = { }
+
 local mapCurrentBranch = 'Dungeon'
 local mapCurrentFloor = 1
 
@@ -205,6 +207,7 @@ function mapChangeFloor(dy, save)
 		playerEnableFog()
 		mapMovePlayerToSObject()
 	end
+	mapGenWanderDijkstras(3)
 	playerCastFog()
 	gameSetRedrawAll()
 end
@@ -1453,6 +1456,82 @@ function mapIsCreatureInVision(x, y)
 		end
 	end
 	return false
+end
+
+--- mapCreateDijkstra
+--- Creates a dijkstra pathfinding map for passed coordinates
+function mapCreateDijkstra(x, y)
+	--- Set up initial pathfinding map state
+	local path = { }
+	for x = 1, mapWidth do
+		path[x] = { }
+		for y = 1, mapHeight do
+			path[x][y] = 125
+		end
+	end
+	path[x][y] = 0
+	
+	--- Iterate through each map cell. If the lowest value neighbour is 2 lower
+	--- than the cell then set it to be 1 higher than the lowest value neighbour.
+	--- Repeat until no changes are further made. Ignore all wall tiles.
+	local change = true
+	while change do
+		change = false
+		for x = 2, mapWidth - 1 do
+			for y = 2, mapHeight - 1 do
+				if map[x][y].walkThru or map[x][y].name ==	'closeddoor' then
+					local lowest = 125
+					--- Check all neighbouring tiles
+					lowest = math.min(lowest, path[x-1][y-1])
+					lowest = math.min(lowest, path[x][y-1])
+					lowest = math.min(lowest, path[x+1][y-1])
+					lowest = math.min(lowest, path[x-1][y])
+					lowest = math.min(lowest, path[x+1][y])
+					lowest = math.min(lowest, path[x-1][y+1])
+					lowest = math.min(lowest, path[x][y+1])
+					lowest = math.min(lowest, path[x+1][y+1])
+					--- Change current value if 2 or higher than lowest
+					if lowest + 2 <= path[x][y] then
+						path[x][y] = lowest + 1
+						change = true
+					end
+				end
+			end
+		end
+	end
+	
+	--- Pass that shit back
+	return path
+end
+
+--- mapGenWanderDijkstras
+--- Generates random dijkstra maps for wandering AI
+function mapGenWanderDijkstras(amnt)
+	local dijks = { }
+	while # dijks < amnt do
+		local x = math.random(1, mapWidth)
+		local y = math.random(1, mapHeight)
+		if map[x][y].walkThru then
+			table.insert(dijks, mapCreateDijkstra(x, y))
+		end
+	end
+	table.insert(dijks, playerGetX(), playerGetY())
+	for k,v in ipairs(dijks) do
+		table.insert(mapDijkstra, v)
+	end
+end
+
+--- mapNewDijkstra
+--- Creates new dijkstra map with passed coordinates
+function mapNewDijkstra(x, y)
+	table.insert(mapDijkstra, mapCreateDijkstra(x, y))
+end
+
+--- mapGetRandomDijkstra
+--- Returns a random dijkstra path map
+function mapGetRandomDijkstra()
+	local path = mapDijkstra[math.random(1, # mapDijkstra)]
+	return path
 end
 
 --- Getters

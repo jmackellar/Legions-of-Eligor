@@ -724,7 +724,7 @@ function playerDrawHud()
 	
 	consolePrint({string = "HP:", x = 22, y = startY, textColor = {255, 0, 0, 255}})
 	consolePrint({string = playerHealth .. "/" .. playerHPMax(), x = 25, y = startY})
-	consolePrint({string = "MP:", x = 22, y = startY + 1, textColor = {0, 0, 255, 255}})
+	consolePrint({string = "MP:", x = 22, y = startY + 1, textColor = {75, 75, 255, 255}})
 	consolePrint({string = playerMana .. "/" .. playerMPMax(), x = 25, y = startY + 1})
 	
 	consolePrint({string = "Armor:", x = 12, y = startY, textColor = {234, 255, 0, 255}})
