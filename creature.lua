@@ -596,3 +596,5 @@ function creatureIsTileFree(x, y)
 	end
 	return true
 end
+
+function creatureGetTotalCreatures() return # creatures end

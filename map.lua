@@ -1534,6 +1534,21 @@ function mapGetRandomDijkstra()
 	return path
 end
 
+--- mapCreatureSpawn
+--- Will randomly create creatures in the level 
+function mapCreatureSpawn()
+	if love.math.random(1, 100) <= 25 and creatureGetTotalCreatures() < 15 then
+		local placed = false
+		local c = mapBranch[mapCurrentBranch].creatures[love.math.random(1, # mapBranch[mapCurrentBranch].creatures)]
+		local x = love.math.random(2, mapWidth - 1)
+		local y = love.math.random(2, mapHeight - 1)
+		if map[x][y].walkThru and creatureIsTileFree(x, y) and not mapFog[x][y].lit then
+			placed = true
+			creatureSpawn(x, y, c.name)
+		end
+	end
+end
+
 --- Getters
 function mapGetWalkThru(x, y) return map[x][y].walkThru end
 function mapGetWidth() return mapWidth end

@@ -156,6 +156,7 @@ function gameFlipPlayerTurn()
 		playerRegenTurn()
 		playerModifierUpdate()
 		mapUpdateTileEffect()
+		mapCreatureSpawn()
 	else
 		playerTurn = true
 	end
