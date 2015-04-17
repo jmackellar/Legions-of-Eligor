@@ -2,9 +2,19 @@
 --- AI controlled creatures.  Monsters, Allies, bosses. 
 
 local creatures = { }
+local creaturesToDam = { }
 
 function creatureClearAll()
 	creatures = { }
+end
+
+function creatureUpdate(dt)
+	if # creaturesToDam > 0 and not aeHasEffects() then
+		for k,v in pairs(creaturesToDam) do
+			creatureAttackedByPlayer(v.x, v.y, v.dam, v.msg3)
+		end
+		creaturesToDam = { }
+	end
 end
 
 function creatureDraw()
@@ -98,6 +108,14 @@ function creatureTurn()
 end
 
 function creatureAttackedByPlayer(x, y, dam, msg3)
+
+	--- Delayed death hook
+	if aeHasEffects() then
+		table.insert(creaturesToDam, {x = x, y = y, dam = dam, msg3 = msg3})
+		return
+	end
+
+	--- actual damage and death logic
 	local msg = ""
 	for i = 1, # creatures do
 		if creatures[i].x == x and creatures[i].y == y then

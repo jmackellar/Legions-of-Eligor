@@ -279,6 +279,7 @@ function playerSpellUnstableConcoction(spell)
 	local ssX = playerX + playerDirection.dx
 	local ssY = playerY + playerDirection.dy
 	local r = 0
+	local hits = { }
 	
 	--- Print message.
 	messageRecieve(spell.castmsg)
@@ -291,7 +292,7 @@ function playerSpellUnstableConcoction(spell)
 		if not mapGetWalkThru(sx, sy) or not creatureIsTileFree(sx, sy) then
 			for xx = sx - 1, sx + 1 do
 				for yy = sy - 1, sy + 1 do
-					creatureAttackedByPlayer(xx, yy, spell.damage + playerScaling(spell.scaling))
+					table.insert(hits, {x = xx, y = yy})
 				end
 			end
 			break
@@ -300,6 +301,10 @@ function playerSpellUnstableConcoction(spell)
 	
 	aeProjectile(ssX, ssY, playerDirection.dx, playerDirection.dy, r - 1, 'o', {100, 100, 255, 255})
 	aeExplosion(sx, sy, 1, {100, 100, 255, 255})
+
+	for k,v in pairs(hits) do
+		creatureAttackedByPlayer(v.x, v.y, spell.damage + playerScaling(spell.scaling))
+	end
 	
 	gameFlipPlayerTurn()
 	gameSetRedrawAll()
@@ -338,12 +343,11 @@ function playerSpellArcaneDart(spell)
 		sy = sy + playerDirection.dy
 		r = r + 1
 		if not mapGetWalkThru(sx, sy) or not creatureIsTileFree(sx, sy) then
+			aeProjectile(ssX, ssY, playerDirection.dx, playerDirection.dy, r - 1, 'o', {100, 100, 255, 255})
 			creatureAttackedByPlayer(sx, sy, spell.damage + playerScaling(spell.scaling))
 			break
 		end
 	end	
-	
-	aeProjectile(ssX, ssY, playerDirection.dx, playerDirection.dy, r - 1, 'o', {100, 100, 255, 255})
 	
 	gameFlipPlayerTurn()
 	gameSetRedrawAll()

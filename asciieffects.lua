@@ -31,6 +31,9 @@ end
 function aeDrawEffects()
 	if # effects == 0 or # effects[1] == 0 then return end
 	
+	gameSetRedrawMap()
+	gameSetRedrawItem()
+	
 	--- Only draw the top most effect at a time
 	local fx = effects[1]
 	local gfx = fx[1]
@@ -38,8 +41,6 @@ function aeDrawEffects()
 	for k, v in pairs(gfx) do
 		consolePut({char = v.char, textColor = v.textColor, backColor = v.backColor, x = v.x, y = v.y + 1})
 	end
-	gameSetRedrawMap()
-	gameSetRedrawItem()
 end
 
 --- aeExplosion
