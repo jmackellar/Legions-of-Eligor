@@ -192,13 +192,14 @@ function itemDrawInventory()
 	-------------------
 	--- Equipment 		
 	local i = 0
-	consolePrint({string = "+---------Equipment---------+", textColor = {237, 222, 161, 255}, x = startX + 48, y = startY})
+	startX = startX - 10
+	consolePrint({string = "+--------------Equipment--------------+", textColor = {237, 222, 161, 255}, x = startX + 48, y = startY})
 	for j = 1, # itemsEquipmentOrder do
 		for k, v in pairs(itemsEquipment) do
 			if k == itemsEquipmentOrder[j] then
 				--- First increment counter i and put blank line in to make background box.
 				i = i + 1
-				consolePrint({string = "|                           |", textColor = {237, 222, 161, 255}, x = startX + 48, y = startY + (i)})
+				consolePrint({string = "|                                     |", textColor = {237, 222, 161, 255}, x = startX + 48, y = startY + (i)})
 				--- Equipment slot and item name.
 				local add = "  "
 				if k == 'weapon' then
@@ -233,7 +234,7 @@ function itemDrawInventory()
 			end
 		end
 	end
-	consolePrint({string = "+---------------------------+", textColor = {237, 222, 161, 255}, x = startX + 48, y = startY + i + 1
+	consolePrint({string = "+-------------------------------------+", textColor = {237, 222, 161, 255}, x = startX + 48, y = startY + i + 1
 	})
 end
 
