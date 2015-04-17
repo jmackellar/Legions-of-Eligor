@@ -346,7 +346,7 @@ function itemRemoveFromEquipment(letter)
 							table.insert(itemsInventory, itemsEquipment[k])
 							messageRecieve("You remove your " .. itemGetName(itemsEquipment[k]) .. " and place it in your bag.")
 						else
-							table.insert(items, {x = playerGetX(), y = playerGetY(), data = itemsInventory[i].data})
+							table.insert(items, {x = playerGetX(), y = playerGetY(), data = itemsEquipment[k].data})
 							messageRecieve("You remove your " .. itemGetName(itemsEquipment[k]) .. " and place it on the floor.")
 						end
 						itemsEquipment[k] = false		
