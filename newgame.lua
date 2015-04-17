@@ -22,7 +22,6 @@ function newgameEnter()
 	for x = 0, 79 do
 		for y = 0, 25 do
 			local r, g, b, a = menuImage:getPixel(x, y)
-			print(r, g, b, a)
 			consolePut({char = ' ', backColor = {r, g, b, a}, x = x + 1, y = y + 1})
 		end
 	end
