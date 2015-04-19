@@ -91,8 +91,8 @@ function aePoint(x, y, ch, tC, bC)
 	local ch = ch or '*'
 	local tC = tC or {255, 255, 255, 255}
 	local bC = bC or {0, 0, 0, 255}
-	local ae = {x = x, y = y, char = ch, textColor = tC, backColor = bC, dt = 0.05}
-	seAddEffect({ae})
+	local ae = {{x = x, y = y, char = ch, textColor = tC, backColor = bC, dt = 0.05}}
+	aeAddEffect({ae})
 end
 
 --- aeAddEffect

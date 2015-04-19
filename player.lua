@@ -390,6 +390,18 @@ function playerSpellSpinSlice(spell)
 			creatureAttackedByPlayer(xx, yy, playerCalcDamage())
 		end
 	end
+	--- Graphics
+	local tC = {175, 175, 175, 255}
+	local bC = {0, 0, 0, 255}
+	aePoint(sx, sy - 1, '|', tC, bC)
+	aePoint(sx + 1, sy - 1, '/', tC, bC)
+	aePoint(sx + 1, sy, '-', tC, bC)
+	aePoint(sx + 1, sy + 1, '\\', tC, bC)
+	aePoint(sx, sy + 1, '|', tC, bC)	aePoint(sx - 1, sy + 1, '/', tC, bC)
+	aePoint(sx - 1, sy, '-', tC, bC)
+	aePoint(sx - 1, sy - 1, '\\', tC, bC)
+	aePoint(sx, sy - 1, '|', tC, bC)
+	
 	gameFlipPlayerTurn()
 	playerCastFog()
 	gameSetRedrawAll()
