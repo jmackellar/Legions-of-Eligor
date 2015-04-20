@@ -272,6 +272,7 @@ function playerCastSpell(i)
 					if spell.name == 'Spin Slice' then playerSpellSpinSlice(spell) end
 					if spell.name == 'Arcane Dart' then playerSpellArcaneDart(spell) end
 					if spell.name == 'Unstable Concoction' then playerSpellUnstableConcoction(spell) end
+					if spell.name == 'Double Strike' then playerSpellDoubleStrike(spell) end
 					--- Spell has been cast.  Turn off getting direction, 
 					--- Subtract mana, close spell menu, and end player turn.
 					playerGetDirection = false
@@ -374,6 +375,19 @@ function playerSpellArcaneDart(spell)
 	end	
 	
 	gameFlipPlayerTurn()
+	gameSetRedrawAll()
+end
+
+--- playerSpellDoubleStrike
+--- Double strike.  Two melee attacks on one spot.
+function playerSpellDoubleStrike(spell)
+	local sx = playerX + playerDirection.dx
+	local sy = playerY + playerDirection.dy
+	messageRecieve(spell.castmsg)
+	creatureAttackedByPlayer(sx, sy, playerCalcDamage())
+	creatureAttackedByPlayer(sx, sy, playerCalcDamage())
+	gameFlipPlayerTurn()
+	playerCastFog()
 	gameSetRedrawAll()
 end
 
