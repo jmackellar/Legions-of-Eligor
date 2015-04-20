@@ -186,7 +186,7 @@ function mapChangeFloor(dy, save)
 		--- a map for this level doesnt already exist, generate a new one
 		if mapBranch[mapCurrentBranch].gen == 'mapGenCave' then
 			mapGenCave(mapWidth, mapHeight)
-		elseif mapBranch[mapCurrentBranch].gen == 'mapGenDungeon' then
+		elseif mapBranch[mapCurrentBranch].gen == 'mapGenDungeonmapGenDungeon' then
 			mapGenDungeon(mapWidth, mapHeight)
 		elseif mapBranch[mapCurrentBranch].gen == 'mapGenJails' then
 			mapGenJails(mapWidth, mapHeight)
@@ -1031,7 +1031,7 @@ function mapGenDungeon(w, h)
 				map[x+3][y-3] = mapTiles.smoothwall
 				map[x+3][y+3] = mapTiles.smoothwall
 				map[x][y+1] = mapTiles.closeddoor
-				map[x][y].lock = 'Rusted Key'
+				map[x][y+1].locked = 'Rusted Key'
 			end
 		end
 	end
@@ -1386,11 +1386,24 @@ end
 --- mapSwitchDoor
 --- switches a door between open and close at target tile.
 function mapSwitchDoor(x, y)
+	print(map[x][y].locked)
 	if map[x][y] == mapTiles.closeddoor or map[x][y].name == 'closeddoor' then
-		map[x][y] = mapTiles.opendoor
-		playerCastFog()
-		gameSetRedrawAll()
+		--- check if the door is locked or not
+		if not map[x][y].locked or (itemIsInInventory(map[x][y].locked)) then
+			if map[x][y].locked then
+				itemRemoveFromInventory(map[x][y].locked)
+				messageRecieve("You unlock the door using the " .. map[x][y].locked .. ".")
+				map[x][y].locked = false
+			end
+			messageRecieve("You open the door.")
+			map[x][y] = mapTiles.opendoor
+			playerCastFog()
+			gameSetRedrawAll()
+		else
+			messageRecieve("The door is locked by " .. map[x][y].locked .. ".")
+		end
 	elseif map[x][y] == mapTiles.opendoor or map[x][y].name == 'opendoor' then
+		messageRecieve("You closed the door.")
 		map[x][y] = mapTiles.closeddoor
 		playerCastFog()
 		gameSetRedrawAll()

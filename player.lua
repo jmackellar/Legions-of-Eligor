@@ -472,10 +472,8 @@ end
 function playerUseDoor(x, y)
 	if mapCheckTileAt(x, y, 'closeddoor') then
 		mapSwitchDoor(x, y)
-		messageRecieve("You open the door.")
 	elseif mapCheckTileAt(x, y, 'opendoor') then
 		mapSwitchDoor(x, y)
-		messageRecieve("You close the door.")
 	else
 		messageRecieve("There is no door there!")
 	end

@@ -765,6 +765,30 @@ function itemIsIdentified(item)
 	return false
 end
 
+--- itemIsInInventory
+--- Searches if an item by the passed name is in the inventory.
+--- Returns true if so, else returns false.
+function itemIsInInventory(item)
+	for i = 1, # itemsInventory do
+		if itemsInventory[i].data.name == item then
+			return true
+		end
+	end
+	return false
+end
+
+--- itemRemoveFromInventory
+--- Searches for and removes an item by the passed name from the
+--- players inventory. 
+function itemRemoveFromInventory(item)
+	for i = 1, # itemsInventory do
+		if itemsInventory[i].data.name == item then
+			table.remove(itemsInventory, i)
+			break
+		end
+	end
+end
+
 --- itemAddIdentify
 --- adds an item to the identified list if its not already there. 
 function itemAddIdentify(item)
