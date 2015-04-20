@@ -162,7 +162,7 @@ gameMonsters = {
 		opendoor = true,
 		ai = 'grunt',
 		speed = 125,
-		xp = 3,
+		xp = 4,
 		},
 		
 	Hound = {
@@ -175,6 +175,19 @@ gameMonsters = {
 		damage = {dice = 3, sides = 3, bonus = 1},
 		ai = 'grunt',
 		speed = 75,
+		xp = 5,
+		},
+		
+	Fly = {
+		name = 'Fly',
+		prefix = 'the ',
+		char = 'f',
+		textColor = {150, 150, 150, 255},
+		backColor = {0, 0, 0, 255},
+		health = 10, armor = 0,
+		damage = {dice = 1, sides = 2, bonus = 2},
+		ai = 'grunt',
+		speed = 50,
 		xp = 4,
 		},
 }
