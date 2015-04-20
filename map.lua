@@ -996,12 +996,50 @@ function mapGenDungeon(w, h)
 		mapPlayerSY = y
 	end
 	
-	mapMovePlayerToSObject()
-	playerCastFog()
-	mapGenerateCreatures()
-	itemGenerate()
 	mapPlaceSpecialTiles()
 	mapPlaceConnections()
+	
+	--- If last floor of dungeons then place locked
+	--- room around the connection leading to storehouse
+	if mapCurrentFloor == mapBranch[mapCurrentBranch].floors then
+		for i = 1, # mapObjects do
+			if mapObjects[i].connection == 'Storehouse' then
+				local x = mapObjects[i].x
+				local y = mapObjects[i].y
+				for xx = x - 2, x + 2 do
+					if xx > x - 2 and xx < x + 2 then
+						map[xx][y-1] = mapTiles.smoothwall
+						map[xx][y+1] = mapTiles.smoothwall
+					end
+					map[xx][y-2] = mapTiles.floor
+					map[xx][y+2] = mapTiles.floor
+					if map[xx][y-3] == mapTiles.blank then map[xx][y-3] = mapTiles.smoothwall	end
+					if map[xx][y+3] == mapTiles.blank then map[xx][y+3] = mapTiles.smoothwall end
+				end
+				for yy = y - 2, y + 2 do
+					if yy > y - 2 and yy < y + 2 then
+						map[x-1][yy] = mapTiles.smoothwall
+						map[x+1][yy] = mapTiles.smoothwall
+					end
+					map[x-2][yy] = mapTiles.floor
+					map[x+2][yy] = mapTiles.floor
+					if map[x-3][yy] == mapTiles.blank then map[x-3][yy] = mapTiles.smoothwall end
+					if map[x+3][yy] == mapTiles.blank then map[x+3][yy] = mapTiles.smoothwall end
+				end
+				map[x-3][y-3] = mapTiles.smoothwall
+				map[x-3][y+3] = mapTiles.smoothwall
+				map[x+3][y-3] = mapTiles.smoothwall
+				map[x+3][y+3] = mapTiles.smoothwall
+				map[x][y+1] = mapTiles.closeddoor
+				map[x][y].lock = 'Rusted Key'
+			end
+		end
+	end
+	
+	mapMovePlayerToSObject()
+	mapGenerateCreatures()
+	itemGenerate()
+	playerCastFog()
 	gameSetRedrawAll()
 end
 
@@ -1164,8 +1202,8 @@ function mapPlaceConnections()
 		if connections[i].floor == mapCurrentFloor then
 			local placed = false
 			repeat
-				local x = math.random(1, mapWidth)
-				local y = math.random(1, mapHeight)
+				local x = math.random(3, mapWidth - 2)
+				local y = math.random(3, mapHeight - 2)
 				if map[x][y] == mapTiles.floor or map[x][y].name == 'floor' then
 					placed = true
 					map[x][y] = mapTiles.connection
