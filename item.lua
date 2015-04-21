@@ -728,10 +728,12 @@ function itemSortInventory()
 		if start ~= # itms and start > 0 then
 			for j = start, # itms do
 				for k = j, # itms do
-					if string.byte(items[k].data.name, 1) < string.byte(items[j].data.name) then
-						local temp = items[j]
-						items[j] = items[k]
-						items[k] = temp
+					if items[k] and items[j] then
+						if string.byte(items[k].data.name, 1) < string.byte(items[j].data.name) then
+							local temp = items[j]
+							items[j] = items[k]
+							items[k] = temp
+						end
 					end
 				end
 			end
