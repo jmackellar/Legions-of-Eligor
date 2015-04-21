@@ -73,6 +73,14 @@ function mapGenerateCreatures()
 	local cMin = mapBranch[mapCurrentBranch].minCreatures
 	local cMax = mapBranch[mapCurrentBranch].maxCreatures
 	local total = math.random(cMin, cMax)
+	
+	--- Modify total based on level depth
+	--- lower depths lower total creature count
+	--- Only do this for the Dungeon branch though
+	if mapCurrentBranch == 'Dungeon' and mapCurrentFloor <= 3 then
+		total = total - (mapCurrentFloor * -3 + 9)
+	end
+	
 	for i = 1, # c do
 		for j = 1, math.ceil(total * (c[i].perc / 100)) do
 			local placed = false
