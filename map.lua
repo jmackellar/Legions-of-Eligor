@@ -194,7 +194,7 @@ function mapChangeFloor(dy, save)
 		--- a map for this level doesnt already exist, generate a new one
 		if mapBranch[mapCurrentBranch].gen == 'mapGenCave' then
 			mapGenCave(mapWidth, mapHeight)
-		elseif mapBranch[mapCurrentBranch].gen == 'mapGenDungeonmapGenDungeon' then
+		elseif mapBranch[mapCurrentBranch].gen == 'mapGenDungeon' then
 			mapGenDungeon(mapWidth, mapHeight)
 		elseif mapBranch[mapCurrentBranch].gen == 'mapGenJails' then
 			mapGenJails(mapWidth, mapHeight)
@@ -1043,7 +1043,7 @@ function mapGenDungeon(w, h)
 			end
 		end
 	end
-	
+
 	mapMovePlayerToSObject()
 	mapGenerateCreatures()
 	itemGenerate()
