@@ -1588,7 +1588,7 @@ end
 --- mapCreatureSpawn
 --- Will randomly create creatures in the level 
 function mapCreatureSpawn()
-	if love.math.random(1, 100) <= 25 and creatureGetTotalCreatures() < 15 then
+	if love.math.random(1, 100) <= 10 and creatureGetTotalCreatures() < 15 then
 		local placed = false
 		local c = mapBranch[mapCurrentBranch].creatures[love.math.random(1, # mapBranch[mapCurrentBranch].creatures)]
 		local x = love.math.random(2, mapWidth - 1)
