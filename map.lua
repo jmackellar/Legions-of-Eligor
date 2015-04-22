@@ -1509,8 +1509,10 @@ end
 function mapIsCreatureInVision(x, y)
 	for xx = x - playerGetViewRadius(), x + playerGetViewRadius() do
 		for yy = y - playerGetViewRadius(), y + playerGetViewRadius() do
-			if mapFog[xx][yy] and mapFog[xx][yy].lit and not creatureIsTileFree(xx, yy) then
-				return true
+			if xx > 1 and yy > 1 and xx < mapWidth and yy < mapHeight then
+				if mapFog[xx][yy] and mapFog[xx][yy].lit and not creatureIsTileFree(xx, yy) then
+					return true
+				end
 			end
 		end
 	end
