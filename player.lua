@@ -131,8 +131,12 @@ function playerKeypressed(key)
 		elseif key == 'z' then playerMenu = 'spell'
 		elseif key == 'm' then playerMenu = 'messages' 
 		elseif key == 'c' then playerMenu = 'character'
+		
+		elseif key == 'l' then playerMenu = 'stats' playerFreeStats = 5 
+		
 		elseif key == 'r' and (love.keyboard.isDown('rshift') or love.keyboard.isDown('lshift')) then playerAction = 'rest' messageRecieve("Resting... press any to stop resting.")
 		elseif key == '/' and (love.keyboard.isDown('lshift') or love.keyboard.isDown('rshift')) then playerMenu = 'help' end	
+		
 		--- downstairs
 		if (love.keyboard.isDown('rshift') or love.keyboard.isDown('lshift')) and key == '.' and mapGetTileName(playerX, playerY) == 'downstairs' then
 			playerPrev = 'up'
@@ -185,6 +189,25 @@ function playerKeypressed(key)
 	elseif playerMenu == 'character' then
 		if key then playerMenu = false end
 		gameSetRedrawAll()
+	elseif playerMenu == 'stats' then
+		if key == '1' then
+			playerVit = playerVit + 1
+			playerFreeStats = playerFreeStats - 1
+		elseif key == '2' then
+			playerEndur = playerEndur + 1
+			playerFreeStats = playerFreeStats - 1
+		elseif key == '3' then
+			playerMent = playerMent + 1
+			playerFreeStats = playerFreeStats - 1
+		elseif key == '4' then
+			playerWill = playerWill + 1
+			playerFreeStats = playerFreeStats - 1
+		end
+		if playerFreeStats < 1 then
+			playerMenu = false
+			playerFreeStats = 0
+			gameSetRedrawAll()
+		end
 	end
 	if key == ' ' then
 		return false
@@ -655,6 +678,58 @@ function playerDrawMenu()
 			for i = 1, # msg do
 				consolePrint({string = msg[i], x = 1, y = i})
 			end
+			
+		--- Stats
+		--- Upgrade player stats
+		elseif playerMenu == 'stats' then
+			local startx = 17
+			local starty = 5
+			local width = 45
+			local height = 13
+			
+			--- Window
+			for x = startx, startx + width do
+				for y = starty, starty + height do
+					consolePut({char = ' ', x = x, y = y})
+					if x == 1 or x == startx + width then
+						consolePut({char = '|', x = startx, y = y, textColor = {237, 222, 161, 255}})
+						consolePut({char = '|', x = startx + width, y = y, textColor = {237, 222, 161, 255}})
+					end
+					if y == 1 or y == starty + height then
+						consolePut({char = '-', x = x, y = starty, textColor = {237, 222, 161, 255}})
+						consolePut({char = '-', x = x, y = starty + height, textColor = {237, 222, 161, 255}})
+					end
+				end
+			end
+			consolePut({char = '+', x = startx, y = starty, textColor = {237, 222, 161, 255}})
+			consolePut({char = '+', x = startx + width, y = starty, textColor = {237, 222, 161, 255}})
+			consolePut({char = '+', x = startx, y = starty + height, textColor = {237, 222, 161, 255}})
+			consolePut({char = '+', x = startx + width, y = starty + height, textColor = {237, 222, 161, 255}})
+			
+			--- Instructions
+			consolePrint({string = 'Level Up', x = startx + math.floor(width/2) - 3, y = starty, textColor = {237, 222, 161, 255}})
+			consolePrint({string = 'Choose an attribute to increase.', x = startx + 2, y = starty + 2})
+			consolePrint({string = 'Points:', x = startx + 2 + 33, y = starty + 2, textColor = {234, 255, 0, 255}})
+			consolePrint({string = playerFreeStats, x = startx + 2 + 33 + 8, y = starty + 2})
+			
+			--- Stats
+			
+			consolePrint({string = '[1]', x = startx + 7, y = starty + 4, textColor = {234, 255, 0, 255}})
+			consolePrint({string = 'Vitality', x = startx + 11, y = starty + 4, textColor = {224, 119, 119, 255}})
+			consolePrint({string = playerVit, x = startx + 14, y = starty + 6})
+			
+			consolePrint({string = '[2]', x = startx + 26, y = starty + 4, textColor = {234, 255, 0, 255}})
+			consolePrint({string = 'Endurance', x = startx + 30, y = starty + 4, textColor = {119, 224, 119, 255}})
+			consolePrint({string = playerEndur, x = startx + 33, y = starty + 6})
+			
+			consolePrint({string = '[3]', x = startx + 7, y = starty + 9, textColor = {234, 255, 0, 255}})
+			consolePrint({string = 'Mentality', x = startx + 11, y = starty + 9, textColor = {119, 119, 224, 255}})
+			consolePrint({string = playerMent, x = startx + 14, y = starty + 11})
+			
+			consolePrint({string = '[4]', x = startx + 26, y = starty + 9, textColor = {234, 255, 0, 255}})
+			consolePrint({string = 'Willpower', x = startx + 30, y = starty + 9, textColor = {213, 115, 240, 255}})
+			consolePrint({string = playerWill, x = startx + 33, y = starty + 11})
+			
 		--- Character
 		--- Character stats and attributes
 		elseif playerMenu == 'character' then
@@ -928,10 +1003,8 @@ function playerAddExp(xp)
 		messageRecieve("You level up.")
 		playerExp = 0
 		playerLevel = playerLevel + 1
-		playerVit = playerVit + gameClasses[playerClass].levelup.vit
-		playerEndur = playerEndur + gameClasses[playerClass].levelup.endur
-		playerMent = playerMent + gameClasses[playerClass].levelup.ment
-		playerWill = playerWill + gameClasses[playerClass].levelup.will
+		playerMenu = 'stats'
+		playerFreeStats = 5
 	end
 end
 
