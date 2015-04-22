@@ -95,6 +95,7 @@ function mapGenerateCreatures()
 		end
 	end
 	--- Generate rare creatures.
+	if mapCurrentBranch == 'Dungeon' and mapCurrentFloor == 1 then return end
 	local c = mapBranch[mapCurrentBranch].rareCreatures
 	if not c then return end
 	for i = 1, # c do
