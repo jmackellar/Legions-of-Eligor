@@ -683,6 +683,28 @@ function itemGetEquipmentBonus()
 	return dam
 end
 
+--- itemGetEquipmentDamageRange
+--- Returns the min and max of equipment damage
+function itemGetEquipmentDamageRange()
+	local dammin = 0
+	local dammax = 0
+	for k, v in pairs(itemsEquipment) do
+		if v and v.data.damage then
+			for i = 1, v.data.damage.dice do
+				dammin = dammin + 1
+				dammax = dammax + v.data.damage.sides
+			end
+			dammin = dammin + v.data.damage.bonus
+			dammax = dammax + v.data.damage.bonus
+			if v.data.damagebonus then
+				dammin = dammin + v.data.damagebonus
+				dammax = dammax + v.data.damagebonus
+			end
+		end
+	end
+	return dammin, dammax
+end
+
 --- itemGetEquipmentVal
 --- returns passed target val sum of all equiped items
 function itemGetEquipmentVal(val)

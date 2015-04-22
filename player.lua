@@ -130,6 +130,7 @@ function playerKeypressed(key)
 		elseif key == 't' then itemInventorySetAction('throw') itemInventoryOpenFlip() return true
 		elseif key == 'z' then playerMenu = 'spell'
 		elseif key == 'm' then playerMenu = 'messages' 
+		elseif key == 'c' then playerMenu = 'character'
 		elseif key == 'r' and (love.keyboard.isDown('rshift') or love.keyboard.isDown('lshift')) then playerAction = 'rest' messageRecieve("Resting... press any to stop resting.")
 		elseif key == '/' and (love.keyboard.isDown('lshift') or love.keyboard.isDown('rshift')) then playerMenu = 'help' end	
 		--- downstairs
@@ -181,6 +182,9 @@ function playerKeypressed(key)
 				end
 			end
 		end
+	elseif playerMenu == 'character' then
+		if key then playerMenu = false end
+		gameSetRedrawAll()
 	end
 	if key == ' ' then
 		return false
@@ -603,7 +607,11 @@ function playerAttackedByCreature(name, prefix, dam)
 	local arm = playerArmor + itemGetEquipmentArmor()
 	local damred = 0
 	for i = 1, arm do
-		damred = damred + math.random(0, 1)
+		if i < (arm * 0.5) then
+			damred = damred + 1
+		else
+			damred = damred + math.random(0, 1)
+		end
 	end
 	
 	--- Hit player with the damage now.
@@ -647,6 +655,85 @@ function playerDrawMenu()
 			for i = 1, # msg do
 				consolePrint({string = msg[i], x = 1, y = i})
 			end
+		--- Character
+		--- Character stats and attributes
+		elseif playerMenu == 'character' then
+			consoleFlush()
+			
+			--- Border
+			for x = 1, consoleGetWindowWidth() do
+				consolePut({char = '-', x = x, y = 1, textColor = {237, 222, 161, 255}})
+				consolePut({char = '-', x = x, y = consoleGetWindowHeight(), textColor = {237, 222, 161, 255}})
+			end
+			for y = 1, consoleGetWindowHeight() do
+				consolePut({char = '|', x = 1, y = y, textColor = {237, 222, 161, 255}})
+				consolePut({char = '|', x = consoleGetWindowWidth(), y = y, textColor = {237, 222, 161, 255}})
+			end
+			consolePut({char = '+', x = 1, y = 1, textColor = {237, 222, 161, 255}})
+			consolePut({char = '+', x = consoleGetWindowWidth(), y = 1, textColor = {237, 222, 161, 255}})
+			consolePut({char = '+', x = 1, y = consoleGetWindowHeight(), textColor = {237, 222, 161, 255}})
+			consolePut({char = '+', x = consoleGetWindowWidth(), y = consoleGetWindowHeight(), textColor = {237, 222, 161, 255}})
+		
+			--- Name, Class, Level
+			consolePrint({string = playerName, x = 3, y = 3})
+			consolePrint({string = playerClass, x = 3, y = 4, textColor = {237, 222, 161, 255}})
+			consolePrint({string = "Level:", x = 3, y = 5, textColor = {237, 222, 161, 255}})
+			consolePrint({string = playerLevel, x = 10, y = 5})
+			
+			--- Health
+			consolePrint({string = 'Health:', x = 3, y = 8, textColor = {255, 0, 0, 255}})
+			consolePrint({string = playerHealth .. "/" .. playerHPMax(), x = 11, y = 8})
+			
+			--- Mana
+			consolePrint({string = 'Mana:', x = 3, y = 9, textColor = {75, 75, 255, 255}})
+			consolePrint({string = playerMana .. "/" .. playerMPMax(), x = 11, y = 9})
+			
+			--- Armor 
+			consolePrint({string = 'Armor:', x = 3, y = 12, textColor = {234, 255, 0, 255}})
+			consolePrint({string = playerArmor + itemGetEquipmentArmor(), x = 10, y = 12})
+			
+			--- Damage Reduction
+			consolePrint({string = 'Damage Reduction', x = 3, y = 14, textColor = {234, 255, 0, 255}})
+			local arm = playerArmor + itemGetEquipmentArmor()
+			local drmin = 0
+			local drmax = 0
+			for i = 1, arm do
+				if i < (arm * 0.55) then
+					drmin = drmin + 1
+				end
+				drmax = drmax + 1
+			end
+			consolePrint({string = '(' .. 	drmin .. '-' .. drmax ..')', x = 5, y = 15})
+	
+			--- Attack Damage
+			consolePrint({string = 'Attack Damage', x = 3, y = 16, textColor = {234, 255, 0, 255}})
+			local dammin, dammax = itemGetEquipmentDamageRange()
+			if dammax == 0 then
+				dammin = 1
+				dammax = 3
+			end
+			consolePrint({string = '(' .. dammin .. '-' .. dammax .. ')', x = 5, y = 17})
+			
+			--- Location, Floor
+			consolePrint({string = 'Location:', x = 28, y = 3, textColor = {222, 207, 120, 255}})
+			consolePrint({string = mapGetCurrentBranch(), x = 38, y = 3})
+			consolePrint({string = 'Floor:', x = 39 + string.len(mapGetCurrentBranch()), y = 3, textColor = {222, 207, 120, 255}})
+			consolePrint({string = mapGetCurrentFloor(), x = 46 + string.len(mapGetCurrentBranch()), y = 3})
+			
+			--- Experience
+			consolePrint({string = 'Experience:', x = 28, y = 4, textColor = {222, 207, 120, 255}})
+			consolePrint({string = playerExp .. "/" .. (((playerLevel)^2) * playerExpBase), x = 40, y = 4})
+			
+			--- Stats
+			consolePrint({string = 'Vitality:', x = 28, y = 8, textColor = {224, 119, 119, 255}})
+			consolePrint({string = playerGetVit() .. "(" .. playerVit .. "+" .. (playerGetVit() - playerVit) .. ")", x = 39, y = 8})
+			consolePrint({string = 'Endurace:', x = 28, y = 10, textColor = {119, 224, 119, 255}})
+			consolePrint({string = playerGetEndur() .. "(" .. playerEndur .. "+" .. (playerGetEndur() - playerEndur) .. ")", x = 39, y = 10})
+			consolePrint({string = 'Mentality:', x = 28, y = 12, textColor = {119, 119, 224, 255}})
+			consolePrint({string = playerGetMent() .. "(" .. playerMent .. "+" .. (playerGetMent() - playerMent) .. ")", x = 39, y = 12})
+			consolePrint({string = 'Willpower:', x = 28, y = 14, textColor = {213, 115, 240, 255}})
+			consolePrint({string = playerGetWill() .. "(" .. playerWill .. "+" .. (playerGetWill() - playerWill) .. ")", x = 39, y = 14})
+		
 		--- Help
 		--- Displays all game commands.
 		elseif playerMenu == 'help' then
@@ -672,6 +759,7 @@ function playerDrawMenu()
 			consolePrint({string = "o - Use Door", x = 2, y = 19})
 			consolePrint({string = "z - Cast Spell", x = 2, y = 20})
 			consolePrint({string = "R - Rest", x = 30, y = 12})
+			consolePrint({string = "c - Character Sheet", x = 30, y = 3})
 		
 			consolePrint({string = "m - View Recent Messages", x = 2, y = 23})			
 			consolePrint({string = "? - This Help Screen", x = 2, y = 24})
@@ -784,7 +872,6 @@ function playerCalcDamage()
 	if dam == 0 then
 		dam = math.random(1, 3)
 	end
-	print(dam)
 	return dam
 end
 
