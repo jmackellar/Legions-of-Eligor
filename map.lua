@@ -101,6 +101,9 @@ function mapGenerateCreatures()
 	for i = 1, # c do
 		local total = math.random(c[i].min, c[i].max)
 		local placed = 0
+		if mapCurrentBranch == 'Dungeon' and mapCurrentFloor == 2 then 
+			total = 1
+		end
 		while placed < total do
 			local x = math.random(2, mapWidth - 1)
 			local y = math.random(2, mapHeight - 1)
