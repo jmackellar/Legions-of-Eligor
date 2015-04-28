@@ -737,25 +737,46 @@ end
 --- sorts player inventory in order of itemsInventorySort.
 function itemSortInventory()
 	local itms = { }
+	local sortTypeExist = false
 	--- First sort items by sort type
 	for i = 1, # itemsInventorySort do
+	
 		--- pick out sort type items
-		local start = # itms
+		local start = # itms + 1
+		sortTypeExist = false
 		for j = # itemsInventory, 1, -1 do
 			if itemsInventory[j].data.sort == itemsInventorySort[i] then
 				table.insert(itms, itemsInventory[j])
+				sortTypeExist = true
 			end
 		end
+
 		--- go through sort type items and resort by alphabet
-		if start ~= # itms and start > 0 then
+		if sortTypeExist then
 			for j = start, # itms do
 				for k = j, # itms do
-					if items[k] and items[j] then
-						if string.byte(items[k].data.name, 1) < string.byte(items[j].data.name) then
-							local temp = items[j]
-							items[j] = items[k]
-							items[k] = temp
+					if itms[k] and itms[j] then
+					
+						local sortName1 = itms[k].data.name
+						local sortName2 = itms[j].data.name
+						local s = 1
+						if itms[k].data.idname then sortName1 = itms[k].data.idname end
+						if itms[j].data.idname then sortName2 = itms[j].data.idname end
+						
+						if sortName1 ~= sortName2 and string.byte(sortName1, 1) == string.byte(sortName2, 1) then
+							while string.byte(sortName1, s) == string.byte(sortName2, s) do
+								s = s + 1
+							end
 						end
+						
+						print(sortName1, sortName2, s)
+						
+						if string.byte(sortName1, s) < string.byte(sortName2, s) then
+							local temp = itms[j]
+							itms[j] = itms[k]
+							itms[k] = temp
+						end
+					
 					end
 				end
 			end
