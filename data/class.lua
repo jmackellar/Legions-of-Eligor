@@ -27,7 +27,7 @@ gameClasses = {
 					desc = 'Strike an enemy twice with your weapon in one turn.',
 					castmsg = 'You swing twice.',
 					},
-					{name = 'Shoutout', dist = 5, armor = -6, mana = 5, level = 5, turns = 15,
+					{name = 'Shoutout', dist = 5, armor = -6, mana = 1, level = 5, turns = 15,
 					desc = 'Let out a commanding shout that reduces armor of nearby enemies.',
 					castmsg = 'You let out a commanding shout.',
 					scaling = {endur = 0.15},
