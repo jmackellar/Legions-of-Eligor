@@ -154,14 +154,14 @@ function playerKeypressed(key)
 			mapUseConnection(playerX, playerY) return true
 		end
 	elseif playerAction == 'openclose' then
-		if key == 'kp8' then playerUseDoor(playerX + 0, playerY + -1)
-		elseif key == 'kp9' then playerUseDoor(playerX + 1, playerY +  -1) return true
-		elseif key == 'kp6' then playerUseDoor(playerX + 1, playerY +  0) return true
-		elseif key == 'kp3' then playerUseDoor(playerX + 1, playerY + 1) return true
-		elseif key == 'kp2' then playerUseDoor(playerX + 0, playerY + 1) return true
-		elseif key == 'kp1' then playerUseDoor(playerX + -1, playerY + 1) return true
-		elseif key == 'kp4' then playerUseDoor(playerX + -1, playerY + 0) return true
-		elseif key == 'kp7' then playerUseDoor(playerX + -1, playerY + -1)return true end
+		if key == 'kp8' or key == 'k' then playerUseDoor(playerX + 0, playerY + -1)
+		elseif key == 'kp9' or key == 'u' then playerUseDoor(playerX + 1, playerY +  -1) return true
+		elseif key == 'kp6' or key == 'l' then playerUseDoor(playerX + 1, playerY +  0) return true
+		elseif key == 'kp3' or key == 'n' then playerUseDoor(playerX + 1, playerY + 1) return true
+		elseif key == 'kp2' or key == 'j' then playerUseDoor(playerX + 0, playerY + 1) return true
+		elseif key == 'kp1' or key == 'b' then playerUseDoor(playerX + -1, playerY + 1) return true
+		elseif key == 'kp4' or key == 'h' then playerUseDoor(playerX + -1, playerY + 0) return true
+		elseif key == 'kp7' or key == 'y' then playerUseDoor(playerX + -1, playerY + -1)return true end
 	elseif playerAction == 'rest' then
 		if key then
 			playerAction = false
