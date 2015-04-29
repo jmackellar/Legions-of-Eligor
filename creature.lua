@@ -306,7 +306,7 @@ function creatureCastSpell(c)
 	for i = 1, # c.data.spells do
 		--- Initialize cd if it doesn't already exist
 		if not c.data.spells[i].cd then
-			c.data.spells[i]['cd'] = 0
+			c.data.spells[i]['cd'] = love.math.random(0, c.data.spells[i].cooldown)
 		end
 		--- Tick down cooldown.  If cooldown is reset then cast the spell if possible
 		c.data.spells[i].cd = c.data.spells[i].cd - 1
