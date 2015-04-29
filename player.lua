@@ -117,7 +117,7 @@ function playerKeypressed(key)
 		elseif key == 'kp1' or key == 'b' then playerMoveBy(-1, 1) return true
 		elseif key == 'kp4' or key == 'h' then playerMoveBy(-1, 0) return true
 		elseif key == 'kp7' or key == 'y' then playerMoveBy(-1, -1) return true 
-		elseif key == 'kp5' or key == '.' then gameFlipPlayerTurn() gameSetRedrawAll() return true end
+		elseif key == 'kp5' or key == '.' and not (love.keyboard.isDown('rshift') or love.keyboard.isDown('lshift')) then gameFlipPlayerTurn() gameSetRedrawAll() return true end
 		--- actions
 		if key == 'o' then playerAction = 'openclose' messageRecieve("Open which door?") 
 		elseif key == 'g' then itemPickup(playerX, playerY) return true 
