@@ -12,7 +12,7 @@ local playerTurns = 0
 local playerHealth = 100
 local playerHealthMax = 100
 local playerHealthRegen = 16
-local playerHealthRegenTick = 0
+local playerHealthRegenTick = 1
 local playerHealthRegenCount = 3
 
 local playerMana = 100
@@ -109,15 +109,15 @@ function playerKeypressed(key)
 	--- normal game actions
 	if not playerAction and not playerMenu and not itemGetInventoryOpen() then
 		--- movement
-		if key == 'kp8' then playerMoveBy(0, -1) return true
-		elseif key == 'kp9' then playerMoveBy(1, -1) return true
-		elseif key == 'kp6' then playerMoveBy(1, 0) return true
-		elseif key == 'kp3' then playerMoveBy(1, 1) return true
-		elseif key == 'kp2' then playerMoveBy(0, 1) return true
-		elseif key == 'kp1' then playerMoveBy(-1, 1) return true
-		elseif key == 'kp4' then playerMoveBy(-1, 0) return true
-		elseif key == 'kp7' then playerMoveBy(-1, -1) return true 
-		elseif key == 'kp5' then gameFlipPlayerTurn() gameSetRedrawAll() return true end
+		if key == 'kp8' or key == 'k' then playerMoveBy(0, -1) return true
+		elseif key == 'kp9' or key == 'u' then playerMoveBy(1, -1) return true
+		elseif key == 'kp6' or key == 'l' then playerMoveBy(1, 0) return true
+		elseif key == 'kp3' or key == 'n' then playerMoveBy(1, 1) return true
+		elseif key == 'kp2' or key == 'j' then playerMoveBy(0, 1) return true
+		elseif key == 'kp1' or key == 'b' then playerMoveBy(-1, 1) return true
+		elseif key == 'kp4' or key == 'h' then playerMoveBy(-1, 0) return true
+		elseif key == 'kp7' or key == 'y' then playerMoveBy(-1, -1) return true 
+		elseif key == 'kp5' or key == '.' then gameFlipPlayerTurn() gameSetRedrawAll() return true end
 		--- actions
 		if key == 'o' then playerAction = 'openclose' messageRecieve("Open which door?") 
 		elseif key == 'g' then itemPickup(playerX, playerY) return true 
