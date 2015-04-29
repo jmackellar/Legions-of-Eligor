@@ -89,14 +89,14 @@ function playerKeypressed(key)
 	if playerGetDirection then
 		local dx = 0
 		local dy = 0
-		if key == 'kp8' then dx = 0 dy = -1 
-		elseif key == 'kp9' then dx = 1 dy = -1
-		elseif key == 'kp6' then dx = 1 dy = 0
-		elseif key == 'kp3' then dx = 1 dy = 1
-		elseif key == 'kp2' then dx = 0 dy = 1
-		elseif key == 'kp1' then dx = -1 dy = 1
-		elseif key == 'kp4' then dx = -1 dy = 0
-		elseif key == 'kp7' then dx = -1 dy = -1 end
+		if key == 'kp8' or key == 'k' then dx = 0 dy = -1 
+		elseif key == 'kp9' or key == 'u' then dx = 1 dy = -1
+		elseif key == 'kp6' or key == 'l' then dx = 1 dy = 0
+		elseif key == 'kp3' or key == 'n' then dx = 1 dy = 1
+		elseif key == 'kp2' or key == 'j' then dx = 0 dy = 1
+		elseif key == 'kp1' or key == 'b' then dx = -1 dy = 1
+		elseif key == 'kp4' or key == 'h' then dx = -1 dy = 0
+		elseif key == 'kp7' or key == 'y' then dx = -1 dy = -1 end
 		if dx ~= 0 or dy ~= 0 then
 			playerDirection = {dx = dx, dy = dy}
 			playerGetDirection = false
