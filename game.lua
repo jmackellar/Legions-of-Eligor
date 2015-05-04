@@ -30,7 +30,7 @@ function gameEnter()
 	playerInit("Jesse", 1, 100, 100, 5, 5, 5, 5, newgameGetClass())
 	playerLoad()
 	if not mapLoad() then
-		mapGenDungeon(mapGetWidth(), mapGetHeight()) 
+		mapGenTown(mapGetWidth(), mapGetHeight()) 
 	end
 	messageInit(26)
 	aeInit()

@@ -125,6 +125,15 @@ mapTiles = {
 		backColor = {74, 62, 53, 255},
 		textColor = {171, 133, 84, 255},
 		},
+
+	water = {
+		char = '~',
+		name = 'water',
+		walkThru = false,
+		seeThru = true,
+		backColor = {0, 0, 255, 255},
+		textColor = {150, 150, 255, 255},
+		},
 		
 	identify = {
 		char = '÷',

@@ -21,8 +21,8 @@ local playerManaRegen = 21
 local playerManaRegenTick = 0
 local playerManaRegenCount = 3
 
-local playerX = 5
-local playerY = 5
+local playerX = 40
+local playerY = 13
 
 local playerVit = 5
 local playerMent = 5
@@ -34,7 +34,7 @@ local playerSpeed = 100
 local playerViewRadius = 12
 local playerFogCanCast = true
 
-local playerPrev = 'random'
+local playerPrev = 'spawn'
 
 local playerAction = false
 local playerMenu = false

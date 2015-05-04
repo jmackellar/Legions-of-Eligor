@@ -1,5 +1,22 @@
 mapBranch = {
 
+	Outpost = {
+		gen = 'mapGenTown',
+		intro = 'Outpost',
+		floors = 1,
+		minCreatures = 0,
+		maxCreatures = 0,
+		creatures = { },
+		minItems = 0,
+		maxItems = 0,
+		maxExtraItems = 0,
+		maxExtraItems = 0,
+		extraItemsChance = 0,
+		items = { },
+		extraItems = { },
+		connections = { {branch = 'Dungeon', floor = 1, drop = 1, x = 74, y = 6} },
+		},
+
 	Dungeon = {
 		gen = 'mapGenDungeon',
 		intro = 'Dungeon',
@@ -20,7 +37,9 @@ mapBranch = {
 		items = { {name = 'dart', perc = 25}, {name = 'bandage', perc = 20} },
 		extraItems = { 'tunic', 'clothpants', 'sandels', 'shortsword', 'potionhealing', 'potionmanagain', 'potionpoison', 
 						'dagger', 'bandage', 'dart', 'potionspeed', 'potionslow', },
-		connections = { {branch = 'Caves', floor = 4, drop = 1}, {branch = 'Storehouse', floor = 7, drop = 1}, },
+		connections = { {branch = 'Caves', floor = 4, drop = 1}, {branch = 'Storehouse', floor = 7, drop = 1},
+						{branch = 'Outpost', floor = 1, drop = 1} 
+						},
 		tiles = { {name = 'identify', floor = 6, x = 'random', y = 'random'}, 
 					 },
 		},

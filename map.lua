@@ -12,7 +12,7 @@ local mapEffect = { }
 
 local mapDijkstra = { }
 
-local mapCurrentBranch = 'Dungeon'
+local mapCurrentBranch = 'Outpost'
 local mapCurrentFloor = 1
 
 local mapPlayerSObject = 'random'
@@ -206,6 +206,8 @@ function mapChangeFloor(dy, save)
 			mapGenBSP(mapWidth, mapHeight)
 		elseif mapBranch[mapCurrentBranch].gen == 'mapGenGrave' then
 			mapGenGrave(mapWidth, mapHeight)
+		elseif mapBranch[mapCurrentBranch].gen == 'mapGenTown' then
+			mapGenTown(mapWidth, mapHeight)
 		end
 	else
 		playerDisableFog()
@@ -352,6 +354,159 @@ function mapDrawTile(x, y)
 		local tC = map[x][y].textColor
 		consolePut({x = xx, y = yy, char = map[x][y].char, backColor = map[x][y].backColor, textColor = tC})
 	end
+end
+
+--- mapGenTown
+--- Overworld town hub.
+function mapGenTown(w, h)
+	mapInit(w, h)
+
+	--- Grass
+	for x = 1, mapWidth do
+		for y = 1, mapHeight do
+			map[x][y] = mapTiles.grass
+		end
+	end
+	
+	--- Outside Fence
+	for x = 1, mapWidth do
+		map[x][1] = mapTiles.fence
+		map[x][mapHeight - 1] = mapTiles.fence
+	end
+	for y = 1, mapHeight do
+		map[1][y] = mapTiles.blank
+		map[2][y] = mapTiles.fence
+		map[mapWidth - 1][y] = mapTiles.fence
+	end
+
+	--- Mountain range
+	for x = 2, mapWidth do
+		local yEnd = ( (1/140) * ((x-30)^2) ) + 1    --- //What the fuck?
+		for y = 1, yEnd do
+			y = math.floor(y)
+			if y >= 1 and y < mapHeight then
+				map[x][y] = mapTiles.wall
+			end
+		end
+	end
+
+	--- Cavern
+	for x = 70, 77 do
+		for y = 4, 8 do
+			map[x][y] = mapTiles.floor
+		end
+	end
+	for x = 66, 70 do
+		map[x][4] = mapTiles.floor
+		map[x][5] = mapTiles.floor
+	end
+	for x = 60, 66 do
+		map[x][5] = mapTiles.floor
+		map[x][6] = mapTiles.floor
+	end
+	for x = 58, 61 do
+		map[x][6] = mapTiles.floor
+		map[x][7] = mapTiles.floor
+	end
+	map[67][6] = mapTiles.floor
+
+	--- Water
+	for x = 2, mapWidth do
+		for y = 18, mapHeight do
+			if x <= 6 then
+				map[x][y-1] = mapTiles.water
+			end
+			map[x][y] = mapTiles.water
+			if x > 12 and x < 74 and y == 18 then
+				map[x][y] = mapTiles.grass
+			end		
+		end
+	end
+
+	--- Church
+	for x = 8, 24 do
+		for y = 8, 14 do
+			map[x][y] = mapTiles.floor
+			if x < 9 or x > 23 or y < 9 or y > 13 then
+				map[x][y] = mapTiles.smoothwall
+			end
+		end
+	end
+	--- Big Shortcut
+	for x = 4, 8 do
+		for y = 9, 13 do
+			map[x][y] = mapTiles.floor
+			if x < 5 or x > 7 or y < 10 or y > 12 then
+				map[x][y] = mapTiles.smoothwall
+			end
+		end
+	end
+	--- Shortcut #1
+	map[9][7] = mapTiles.smoothwall
+	map[9][6] = mapTiles.smoothwall
+	map[10][6] = mapTiles.smoothwall
+	map[11][6] = mapTiles.smoothwall
+	map[11][7] = mapTiles.smoothwall
+	map[10][7] = mapTiles.floor
+	map[10][8] = mapTiles.closeddoor
+	--- Shortcut #2
+	map[13][7] = mapTiles.smoothwall
+	map[13][6] = mapTiles.smoothwall
+	map[14][6] = mapTiles.smoothwall
+	map[15][6] = mapTiles.smoothwall
+	map[15][7] = mapTiles.smoothwall
+	map[14][7] = mapTiles.floor
+	map[14][8] = mapTiles.closeddoor
+	--- Shortcut #3
+	map[17][7] = mapTiles.smoothwall
+	map[17][6] = mapTiles.smoothwall
+	map[18][6] = mapTiles.smoothwall
+	map[19][6] = mapTiles.smoothwall
+	map[19][7] = mapTiles.smoothwall
+	map[18][7] = mapTiles.floor
+	map[18][8] = mapTiles.closeddoor
+	--- Shortcut #4
+	map[21][7] = mapTiles.smoothwall
+	map[21][6] = mapTiles.smoothwall
+	map[22][6] = mapTiles.smoothwall
+	map[23][6] = mapTiles.smoothwall
+	map[23][7] = mapTiles.smoothwall
+	map[22][7] = mapTiles.floor
+	map[22][8] = mapTiles.closeddoor
+	--- Church front door
+	map[24][11] = mapTiles.closeddoor
+	--- Bigshortcut door
+	map[8][11] = mapTiles.closeddoor
+
+	--- House #1
+	for x = 31, 36 do
+		for y = 3, 7 do
+			map[x][y] = mapTiles.floor
+			if x < 32 or x > 35 or y < 4 or y > 6 then
+				map[x][y] = mapTiles.smoothwall
+			end
+		end
+	end
+	map[34][7] = mapTiles.closeddoor
+
+	--- House #2
+	for x = 55, 60 do
+		for y = 12, 16 do
+			map[x][y] = mapTiles.floor
+			if x < 56 or x > 59 or y < 13 or y > 15 then
+				map[x][y] = mapTiles.smoothwall
+			end
+		end
+	end
+	map[55][14] = mapTiles.closeddoor
+
+	mapMovePlayerToSObject()
+	playerCastFog()
+	---mapGenerateCreatures()	Town has no items or monsters in it
+	---itemGenerate()
+	mapPlaceSpecialTiles()
+	mapPlaceConnections()
+	gameSetRedrawAll()
 end
 
 --- mapGenGrave
@@ -1214,8 +1369,8 @@ function mapPlaceConnections()
 		if connections[i].floor == mapCurrentFloor then
 			local placed = false
 			repeat
-				local x = math.random(3, mapWidth - 2)
-				local y = math.random(3, mapHeight - 2)
+				local x = connections[i].x or math.random(3, mapWidth - 2)
+				local y = connections[i].y or math.random(3, mapHeight - 2)
 				if map[x][y] == mapTiles.floor or map[x][y].name == 'floor' then
 					placed = true
 					map[x][y] = mapTiles.connection
@@ -1264,6 +1419,10 @@ function mapMovePlayerToSObject()
 				return
 			end
 		end
+	elseif playerGetPrev() == 'spawn' then
+		local x = 43
+		local y = 13
+		playerMoveTo(x, y)
 	end
 end
 
@@ -1602,6 +1761,7 @@ end
 --- mapCreatureSpawn
 --- Will randomly create creatures in the level 
 function mapCreatureSpawn()
+	if mapBranch[mapCurrentBranch].maxCreatures == 0 then return end
 	if love.math.random(1, 100) <= 2 and creatureGetTotalCreatures() < 15 then
 		local placed = false
 		local c = mapBranch[mapCurrentBranch].creatures[love.math.random(1, # mapBranch[mapCurrentBranch].creatures)]
