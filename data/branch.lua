@@ -14,7 +14,9 @@ mapBranch = {
 		extraItemsChance = 0,
 		items = { },
 		extraItems = { },
-		connections = { {branch = 'Dungeon', floor = 1, drop = 1, x = 74, y = 6} },
+		connections = { {branch = 'Dungeon', floor = 1, drop = 1, x = 74, y = 6},
+						{branch = 'Hallway', floor = 1, drop = 1, x = 33, y = 5},
+						 },
 		},
 
 	Dungeon = {
@@ -37,11 +39,33 @@ mapBranch = {
 		items = { {name = 'dart', perc = 25}, {name = 'bandage', perc = 20} },
 		extraItems = { 'tunic', 'clothpants', 'sandels', 'shortsword', 'potionhealing', 'potionmanagain', 'potionpoison', 
 						'dagger', 'bandage', 'dart', 'potionspeed', 'potionslow', },
-		connections = { {branch = 'Caves', floor = 4, drop = 1}, {branch = 'Storehouse', floor = 7, drop = 1},
+		connections = { {branch = 'Caves', floor = 4, drop = 1}, 
+						{branch = 'Hallway', floor = 7, drop = 1},
 						{branch = 'Outpost', floor = 1, drop = 1} 
 						},
 		tiles = { {name = 'identify', floor = 6, x = 'random', y = 'random'}, 
 					 },
+		},
+
+	Hallway = {
+		gen = 'mapGenHallway',
+		intro = 'Hallway',
+		floors = 1,
+		minCreatures = 0,
+		maxCreatures = 0,
+		extraItemsChance = 0,
+		maxExtraItems = 0,
+		creatures = { },
+		minItems = 0,
+		maxItems = 0,
+		items = { },
+		extraItems = { },
+		guaranteedItems = { {name = 'housekey', x = 40, y = 7}, },
+		connections = { {branch = 'Dungeon', floor = 1, drop = 7, x = 32, y = 11},
+						{branch = 'Storehouse', floor = 1, drop = 1, x = 48, y = 11},
+						{branch = 'Outpost', floor = 1, drop = 1, x = 40, y = 6},
+						 },
+		tiles = { },
 		},
 		
 	Storehouse = {
@@ -68,7 +92,7 @@ mapBranch = {
 		items = { {name = 'dart', perc = 25}, {name = 'bandage', perc = 20} },
 		extraItems = { 'tunic', 'clothpants', 'sandels', 'shortsword', 'potionhealing', 'potionmanagain', 'potionpoison', 
 						'dagger', 'bandage', 'dart', 'potionspeed', 'potionslow', },
-		connections = { {branch = 'Dungeon', floor = 1, drop = 7}, },
+		connections = { {branch = 'Hallway', floor = 1, drop = 1}, },
 		tiles = { },
 		},
 

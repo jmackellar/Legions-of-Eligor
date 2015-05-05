@@ -475,7 +475,8 @@ function itemGenerate()
 		until placed >= mx
 	end
 	--- place extra items at a chance
-	for i = 1, (love.math.random(1, branch.maxExtraItems)) do
+	local itemMax = branch.maxExtraItems or 0
+	for i = 1, (love.math.random(0, branch.maxExtraItems)) do
 		if love.math.random(1, 100) <= branch.extraItemsChance then
 			local placed = false
 			repeat
@@ -485,6 +486,21 @@ function itemGenerate()
 					placed = true
 					local item = love.math.random(1, # branch.extraItems)
 					table.insert(items, {data = gameItems[branch.extraItems[item]], x = x , y = y})
+				end
+			until placed
+		end
+	end
+	--- place guaranteed items
+	if branch.guaranteedItems then
+		local gItems = branch.guaranteedItems
+		for i = 1, # gItems do
+			local placed = false
+			repeat
+				local x = gItems[i].x or love.math.random(1, mapGetWidth())
+				local y = gItems[i].y or love.math.random(1, mapGetHeight())
+				if mapGetWalkThru(x, y) then
+					placed = true
+					table.insert(items, {data = gameItems[gItems[i].name], x = x, y = y})
 				end
 			until placed
 		end

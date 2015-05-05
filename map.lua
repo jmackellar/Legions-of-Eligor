@@ -208,6 +208,8 @@ function mapChangeFloor(dy, save)
 			mapGenGrave(mapWidth, mapHeight)
 		elseif mapBranch[mapCurrentBranch].gen == 'mapGenTown' then
 			mapGenTown(mapWidth, mapHeight)
+		elseif mapBranch[mapCurrentBranch].gen == 'mapGenHallway' then
+			mapGenHallway(mapWidth, mapHeight)
 		end
 	else
 		playerDisableFog()
@@ -356,6 +358,46 @@ function mapDrawTile(x, y)
 	end
 end
 
+--- mapGenHallway
+--- Hallways between some branches.
+function mapGenHallway(w, h)
+	mapInit(w, h)
+
+	--- Fill map with blank tiles
+	for x = 1, mapWidth do
+		for y = 1, mapHeight do
+			map[x][y] = mapTiles.blank
+		end
+	end
+
+	--- Make Hallway
+	for x = 30, 50 do
+		for y = 8, 14 do
+			map[x][y] = mapTiles.floor
+			if x < 31 or x > 49 or y < 9 or y > 13 then
+				map[x][y] = mapTiles.smoothwall
+			end
+		end
+	end
+
+	for x = 37, 43 do
+		for y = 4, 8 do
+			map[x][y] = mapTiles.floor
+			if x < 38 or x > 42 or y < 5 then
+				map[x][y] = mapTiles.smoothwall
+			end
+		end
+	end
+
+	mapMovePlayerToSObject()
+	playerCastFog()
+	mapGenerateCreatures()	
+	itemGenerate()
+	mapPlaceSpecialTiles()
+	mapPlaceConnections()
+	gameSetRedrawAll()
+end
+
 --- mapGenTown
 --- Overworld town hub.
 function mapGenTown(w, h)
@@ -487,7 +529,12 @@ function mapGenTown(w, h)
 			end
 		end
 	end
-	map[34][7] = mapTiles.closeddoor
+	local door = { }
+	for k,v in pairs(mapTiles.closeddoor) do
+		door[k] = v
+	end
+	door.locked = 'House Key'
+	map[34][7] = door
 
 	--- House #2
 	for x = 55, 60 do
@@ -1197,7 +1244,11 @@ function mapGenDungeon(w, h)
 				map[x-3][y+3] = mapTiles.smoothwall
 				map[x+3][y-3] = mapTiles.smoothwall
 				map[x+3][y+3] = mapTiles.smoothwall
-				map[x][y+1] = mapTiles.closeddoor
+				local door = { }
+				for k,v in pairs(mapTiles.closeddoor) do
+					door[k] = v
+				end
+				map[x][y+1] = door
 				map[x][y+1].locked = 'Rusted Key'
 			end
 		end

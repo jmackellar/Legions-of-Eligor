@@ -256,6 +256,16 @@ gameItems = {
 		backColor = {0, 0, 0, 255},
 		textColor = {196, 164, 112, 255},
 		},
+
+	housekey = {
+		name = 'House Key',
+		prefix = 'the ',
+		singular = 'a ',
+		sort = 'useables',
+		char = '$',
+		backColor = {0, 0, 0, 255},
+		textColor = {196, 164, 112, 255},
+		},
 		
 	----------------------------------------------
 	------------------------------------
