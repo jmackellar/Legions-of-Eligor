@@ -1217,7 +1217,7 @@ function mapGenDungeon(w, h)
 	--- room around the connection leading to storehouse
 	if mapCurrentFloor == mapBranch[mapCurrentBranch].floors then
 		for i = 1, # mapObjects do
-			if mapObjects[i].connection == 'Storehouse' then
+			if mapObjects[i].connection == 'Hallway' then
 				local x = mapObjects[i].x
 				local y = mapObjects[i].y
 				for xx = x - 2, x + 2 do
