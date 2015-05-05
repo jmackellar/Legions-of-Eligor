@@ -954,8 +954,23 @@ function playerDrawHud()
 	consolePut({char = '+', x = 1, y = startY-1})
 	consolePut({char = '+', x = 1, y = startY+2})
 	consolePrint({string = playerClass .. " Level " .. playerLevel, x = 4, y = startY, textColor = {222, 207, 120, 255}})
-	consolePrint({string = "Experience:", x = 4, y = startY+1, textColor = {222, 207, 120, 255}})
-	consolePrint({string = playerExp .. "/" .. (((playerLevel)^2) * playerExpBase), x = 15, y = startY+1})
+	--consolePrint({string = "Experience:", x = 4, y = startY+1, textColor = {222, 207, 120, 255}})
+	--consolePrint({string = playerExp .. "/" .. (((playerLevel)^2) * playerExpBase), x = 15, y = startY+1})
+	--- XP Bar
+	local perc = playerExp / (((playerLevel)^2) * playerExpBase)
+	local pips = math.floor(14 * perc)
+	consolePrint({string = "[--------------]", x = 4, y = startY + 1})
+	consolePrint({string = "EXP", x = 11, y = startY + 1})
+	for x = 5, 5 + pips do
+		consolePut({char = '', x = x, y = startY + 1, backColor = {255, 102, 0, 255}})
+		if x == 11 then
+			consolePut({char = 'E', x = x, y = startY + 1, backColor = {255, 102, 0, 255}})
+		elseif x == 12 then
+			consolePut({char = 'X', x = x, y = startY + 1, backColor = {255, 102, 0, 255}})
+		elseif x == 13 then
+			consolePut({char = 'P', x = x, y = startY + 1, backColor = {255, 102, 0, 255}})
+		end	
+	end
 	consolePut({char = '|', x = 22, y = startY})
 	consolePut({char = '|', x = 22, y = startY+1})
 	consolePut({char = '+', x = 22, y = startY-1})
