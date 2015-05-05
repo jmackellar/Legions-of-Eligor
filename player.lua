@@ -1065,6 +1065,12 @@ function playerIncTurns()
 	playerTurns = playerTurns + 1
 end
 
+--- playerSetPrev
+--- Sets player prev variable to passed value.
+function playerSetPrev(pre)
+	playerPrev = pre
+end
+
 --- Getters
 function playerGetViewRadius() return playerViewRadius end
 function playerGetPrev() return playerPrev end
@@ -1073,3 +1079,4 @@ function playerGetY() return playerY end
 function playerGetDirectionVar() return playerDirection end
 function playerGetSpeed() return playerSpeed + playerGetMod('speed') + itemGetEquipmentVal('speed') end
 function playerGetHealth() return playerHealth end
+function playerGetMana() return playerMana end

@@ -319,6 +319,16 @@ function itemApplyFromInventory(letter)
 	elseif item.data.type == 'speed' then
 		playerAddMod({mod = 'speed', turn = item.data.turns, val = item.data.speed, msgend = item.data.msgend})
 		used = true
+	elseif item.data.type == 'teleport' then
+		local mana = item.data.manacost or 0
+		if playerGetMana() >= mana then
+			messageRecieve(item.data.msg)
+			playerManaGain(mana * -1, mana * -1)
+			playerSetPrev('spawn')
+			mapChangeBranch(item.data.teleport)
+		else
+			messageRecieve(item.data.nomanamsg)
+		end
 	end
 	if used then 
 		msg = item.data.msg

@@ -253,6 +253,7 @@ gameItems = {
 		singular = 'a ',
 		sort = 'useables',
 		char = '$',
+		throwbreakchance = 0,
 		backColor = {0, 0, 0, 255},
 		textColor = {196, 164, 112, 255},
 		},
@@ -263,6 +264,7 @@ gameItems = {
 		singular = 'a ',
 		sort = 'useables',
 		char = '$',
+		throwbreakchance = 0,
 		backColor = {0, 0, 0, 255},
 		textColor = {196, 164, 112, 255},
 		},
@@ -312,5 +314,28 @@ gameItems = {
 		throwbreakchance = 5,
 		backColor = {0, 0, 0, 255},
 		textColor = {255, 255, 0, 255},
+		},
+
+	----------------------------------------------
+	------------------------------------
+	------ Special Items
+	----------------------------------------------
+	------------------------------------
+	------
+
+	magicmirror = {
+		name = 'Magic Mirror',
+		prefix = 'the ',
+		singular = 'a ',
+		sort = 'useables',
+		char = '^',
+		throwbreakchance = 0,
+		type = 'teleport',
+		teleport = 'Outpost',
+		manacost = 1,
+		msg = 'You gaze into the mirror and feel a warping sensation.',
+		nomanamsg = 'You gaze into the mirror.  Nothing happens.',
+		backColor = {0, 0, 0, 255},
+		textColor = {150, 150, 255, 255},
 		},
 }

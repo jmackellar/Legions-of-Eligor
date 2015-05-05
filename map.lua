@@ -230,10 +230,12 @@ end
 
 --- mapChangeBranch
 --- changes map branch
-function mapChangeBranch(branch)
+function mapChangeBranch(branch, save)
+	local s = save or true
+	if s then mapSave() end
 	mapCurrentBranch = branch
-	mapCurrentFloor = 1
-	mapChangeFloor(0)
+	mapCurrentFloor = 0
+	mapChangeFloor(1, false)
 end
 
 --- mapUseConnection
@@ -549,8 +551,8 @@ function mapGenTown(w, h)
 
 	mapMovePlayerToSObject()
 	playerCastFog()
-	---mapGenerateCreatures()	Town has no items or monsters in it
-	---itemGenerate()
+	---mapGenerateCreatures()
+	itemGenerate()
 	mapPlaceSpecialTiles()
 	mapPlaceConnections()
 	gameSetRedrawAll()
