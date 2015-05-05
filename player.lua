@@ -128,6 +128,7 @@ function playerKeypressed(key)
 		elseif key == 'r' and not (love.keyboard.isDown('rshift') or love.keyboard.isDown('lshift')) then itemInventorySetAction('remove') itemInventoryOpenFlip() return true 
 		elseif key == 'a' then itemInventorySetAction('apply') itemInventoryOpenFlip() return true 
 		elseif key == 't' then itemInventorySetAction('throw') itemInventoryOpenFlip() return true
+		elseif key == 'return' then playerUseTile()
 		elseif key == 'z' then playerMenu = 'spell'
 		elseif key == 'm' then playerMenu = 'messages' 
 		elseif key == 'c' then playerMenu = 'character'
@@ -187,6 +188,9 @@ function playerKeypressed(key)
 			end
 		end
 	elseif playerMenu == 'character' then
+		if key then playerMenu = false end
+		gameSetRedrawAll()
+	elseif playerMenu == 'tablet' then
 		if key then playerMenu = false end
 		gameSetRedrawAll()
 	elseif playerMenu == 'stats' then
@@ -680,6 +684,38 @@ function playerDrawMenu()
 			for i = 1, # msg do
 				consolePrint({string = msg[i], x = 1, y = i})
 			end
+
+		--- Tabler
+		--- Display tablet message
+		elseif playerMenu == 'tablet' then
+			consoleFlush()
+
+			--- Borders
+			local w = consoleGetWindowWidth()
+			local h = consoleGetWindowHeight()	
+			local bC = {199, 136, 93, 255}
+			local tC = {89, 60, 41, 255}
+			for x = 1, w do
+				consolePut({char = '-', x = x, y = 1, backColor = bC, textColor = tC})
+				consolePut({char = '-', x = x, y = h, backColor = bC, textColor = tC})
+			end
+			for y = 1, h do
+				consolePut({char = '|', x = 1, y = y, backColor = bC, textColor = tC})
+				consolePut({char = '|', x = w, y = y, backColor = bC, textColor = tC})
+			end
+			consolePut({char = '+', x = 1, y = 1, backColor = bC, textColor = tC})
+			consolePut({char = '+', x = 1, y = h, backColor = bC, textColor = tC})
+			consolePut({char = '+', x = w, y = 1, backColor = bC, textColor = tC})
+			consolePut({char = '+', x = w, y = h, backColor = bC, textColor = tC})
+
+			--- Message
+			local startX, startY = playerTabletCenter()
+			for i = 1, # playerMenuTablet do
+				consolePrint({string = playerMenuTablet[i], x = startX, y = startY + i})
+			end
+
+			--- Quit help
+			consolePrint({string = 'Press any key to return', x = 3, y = 25})
 			
 		--- Stats
 		--- Upgrade player stats
@@ -1042,6 +1078,41 @@ function playerAddExp(xp)
 		playerMenu = 'stats'
 		playerFreeStats = 5
 	end
+end
+
+--- playerUseTile
+--- Uses the tile that the player is standing on if possible
+function playerUseTile()
+	local tile = mapGetTile(playerX, playerY)
+	if tile.name == 'tablet' then
+		playerMenu = 'tablet'
+		playerMenuTablet = tile.msg
+	end
+end
+
+--- playerTabletCenter
+--- Calculates the starting x and y coordinates neccessary to center
+--- the tablet text.
+function playerTabletCenter()
+	local startX = 0
+	local startY = 0
+	local avg = 0
+	local skipped = 0
+
+	--- Get average width of the message
+	for i = 1, # playerMenuTablet do
+		if playerMenuTablet[i] ~= "" then
+			avg = avg + string.len(playerMenuTablet[i])
+		else
+			skipped = skipped + 1
+		end
+	end
+	startX = math.floor( 40 - ((avg / (# playerMenuTablet - skipped) )/2) )
+
+	--- Calculate starting Y based on height of the message
+	startY = math.floor(10 - (#playerMenuTablet / 2))
+
+	return startX, startY
 end
 
 --- playerScaling

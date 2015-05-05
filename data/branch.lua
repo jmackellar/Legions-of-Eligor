@@ -20,6 +20,8 @@ mapBranch = {
 		connections = { {branch = 'Dungeon', floor = 1, drop = 1, x = 74, y = 6},
 						{branch = 'Hallway', floor = 1, drop = 1, x = 33, y = 5},
 						 },
+		tiles = { {name = 'tablet', floor = 1, x = 72, y = 4, msg = gameMessages.questMessage1}, 
+					},
 		},
 
 	Dungeon = {
@@ -148,6 +150,8 @@ mapBranch = {
 		extraItems = { 'tunic', 'clothpants', 'sandels', 'shortsword', 'potionhealing', 'potionmanagain', 'potionpoison', 
 						'dagger', 'bandage', 'dart', 'potionspeed', 'potionslow', },
 		connections = { {branch = 'Caves', floor = 1, drop = 4} },
+		tiles = { {name = 'tablet', floor = 1, x = 40, y = 10, msg = gameMessages.questMessage2}, 
+					},
 		},
 		
 }

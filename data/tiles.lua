@@ -145,5 +145,15 @@ mapTiles = {
 		interaction = 'identify',
 		charge = 3,
 		},
+
+	tablet = {
+		char = '=',
+		name = 'tablet',
+		walkThru = true,
+		seeThru = true,
+		backColor = {0, 0, 0, 255},
+		textColor = {246, 255, 0, 255},
+		interaction = 'read',
+		},
 		
 }

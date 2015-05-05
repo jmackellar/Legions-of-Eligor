@@ -2,6 +2,7 @@
 --- Main game loop.  
 
 --- data files
+require "data/messages"
 require "data/tiles"
 require "data/branch"
 require "data/monster"

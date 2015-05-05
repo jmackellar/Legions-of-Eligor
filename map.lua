@@ -1663,6 +1663,8 @@ function mapDidPlayerWalkOverObject(x, y)
 	--- Special Tiles
 	if mapGetTileName(x, y) == 'identify' then
 		messageRecieve("There is an identification stand here.")
+	elseif mapGetTileName(x, y) == 'tablet' then
+		messageRecieve("There is a tablet here with a message etched on it.")
 	end
 end
 
@@ -1709,10 +1711,15 @@ function mapPlaceSpecialTiles()
 			local y = 0
 			while not placed do
 				--- Random coordinates or guaranteed coordinates
-				if tile.x == 'random' then x = math.random(1, mapWidth) end
-				if tile.y == 'random' then y = math.random(1, mapHeight) end
+				if tile.x == 'random' then x = math.random(1, mapWidth) else x = tile.x end
+				if tile.y == 'random' then y = math.random(1, mapHeight) else y = tile.y end
 				if mapGetWalkThru(x, y) and map[x][y].char ~= '╫' and mapGetTileName(x, y) ~= 'downstairs' and mapGetTileName(x, y) ~= 'upstairs' then
-					map[x][y] = mapTiles[tile.name]
+					local t = { }
+					for k,v in pairs(mapTiles[tile.name]) do
+						t[k] = v
+					end
+					if tile.msg then t.msg = tile.msg end
+					map[x][y] = t
 					placed = true
 				end
 			end
