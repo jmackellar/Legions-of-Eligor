@@ -1,5 +1,25 @@
 gameMessages = {
 	
+	vagrantIntro = {
+		"Keir Ostrason the Vagrant",
+		"",
+		"The Vagrant is an outlier, an outlaw, and a wanted man.",
+		"Born into crime, the Vagrant is shunned by society and",
+		"left to live or die alone in the wilderness.  The Vagrant",
+		"relies on being slippery and hard to catch, while stopping",
+		"his enemies with a sharp thrust."
+},
+
+	arcanistIntro = {
+		"Uisdean Bluespell the Arcanist",
+		"",
+		"An arcanist devotes his life to the study of the arcane",
+		"arts, mastering magic and rune symbols.  The arcanist",
+		"doesn't know pain nor strength, but makes up for his",
+		"underwhelming physical prowess with a large battery of",
+		"arcane powers to shred his enemies apart."
+},
+
 	questMessage1 = {
 		"Deep in the dark depths below",
 		"Deep into the dismal caves below",
