@@ -964,6 +964,7 @@ function playerDrawMenu()
 			consolePrint({string = "d - Drop Item", x = 2, y = 18})
 			consolePrint({string = "o - Use Door", x = 2, y = 19})
 			consolePrint({string = "z - Cast Spell", x = 2, y = 20})
+			consolePrint({string = 'Enter/Return - Use Map Tile', x = 30, y = 4})
 			consolePrint({string = "R - Rest", x = 30, y = 12})
 			consolePrint({string = "c - Character Sheet", x = 30, y = 3})
 		
