@@ -518,7 +518,12 @@ function mapGenTown(w, h)
 	map[22][7] = mapTiles.floor
 	map[22][8] = mapTiles.closeddoor
 	--- Church front door
-	map[24][11] = mapTiles.closeddoor
+	local frontdoor = {}
+	for k,v in pairs(mapTiles.closeddoor) do
+		frontdoor[k] = v 
+	end
+	frontdoor.locked = 'Church Key'
+	map[24][11] = frontdoor
 	--- Bigshortcut door
 	map[8][11] = mapTiles.closeddoor
 
