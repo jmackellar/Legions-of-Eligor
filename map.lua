@@ -1610,7 +1610,6 @@ end
 --- mapSwitchDoor
 --- switches a door between open and close at target tile.
 function mapSwitchDoor(x, y)
-	print(map[x][y].locked)
 	if map[x][y] == mapTiles.closeddoor or map[x][y].name == 'closeddoor' then
 		--- check if the door is locked or not
 		if not map[x][y].locked or (itemIsInInventory(map[x][y].locked)) then
@@ -1624,7 +1623,7 @@ function mapSwitchDoor(x, y)
 			playerCastFog()
 			gameSetRedrawAll()
 		else
-			messageRecieve("The door is locked by " .. map[x][y].locked .. ".")
+			messageRecieve("The door is locked by a " .. map[x][y].locked .. ".")
 		end
 	elseif map[x][y] == mapTiles.opendoor or map[x][y].name == 'opendoor' then
 		messageRecieve("You closed the door.")
