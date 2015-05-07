@@ -306,6 +306,7 @@ function playerCastSpell(i)
 					if spell.name == 'Arcane Dart' then playerSpellArcaneDart(spell) end
 					if spell.name == 'Unstable Concoction' then playerSpellUnstableConcoction(spell) end
 					if spell.name == 'Double Strike' then playerSpellDoubleStrike(spell) end
+					if spell.name == 'Mystic Wind' then playerSpellMysticWind(spell) end
 					--- Spell has been cast.  Turn off getting direction, 
 					--- Subtract mana, close spell menu, and end player turn.
 					playerGetDirection = false
@@ -327,6 +328,51 @@ function playerCastSpell(i)
 		end
 	end
 	return false
+end
+
+--- playerSpellMysticWind
+--- Pushes a target enemy back a few spaces if nothing is behind it
+function playerSpellMysticWind(spell)
+	local sx = playerX
+	local sy = playerY
+	local dx = playerDirection.dx
+	local dy = playerDirection.dy
+	local dist = math.floor(spell.dist + playerScaling(spell.scaling))
+	local msg = nil
+	local pushback = 0
+	local monster = nil
+
+	--- Find a monster
+	for range = 1, dist do
+		sx = sx + dx
+		sy = sy + dy
+		pushback = dist - range
+		if not mapGetWalkThru(sx, sy) then
+			break
+		end
+		if not creatureIsTileFree(sx, sy) then
+			monster = creatureGetCreatureAtTile(sx, sy)
+			break
+		end
+	end
+
+	--- If we found a monster then push it back!
+	if monster then
+		for i = 1, pushback do
+			if mapGetWalkThru(monster.x + dx, monster.y + dy) and creatureIsTileFree(monster.x + dx, monster.y + dy) then
+				monster.x = monster.x + dx
+				monster.y = monster.y + dy 
+				msg = monster.data.prefix .. ' ' .. monster.data.name .. ' is blown back!'
+			else
+				break
+			end
+		end
+	end
+
+	messageRecieve(spell.castmsg)
+	if msg then messageRecieve(msg) end
+	gameFlipPlayerTurn()
+	gameSetRedrawAll()
 end
 
 --- playerSpellUnstableConcoction
