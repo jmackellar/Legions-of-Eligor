@@ -528,16 +528,13 @@ end
 --- \--maxMagicItems
 function itemGenerateSpecial()
 	local branch = mapBranch[mapGetCurrentBranch()]
-	print(branch.magicItemsTier)
 	if branch.magicItemsTier then
 		--- Roll for every item chance
 		for itemroll = 1, branch.maxMagicItems do
 		
 			--- Roll if the item can be created.
 			if math.random(1, 100) <= branch.magicChance then
-			
-				print('placing special item')
-			
+
 				local itemOrig = magicItems.mItems[math.random(1, #magicItems.mItems)]
 				local prefix = magicItems.mPrefix[itemOrig.type][math.random(1, #magicItems.mPrefix[itemOrig.type])]
 				
@@ -794,9 +791,7 @@ function itemSortInventory()
 								s = s + 1
 							end
 						end
-						
-						print(sortName1, sortName2, s)
-						
+
 						if string.byte(sortName1, s) < string.byte(sortName2, s) then
 							local temp = itms[j]
 							itms[j] = itms[k]

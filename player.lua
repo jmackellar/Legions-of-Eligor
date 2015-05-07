@@ -300,14 +300,19 @@ function playerCastSpell(i)
 				--- We either don't need a direction, or the player supplied a direction.
 				--- Now actually cast the spell.
 				if not spell.direction or playerDirection then
+					--------------------------
+					------- Vagrant
 					if spell.name == 'Roll' then playerSpellRoll(spell) end
 					if spell.name == 'Shoutout' then playerSpellShoutout(spell) end
 					if spell.name == 'Spin Slice' then playerSpellSpinSlice(spell) end
+					if spell.name == 'Double Strike' then playerSpellDoubleStrike(spell) end
+					--------------------------
+					------- Arcanist
 					if spell.name == 'Arcane Dart' then playerSpellArcaneDart(spell) end
 					if spell.name == 'Unstable Concoction' then playerSpellUnstableConcoction(spell) end
-					if spell.name == 'Double Strike' then playerSpellDoubleStrike(spell) end
 					if spell.name == 'Mystic Wind' then playerSpellMysticWind(spell) end
 					if spell.name == 'Cyclone' then playerSpellCyclone(spell) end
+					--------------------------
 					--- Spell has been cast.  Turn off getting direction, 
 					--- Subtract mana, close spell menu, and end player turn.
 					playerGetDirection = false
