@@ -307,6 +307,7 @@ function playerCastSpell(i)
 					if spell.name == 'Unstable Concoction' then playerSpellUnstableConcoction(spell) end
 					if spell.name == 'Double Strike' then playerSpellDoubleStrike(spell) end
 					if spell.name == 'Mystic Wind' then playerSpellMysticWind(spell) end
+					if spell.name == 'Cyclone' then playerSpellCyclone(spell) end
 					--- Spell has been cast.  Turn off getting direction, 
 					--- Subtract mana, close spell menu, and end player turn.
 					playerGetDirection = false
@@ -328,6 +329,17 @@ function playerCastSpell(i)
 		end
 	end
 	return false
+end
+
+--- playerSpellCyclone
+--- A cyclone that lasts for a few turns and passively damages monsters
+--- around the player.
+function playerSpellCyclone(spell)
+	local mod = {mod = 'cyclone', turn = spell.turn, val = spell.damage + playerScaling(spell.scaling), msgend = spell.msgend, range = spell.range}
+	playerAddMod(mod)
+	messageRecieve(spell.castmsg)
+	gameFlipPlayerTurn()
+	gameSetRedrawAll()
 end
 
 --- playerSpellMysticWind
@@ -590,18 +602,43 @@ function playerAddMod(modifier, exception)
 	--- If the mod type doesn't already exist or if the
 	--- exception was passed then add the mod to the player.
 	if not found or exc then
-		table.insert(playerModifiers, {mod = modifier.mod, turn = modifier.turn, val = modifier.val, msgend = modifier.msgend})
+		local mod = {}
+		for k,v in pairs(modifier) do
+			mod[k] = v
+		end
+		table.insert(playerModifiers, mod)
 	end
 end
 
 --- playerModifierUpdate
---- Ticks down all modifiers per turn.
+--- Ticks down all modifiers per turn and plays modifiers than are used on a per turn basis like cyclone.
 function playerModifierUpdate()
 	for i = # playerModifiers, 1, -1 do
+		playerModifierUseTurn(playerModifiers[i])
 		playerModifiers[i].turn = playerModifiers[i].turn - 1
 		if playerModifiers[i].turn <= 0 then
 			messageRecieve(playerModifiers[i].msgend)
 			table.remove(playerModifiers, i)
+		end
+	end
+end
+
+--- playerModifierUseTurn
+--- Logic for modifiers that perform actions every turn
+function playerModifierUseTurn(mod)
+	if mod.mod == 'cyclone' then
+		playerModAOEDamage(mod.range, mod.val)
+	end
+end
+
+--- playerModAOEDamage
+--- Deals damage in a range around the player.
+function playerModAOEDamage(range, dam)
+	for x = playerX - range, playerX + range do
+		for y = playerY - range, playerY + range do
+			if x >= 1 and y >= 1 and x <= mapGetWidth() and y <= mapGetHeight() then
+				creatureAttackedByPlayer(x, y, dam)
+			end
 		end
 	end
 end

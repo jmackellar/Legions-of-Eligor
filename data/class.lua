@@ -64,6 +64,12 @@ gameClasses = {
 					castmsg = 'A strong wind roars by you.',
 					scaling = {will = 0.10},
 					},
+					{name = 'Cyclone', range = 6, mana = 8, level = 5, damage = 3, turn = 8,
+					desc = 'Creates a powerful cyclone to damage enemies every second.',
+					castmsg = 'You whip up a powerful cyclone around youself.',
+					msgend = 'Your cyclone dies down.',
+					scaling = {ment = 0.15},
+					},
 					},
 		},
 		
