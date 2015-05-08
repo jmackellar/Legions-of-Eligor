@@ -75,6 +75,18 @@ function consoleDrawCellBack(x, y)
 	love.graphics.setCanvas()
 end
 
+--- consoleDrawCellBorder
+--- Draws cell borders.  Just a thin white outline around the cell.
+function consoleDrawCellBorder(x, y)
+	love.graphics.setCanvas(windowCanvas)
+	local cell = window[x][y]
+	local dx = (x - 1) * cellWidth
+	local dy = (y - 1) * cellHeight
+	love.graphics.setColor(255, 255, 255, 255)
+	love.graphics.rectangle('line', dx, dy, cellWidth, cellHeight)
+	love.graphics.setCanvas()
+end
+
 --- consoleDraw
 --- Draws console output to off-screen canvas, and then
 --- draws canvas onto the main screen.  Off-screen canvas
@@ -90,10 +102,13 @@ function consoleDraw()
 			end
 		end
 		--- Second loop
-		--- Draw cell character
+		--- Draw cell character and border if applicable
 		for x = 1, windowWidth do
 			for y = 1, windowHeight do
 				consoleDrawCellFront(x, y)
+				if window[x][y].border then
+					consoleDrawCellBorder(x, y)
+				end
 			end
 		end	
 	end
@@ -110,6 +125,7 @@ function consolePrint(args)
 	local bC = args.backColor or {0, 0, 0, 255}
 	local x = args.x or 1
 	local y = args.y or 1
+	local border = args.border or false
 	--- Log : console coordinates out of bound
 	if x < 1 or x > windowWidth or y < 1 or y > windowHeight then
 		print("WARNING console coordinates out of bound.  console.lua, consolePrint")
@@ -117,7 +133,7 @@ function consolePrint(args)
 	for i = 1, string.len(s) do
 		local c = string.sub(s, i, i)
 		if x+(i-1) <= windowWidth and window[x+(i-1)][y] then
-			window[x+(i-1)][y] = {char = c, textColor = tC, backColor = bC}
+			window[x+(i-1)][y] = {char = c, textColor = tC, backColor = bC, border = border}
 		end
 	end
 	redraw = true
@@ -133,11 +149,12 @@ function consolePut(args)
 	local bC = args.backColor or {0, 0, 0, 255}
 	local x = args.x or 1
 	local y = args.y or 1
+	local border = args.border or false
 	--- Log : console coordinates out of bound.
 	if x < 1 or x > windowWidth or y < 1 or y > windowHeight then
 		print("WARNING console coordinates out of bound.  console.lua, consolePut")
 	end
-	window[x][y] = {char = c, textColor = tC, backColor = bC}
+	window[x][y] = {char = c, textColor = tC, backColor = bC, border = border}
 	redraw = true 		--- Set redraw so console window updates with change
 end
 
@@ -208,6 +225,22 @@ end
 --- Redraws the console output.
 function consoleRedraw()
 	redraw = true
+end
+
+--- consoleSetBorder
+--- Sets passed cell to the passed boolean value
+function consoleSetBorder(x, y, bool)
+	if x >= 1 and y >= 1 and x <= windowWidth and y <= windowHeight then
+		window[x][y].border = bool
+	end
+end
+
+--- consoleGetBorder
+--- Returns passed cell's border boolean value.
+function consoleGetBorder(x, y)
+	if x >= 1 and y >= 1 and x <= windowWidth and y <= windowHeight then
+		return window[x][y].border
+	end
 end
 
 --- Getters
