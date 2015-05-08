@@ -37,7 +37,10 @@ local playerFogCanCast = true
 local playerPrev = 'spawn'
 
 local playerAction = false
+local playerActionLook = {1, 1}
+
 local playerMenu = false
+local playerMenuTablet = false
 
 local playerGetDirection = false
 local playerDirection = false
@@ -132,6 +135,8 @@ function playerKeypressed(key)
 		elseif key == 'z' then playerMenu = 'spell'
 		elseif key == 'm' then playerMenu = 'messages' 
 		elseif key == 'c' then playerMenu = 'character'
+
+		elseif key == ';' then playerAction = 'look' playerActionLook = {playerX, playerY}
 		
 		elseif key == 'l' then playerMenu = 'stats' playerFreeStats = 5 
 		
@@ -166,6 +171,29 @@ function playerKeypressed(key)
 	elseif playerAction == 'rest' then
 		if key then
 			playerAction = false
+		end
+	elseif playerAction == 'look' then
+		local dx = 0
+		local dy = 0
+		consoleSetBorder(playerActionLook[1], playerActionLook[2] + 1, false)
+		if key == 'kp8' or key == 'k' then dx = 0 dy = -1
+		elseif key == 'kp9' or key == 'u' then dx = 1 dy = -1
+		elseif key == 'kp6' or key == 'l' then dx = 1 dy = 0
+		elseif key == 'kp3' or key == 'n' then dx = 1 dy = 1
+		elseif key == 'kp2' or key == 'j' then dx = 0 dy = 1
+		elseif key == 'kp1' or key == 'b' then dx = -1 dy = 1
+		elseif key == 'kp4' or key == 'h' then dx = -1 dy = 0
+		elseif key == 'kp7' or key == 'y' then dx = -1 dy = -1 end
+		if playerActionLook[1] + dx > 1 and playerActionLook[1] + dx < mapGetWidth() then
+			playerActionLook[1] = playerActionLook[1] + dx
+		end
+		if playerActionLook[2] + dy > 1 and playerActionLook[2] + dy < mapGetHeight() then
+			playerActionLook[2] = playerActionLook[2] + dy
+		end
+		consoleSetBorder(playerActionLook[1], playerActionLook[2] + 1, true)
+		if key == 'return' then 
+			playerAction = false 
+			consoleSetBorder(playerActionLook[1], playerActionLook[2] + 1, false)
 		end
 	elseif playerMenu == 'messages' then
 		if key then playerMenu = false gameSetRedrawAll() end
@@ -966,6 +994,7 @@ function playerDrawMenu()
 			consolePrint({string = "z - Cast Spell", x = 2, y = 20})
 			consolePrint({string = 'Enter/Return - Use Map Tile', x = 30, y = 4})
 			consolePrint({string = "R - Rest", x = 30, y = 12})
+			consolePrint({string = '; - Look', x = 30, y = 13})
 			consolePrint({string = "c - Character Sheet", x = 30, y = 3})
 		
 			consolePrint({string = "m - View Recent Messages", x = 2, y = 23})			
@@ -1024,6 +1053,28 @@ function playerDrawMenu()
 					alpha = alpha + 1
 				end
 			end
+		end
+	end
+
+	--- Player look at
+	--- Lets do it in this fucntion just to make things simple
+	if playerAction == 'look' then
+		local tile, tileSeen, creature, item = playerLookAt()
+		consolePrint({string = '                                                                                ', x = 1, y = 1})
+		if tileSeen then
+			consolePut({char = tile.char, x = 1, y = 1, textColor = tile.textColor, backColor = tile.backColor})
+			consolePut({char = '-', x = 3, y = 1})
+			consolePrint({string = tile.name, x = 5, y = 1})
+			if creature then
+				consolePut({char = creature.data.char, x = 25, y = 1, textColor = creature.data.textColor, backColor = creature.data.backColor})
+				consolePut({char = '-', x = 27, y = 1})
+				consolePrint({string = creature.data.name, x = 29, y = 1})
+			end
+			--[[if item then
+				consolePut({char = item.char, x = 50, y = 1, textColor = item.textColor, backColor = item.backColor})
+				consolePut({char = '-', x = 52, y = 1})
+				consolePrint({string = item.name, x = 54, y = 1})
+			end]]--			--- I decided I didn't want to see items this way.
 		end
 	end
 end
@@ -1217,6 +1268,20 @@ function playerTabletCenter()
 	startY = math.floor(10 - (#playerMenuTablet / 2))
 
 	return startX, startY
+end
+
+--- playerLookAt
+--- Finds and returns whats under the cursor when looking around
+function playerLookAt()
+	--- Find the tile that the player is looking at
+	local tile = mapGetTile(playerActionLook[1], playerActionLook[2])
+	local tileSeen = mapGetTileSeen(playerActionLook[1], playerActionLook[2])
+	--- Find if there is a creature on that tile or not
+	local creature = creatureGetCreatureAtTile(playerActionLook[1], playerActionLook[2])
+	--- Find item if applicable
+	local item = itemGetItemAt(playerActionLook[1], playerActionLook[2])
+	--- Return the data to be drawn
+	return tile, tileSeen, creature
 end
 
 --- playerScaling

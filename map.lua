@@ -1569,6 +1569,7 @@ function mapCastLight(cx, cy, row, start, endp, radius, xx, xy, yx, yy, id)
 				if dx*dx + dy*dy < radius_squared then
 					if X > 0 and X < mapWidth and Y > 0 and Y < mapHeight and map[X][Y] then
 						mapFog[X][Y].lit = true
+						mapFog[X][Y].seen = true
 						mapDrawTile(X, Y)
 					end
 				end
@@ -1848,6 +1849,7 @@ function mapGetPlayerSX() return mapPlayerSX end
 function mapGetPlayerSY() return mapPlayerSY end
 function mapGetTile(x, y) return map[x][y] end
 function mapGetTileName(x, y) return map[x][y].name end
+function mapGetTileSeen(x, y) return mapFog[x][y].seen end
 --- setters
 function mapSetCurrentBranch(arg) mapCurrentBranch = arg end
 function mapSetCurrentFloor(arg) mapCurrentFloor = arg end

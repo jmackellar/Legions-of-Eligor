@@ -867,6 +867,18 @@ function itemAddIdentify(item)
 	return true
 end
 
+--- itemGetItemAt
+--- Returns an item if it exists in the game world at the passed coordinates
+function itemGetItemAt(x, y)
+	local i = false 
+	for k = 1, # items do
+		if items[k].x == x and items[k].y == y then
+			return items[k].data
+		end
+	end
+	return false
+end
+
 --- itemGetName
 --- returns the name of an item that the player is supposed to see.
 function itemGetName(item)

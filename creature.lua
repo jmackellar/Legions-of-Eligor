@@ -21,7 +21,8 @@ function creatureDraw()
 	for i = 1, # creatures do
 		local c = creatures[i]
 		if mapIsLit(c.x, c.y) or debugDisableFog then
-			consolePut({char = c.data.char, textColor = c.data.textColor, backColor = c.data.backColor, x = c.x, y = c.y + 1})
+			local border = consoleGetBorder(c.x, c.y + 1)
+			consolePut({char = c.data.char, textColor = c.data.textColor, backColor = c.data.backColor, x = c.x, y = c.y + 1, border = border})
 		end
 	end
 end
