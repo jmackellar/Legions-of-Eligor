@@ -24,7 +24,7 @@ local mainDisableSave = false
 function love.load()
 	love.window.setTitle("Legions of Eligor")
 	math.randomseed(os.time())
-	consoleInit(80, 26, 10, 16)
+	consoleInit(80, 26, 9, 16)
 	gameState = 'newgame'			--- Set state to newgame
 	gameStateChangeState(gameState) --- Sets gamestate to start
 	love.keyboard.setKeyRepeat(true)

@@ -102,6 +102,7 @@ function newgameKeypressed(key)
 				classSelect = true
 				consoleFlush()
 			elseif cursor == 2 then
+				class = 'Vagrant'
 				gameStateChangeState('game')
 			elseif cursor == 3 then
 				love.event.push('quit')

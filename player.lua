@@ -21,6 +21,9 @@ local playerManaRegen = 21
 local playerManaRegenTick = 0
 local playerManaRegenCount = 3
 
+local playerSpellList = { }
+local playerSpellPoints = 0
+
 local playerX = 40
 local playerY = 13
 
@@ -80,6 +83,12 @@ function playerInit(name, level, health, mana, vit, ment, endur, will, class)
 		itemStartingEquipmentClass(playerClass)
 		itemStartingInventoryClass(playerClass)
 	end
+	--- Create player spell list
+	if # playerSpellList == 0 then
+		for i = 1, # gameClasses[playerClass].spells do
+			table.insert(playerSpellList, {name = gameClasses[playerClass].spells[i].name, have = false})
+		end
+	end
 	playerCastFog()
 end
 
@@ -132,7 +141,8 @@ function playerKeypressed(key)
 		elseif key == 'a' then itemInventorySetAction('apply') itemInventoryOpenFlip() return true 
 		elseif key == 't' then itemInventorySetAction('throw') itemInventoryOpenFlip() return true
 		elseif key == 'return' then playerUseTile()
-		elseif key == 'z' then playerMenu = 'spell'
+		elseif key == 'z' and not (love.keyboard.isDown('rshift') or love.keyboard.isDown('lshift')) then messageRecieve("A-Z cast spell.  Any other key to cancel.") playerMenu = 'spell'
+		elseif key == 'z' and (love.keyboard.isDown('rshift') or love.keyboard.isDown('lshift')) then playerMenu = 'spelllist' playerMenuSpellList = {view = 0, spell = false}
 		elseif key == 'm' then playerMenu = 'messages' 
 		elseif key == 'c' then playerMenu = 'character'
 
@@ -199,10 +209,45 @@ function playerKeypressed(key)
 		if key then playerMenu = false gameSetRedrawAll() end
 	elseif playerMenu == 'help' then
 		if key then playerMenu = false gameSetRedrawAll() end
+	elseif playerMenu == 'spelllist' then
+		if not playerMenuSpellList.spell then
+			if key then
+				for i = 1, # alphabet do
+					if key == alphabet[i] then
+						if gameClasses[playerClass].spells[i] then
+							playerMenuSpellList.spell = gameClasses[playerClass].spells[i]
+							return
+						end
+					end
+				end
+				if key == 'kp04' or key == 'h' then
+					playerMenuSpellList.view = playerMenuSpellList.view - 4
+				elseif key == 'kp06' or key == 'l' then
+					playerMenuSpellList.view = playerMenuSpellList.view + 4
+				else
+					playerMenu = false
+					gameSetRedrawAll()
+				end
+			end
+		else
+			if key then
+				if key == 'l' then
+					for k,v in ipairs(playerSpellList) do
+						if v.name == playerMenuSpellList.spell.name and playerHaveSpellReq(playerMenuSpellList.spell) and playerHaveSpellLevel(playerMenuSpellList.spell) and playerSpellPoints > 0 then
+							v.have = true
+							playerSpellPoints = playerSpellPoints - 1
+						end
+					end
+				else
+					playerMenuSpellList.spell = false
+				end
+			end
+		end
 	elseif playerMenu == 'spell' then
 		if key == 'return' or key == ' ' then
 			playerMenu = false
 			playerCastingSpell = false
+			messageRecieve("Nevermind.")
 			gameSetRedrawAll()
 		end
 		if playerCastingSpell then
@@ -276,7 +321,8 @@ function playerSave()
 				playerMana = playerMana, playerManaMax = playerManaMax, playerVit = playerVit, playerMent = playerMent, 
 				playerEnd = playerEndur, playerWill = playerWill, mapCurrentBranch = mapGetCurrentBranch(),
 				mapCurrentFloor = mapGetCurrentFloor(), playerLevel = playerLevel, playerExp = playerExp,
-				playerClass = playerClass, playerTurns = playerTurns,}
+				playerClass = playerClass, playerTurns = playerTurns, playerSpellList = playerSpellList,
+				playerSpellPoints = playerSpellPoints}
 	love.filesystem.write(p, Ser(t))
 end
 
@@ -300,6 +346,8 @@ function playerLoad()
 		playerExp = t1.playerExp
 		playerClass = t1.playerClass
 		playerTurns = t1.playerTurns
+		playerSpellList = t1.playerSpellList
+		playerSpellPoints = t1.playerSpellPoints
 		mapSetCurrentBranch(t1.mapCurrentBranch)
 		mapSetCurrentFloor(t1.mapCurrentFloor)
 		return true
@@ -310,55 +358,81 @@ end
 --- playerCastSpell
 --- Casts spell i
 function playerCastSpell(i)
+	--- i is the index of which key was pressed in the alphabet
+	--- i corresponds not to the other order of spells in the data
+	--- file, but to the order of spells that the player has learned,
+	--- so we need to remap i to the correct data spell based on
+	--- the players spell list.  If the player casted a spell that
+	--- requires a direction then this step is not needed, so thus
+	--- we skip it then.
+	if not playerDirection then
+		local name = false
+		local ii = 0
+		for k,v in ipairs(playerSpellList) do
+			if v.have then
+				ii = ii + 1
+				if ii == i then
+					name = v.name
+					break
+				end
+			end
+		end
+		if not name then return end
+
+		for j = 1, # gameClasses[playerClass].spells do
+			if gameClasses[playerClass].spells[j].name == name then
+				i = j
+				break
+			end
+		end
+	end
+
 	--- Check if the spell exists and the player is able to cast it
 	if gameClasses[playerClass].spells[i] then
-		if gameClasses[playerClass].spells[i].level <= playerLevel then
-			--- Player selected a spell and meets level requirements
-			--- Now check mana cost.
-			if gameClasses[playerClass].spells[i].mana <= playerMana then
-				local spell = gameClasses[playerClass].spells[i]
-				--- Does the spell require the player to input a direction to aim?
-				if spell.direction and not playerCastingSpell then
-					playerGetDirection = true
-					playerCastingSpell = i
-					messageRecieve("Cast " .. spell.name .. " in which direction?")
-					gameSetRedrawAll()
-					return
-				end
-				--- We either don't need a direction, or the player supplied a direction.
-				--- Now actually cast the spell.
-				if not spell.direction or playerDirection then
-					--------------------------
-					------- Vagrant
-					if spell.name == 'Roll' then playerSpellRoll(spell) end
-					if spell.name == 'Shoutout' then playerSpellShoutout(spell) end
-					if spell.name == 'Spin Slice' then playerSpellSpinSlice(spell) end
-					if spell.name == 'Double Strike' then playerSpellDoubleStrike(spell) end
-					--------------------------
-					------- Arcanist
-					if spell.name == 'Arcane Dart' then playerSpellArcaneDart(spell) end
-					if spell.name == 'Unstable Concoction' then playerSpellUnstableConcoction(spell) end
-					if spell.name == 'Mystic Wind' then playerSpellMysticWind(spell) end
-					if spell.name == 'Cyclone' then playerSpellCyclone(spell) end
-					--------------------------
-					--- Spell has been cast.  Turn off getting direction, 
-					--- Subtract mana, close spell menu, and end player turn.
-					playerGetDirection = false
-					playerCastingSpell = false
-					playerDirection = false
-					playerMana = playerMana - spell.mana
-					playerMenu = false
-					return true
-				end
-			else
-				messageRecieve("You don't have enough mana to cast that.")
+		--- Now check mana cost.
+		if gameClasses[playerClass].spells[i].mana <= playerMana then
+			local spell = gameClasses[playerClass].spells[i]
+			--- Does the spell require the player to input a direction to aim?
+			if spell.direction and not playerCastingSpell then
+				playerGetDirection = true
+				playerCastingSpell = i
+				messageRecieve("Cast " .. spell.name .. " in which direction?")
+				gameSetRedrawAll()
+				return
+			end
+			--- We either don't need a direction, or the player supplied a direction.
+			--- Now actually cast the spell.
+			if not spell.direction or playerDirection then
+				--------------------------
+				------- Vagrant
+				if spell.name == 'Roll' then playerSpellRoll(spell) end
+				if spell.name == 'Shoutout' then playerSpellShoutout(spell) end
+				if spell.name == 'Spin Slice' then playerSpellSpinSlice(spell) end
+				if spell.name == 'Double Strike' then playerSpellDoubleStrike(spell) end
+				--------------------------
+				------- Arcanist
+				if spell.name == 'Arcane Dart' then playerSpellArcaneDart(spell) end
+				if spell.name == 'Unstable Concoction' then playerSpellUnstableConcoction(spell) end
+				if spell.name == 'Mystic Wind' then playerSpellMysticWind(spell) end
+				if spell.name == 'Cyclone' then playerSpellCyclone(spell) end
+				--------------------------
+				--- Spell has been cast.  Turn off getting direction, 
+				--- Subtract mana, close spell menu, and end player turn.
 				playerGetDirection = false
 				playerCastingSpell = false
 				playerDirection = false
+				playerMana = playerMana - spell.mana
 				playerMenu = false
-				gameSetRedrawAll()
-				return false
+				return true
 			end
+		else
+			messageRecieve("You don't have enough mana to cast that.")
+			playerGetDirection = false
+			playerCastingSpell = false
+			playerDirection = false
+			playerMenu = false
+			gameSetRedrawAll()
+			return false
 		end
 	end
 	return false
@@ -788,6 +862,17 @@ function playerMoveTo(x, y)
 	playerY = y
 end
 
+--- playerHaveSpell
+--- Returns if true or false if a player has learned the passed spell by name
+function playerHaveSpell(name)
+	for k,v in ipairs(playerSpellList) do
+		if v.name == name then
+			return v.have
+		end
+	end
+	return false 
+end
+
 --- playerDrawMenu
 --- Draws the player menu if it is open.
 function playerDrawMenu()
@@ -799,6 +884,192 @@ function playerDrawMenu()
 			consoleFlush()
 			for i = 1, # msg do
 				consolePrint({string = msg[i], x = 1, y = i})
+			end
+
+		--- Spell List
+		--- Lists all spells and allows the player to view spells or learn them
+		elseif playerMenu == 'spelllist' then
+			consoleFlush()
+
+			local maxLevel = 0
+			local spell = false
+			local alpha = 0
+
+			--- Spell points
+			local w = 15
+			if playerSpellPoints == 1 then
+				consolePrint({string = '1 Spell Point', x = 3, y = 3, textColor = {255, 157, 0, 255}})
+				w = 14
+			elseif playerSpellPoints > 1 then
+				consolePrint({string = playerSpellPoints .. ' Spell Points', x = 3, y = 3, textColor = {255, 157, 0, 255}})
+				w = 15
+				if playerSpellPoints > 9 then
+					w = 16
+				end
+			end
+			if playerSpellPoints > 0 then
+				local color = {181, 112, 0, 255}
+				consoleDrawLine({char = '─', x1 = 2, y1 = 2, x2 = 2 + w, y2 = 2, textColor = color})
+				consoleDrawLine({char = '─', x1 = 2, y1 = 4, x2 = 2 + w, y2 = 4, textColor = color})
+				consolePut({char = '│', x = 2, y = 3, textColor = color})
+				consolePut({char = '│', x = 2 + w, y = 3, textColor = color})
+				consolePut({char = '┌', x = 2, y = 2, textColor = color})
+				consolePut({char = '└', x = 2, y = 4, textColor = color})
+				consolePut({char = '┐', x = 2 + w, y = 2, textColor = color})
+				consolePut({char = '┘', x = 2 + w, y = 4, textColor = color})
+			end
+
+			for i = 1, # gameClasses[playerClass].spells do
+				local spell = gameClasses[playerClass].spells[i]
+				if spell.level > maxLevel then 
+					maxLevel = spell.level
+				end
+			end
+
+			if playerMenuSpellList.view > math.floor(8 + ((maxLevel - 2) * 25)) then
+				playerMenuSpellList.view = math.floor(8 + ((maxLevel - 2) * 25))
+			end
+			if playerMenuSpellList.view < 0 then
+				playerMenuSpellList.view = 0
+			end
+
+			for k,v in ipairs(playerSpellList) do
+				alpha = alpha + 1
+				--- Find which spell we are looking at
+				for i = 1, # gameClasses[playerClass].spells do
+					if gameClasses[playerClass].spells[i].name == v.name then
+						spell = gameClasses[playerClass].spells[i]
+						break
+					end
+				end
+				--- Draw the spell box
+				local color = {150, 150, 150, 255}
+				local x = 8 + ((spell.level - 1) * 25) - playerMenuSpellList.view 
+				local y = spell.y * 6
+				if playerHaveSpell(spell.name) then
+					color = {255, 238, 0, 255}
+				end
+				for xx = x, x + 2 + math.max(string.len(spell.name)+2, string.len("   Level:" .. spell.level)) do
+					consolePut({char = '─', x = xx, y = y, textColor = color})
+					consolePut({char = '─', x = xx, y = y+3, textColor = color})
+				end
+				for yy = y, y + 3 do
+					consolePut({char = '│', x = x, y = yy, textColor = color})
+					consolePut({char = '│', x = x + 2 + math.max(string.len(spell.name)+2, string.len("   Level:" .. spell.level)), y = yy, textColor = color})
+				end
+				consolePut({char = '┌', x = x, y = y, textColor = color})
+				consolePut({char = '└', x = x, y = y+3, textColor = color})
+				consolePut({char = '┐', x = x + 2 + math.max(string.len(spell.name)+2, string.len("   Level:" .. spell.level)), y = y, textColor = color})
+				consolePut({char = '┘', x = x + 2 + math.max(string.len(spell.name)+2, string.len("   Level:" .. spell.level)), y = y+3, textColor = color})
+				--- Spell Name and Letter
+				consolePrint({string = '[' .. string.upper(alphabet[alpha]) .. ']', x = x + 1, y = y + 1, textColor = {255, 157, 0, 255}})
+				consolePrint({string = spell.name, x = x + 4, y = y + 1})
+				--- Level requirement
+				local lColor = {255, 75, 75, 255}
+				if playerLevel >= spell.level then
+					lColor = {75, 255, 75, 255}
+				end
+				consolePrint({string = 'Level:' .. spell.level, x = x + 4, y = y + 2, textColor = lColor})
+				--- Requirements
+				if spell.req then
+					--- Find the required spell
+					local req = spell.req
+					for i = 1, # gameClasses[playerClass].spells do
+						if gameClasses[playerClass].spells[i].name == req then
+							req = gameClasses[playerClass].spells[i]
+							break
+						end
+					end
+					--- Find start cooridnates, end coordinates, and slope
+					local x = 8 + ((req.level - 1) * 25) - playerMenuSpellList.view 
+						  x = x + 2 + math.max(string.len(req.name)+2, string.len("   Level:" .. req.level)) + 1
+					local y = req.y * 6 + spell.y
+					local ex = 8 + ((spell.level - 1) * 25) - playerMenuSpellList.view - 1
+					local ey = spell.y * 6 + 1
+					if req.y == spell.y then
+						y = req.y * 6 + 1
+					end
+					consoleDrawLine({char = '*', x1 = x, y1 = y, x2 = ex, y2 = ey, textColor = color})
+				end
+			end
+
+			--- Directions
+			consolePrint({string = 'Movement keys to scroll', x = 56, y = 1})
+			consolePrint({string = 'A-Z examine spell', x = 56, y = 2})
+			consolePrint({string = 'Any other key to close', x = 56, y = 3})
+
+			--- Scroll Bar
+			consoleDrawLine({char = '═', x1 = 1, y1 = consoleGetWindowHeight(), x2 = consoleGetWindowWidth(), y2 = consoleGetWindowHeight()})
+			consolePut({char = '<', x = 1, y = consoleGetWindowHeight(), border = true})
+			consolePut({char = '>', x = consoleGetWindowWidth(), y = consoleGetWindowHeight(), border = true})
+			local max = math.floor(8 + ((maxLevel - 2) * 25))
+			local sw = math.ceil(78 * (max / 78))
+			local sx = math.max(math.ceil( (78 - sw) * (playerMenuSpellList.view / max) ) + 1, 2)
+			consoleDrawLine({char = '▒', x1 = sx, y1 = consoleGetWindowHeight(), x2 = sx + sw, y2 = consoleGetWindowHeight(), textColor = {200, 200, 200, 255}, backColor = {200, 200, 200, 255}})
+
+			--- Spell Look
+			if playerMenuSpellList.spell then
+				local sx = 20
+				local sy = 4
+				local w = 40
+				local h = 19
+				local spell = playerMenuSpellList.spell
+				local color = {150, 150, 150, 255}
+				if playerHaveSpell(spell.name) then
+					color = {255, 238, 0, 255}
+				end
+				for x = sx, sx + w do
+					for y = sy, sy + h do
+						consolePut({char = '', x = x, y = y})
+						if x < sx + 1 or x > sx + w - 1 then
+							consolePut({char = '│', x = x, y = y, textColor = color})
+						end
+						if y < sy + 1 or y > sy + h - 1 then
+							consolePut({char = '─', x = x, y = y, textColor = color})
+						end
+					end
+				end
+				consolePut({char = '┌', x = sx, y = sy, textColor = color})
+				consolePut({char = '└', x = sx, y = sy + h, textColor = color})
+				consolePut({char = '┐', x = sx + w, y = sy, textColor = color})
+				consolePut({char = '┘', x = sx + w, y = sy + h, textColor = color})
+
+				--- Spell Name
+				consolePrint({string = spell.name, x = sx + 2, y = sy + 1})
+				consolePrint({string = 'Level:', x = sx  + w - 2 - string.len('Level:' .. spell.level), y = sy + 1, textColor = {237, 222, 161, 255}})
+				consolePrint({string = spell.level, x = sx + w - 2 - string.len(spell.level), y = sy + 1})
+
+				--- Mana Cost
+				consolePrint({string = 'Mana:', x = sx + w - 10 - string.len('level:' .. spell.level), y = sy + 1, textColor = {75, 75, 255, 255}})
+				consolePrint({string = spell.mana, x = sx + w - 5 - string.len('level:' .. spell.level), y = sy + 1})
+
+				--- Spell Description
+				for i = 1, # spell.desc do
+					consolePrint({string = spell.desc[i], x = sx + 2, y = sy + 2 + i})
+				end
+
+				--- Scaling
+				if spell.scaling then
+					consolePrint({string = 'Spell Scaling', x = sx + 2, y = sy + 10})
+					consolePrint({string = spell.scaledesc, x = sx + 2, y = sy + 11})
+					local i = 0
+					for k,v in pairs(spell.scaling) do
+						i = i + 1
+						if k == 'vit' then stat = 'Vitality' color = {224, 119, 119, 255} end
+						if k == 'endur' then stat = 'Endurance' color = {119, 224, 119, 255} end
+						if k == 'ment' then stat = 'Mentality' color = {119, 119, 224, 255} end
+						if k == 'will' then stat = 'Willpower' color = {213, 115, 240, 255} end
+						consolePrint({string = stat, x = sx + 4, y = sy + 12 + i, textColor = color})
+						consolePrint({string = v * 100 .. '%', x = sx + 5 + string.len(stat), y = sy + 12 + i})
+					end
+				else
+					consolePrint({string = "No Scaling", x = sx + 2, y = sy + 10})
+				end
+
+				--- Directions
+				consolePrint({string = '[L] Learn Spell', x = sx + 2, y = sy + h - 1})
+				consolePrint({string = 'Any Key to Close', x = sx + w - 2 - 15, y = sy + h - 1})
+
 			end
 
 		--- Tabler
@@ -1000,59 +1271,58 @@ function playerDrawMenu()
 			consolePrint({string = "m - View Recent Messages", x = 2, y = 23})			
 			consolePrint({string = "? - This Help Screen", x = 2, y = 24})
 		elseif playerMenu == 'spell' and not playerCastingSpell then
-			consoleFlush()
-			local y = 3
-			local alpha = 1
-			for i = 1, # gameClasses[playerClass].spells do
-				local spell = gameClasses[playerClass].spells[i]
-				consolePrint({string = "Cast which spell?  a-z select spell, return or spacebar to cancel.", x = 1, y = 1})
-				if spell.level <= playerLevel then
-					--- Spell name, letter, mana cost, and description
-					local spellselect = alphabet[alpha]:gsub("^%l", string.upper) .. " - " .. spell.name
-					consolePrint({string = spellselect, x = 2, y = y, textColor = {234, 255, 0, 255}})
-					consolePrint({string = ",", x = 2 + spellselect:len(), y = y})
-					consolePrint({string = "Mana Cost:", x = 4 + spellselect:len(), y = y, textColor = {100, 100, 255, 255}})
-					consolePrint({string = spell.mana, x = 14 + spellselect:len(), y = y})
-					consolePrint({string = spell.desc, x = 6, y = y + 2})
-					
-					--- Spell scaling stats
-					local x = 5
-					consolePrint({string = 'Scaling: ', x = 6, y = y + 1, textColor = {219, 192, 149, 255}})
-					x = x + 10
-					if spell.scaling then	
-						for k,v in pairs(spell.scaling) do
-							local str = k
-							local color = {255, 255, 255, 255}
-							if k == 'vit' then
-								str = 'Vitality:'
-								color = {224, 119, 119, 255}
-							elseif k == 'endur' then
-								str = 'Endurance:'
-								color = {119, 224, 119, 255}
-							elseif k == 'ment' then
-								str = 'Mentality:'
-								color = {119, 119, 224, 255}
-							elseif k == 'will' then
-								str = 'Willpower:'
-								color = {213, 115, 240, 255}
-							end
-							consolePrint({string = str, x = x, y = y + 1, textColor = color})
-							consolePrint({string = v * 100 .. "%", x = x + str:len(), y = y + 1})
-							x = x + str:len() + 5
-						end
-					else
-						consolePrint({string = 'None', x = x, y = y + 1})
-					end
-					
-					--- borders
-					consolePrint({string = "----------------------------------------------------------------------------------", x = 1, y = y -1})
-					consolePrint({string = "----------------------------------------------------------------------------------", x = 1, y = y +3})
-					
-					--- increment y-draw value and alphabet value
-					y = y + 4
-					alpha = alpha + 1
+			
+			local sx = 1
+			local sy = 2
+			local w = 35
+			local h = 0
+			local count = 0
+
+			--- Determine how many spells we have
+			for k,v in ipairs(playerSpellList) do
+				if v.have then
+					count = count + 1
 				end
 			end
+			h = count + 1
+
+			--- Print spell list
+			for x = sx, sx + w do
+				for y = sy, sy + h do
+					consolePut({char = '', x = x, y = y})
+					if x < sx + 1 or x > sx + w - 1 then
+						consolePut({char = '│', x = x, y = y, textColor = {237, 222, 161, 255}})
+					end
+					if y < sy + 1 or y > sy + h - 1 then
+						consolePut({char = '─', x = x, y = y, textColor = {237, 222, 161, 255}})
+					end
+				end
+			end
+			consolePut({char = '┌', x = sx, y = sy, textColor = {237, 222, 161, 255}})
+			consolePut({char = '└', x = sx, y = sy + h, textColor = {237, 222, 161, 255}})
+			consolePut({char = '┐', x = sx + w, y = sy, textColor = {237, 222, 161, 255}})
+			consolePut({char = '┘', x = sx + w, y = sy + h, textColor = {237, 222, 161, 255}})
+
+			--- Print spells now
+			local i = 0
+			for k,v in ipairs(playerSpellList) do
+				if v.have then
+					i = i + 1
+					consolePrint({string = '[' .. string.upper(alphabet[i]) .. ']', x = sx + 1, y = sy + i, textColor = {237, 222, 161, 255}})
+					consolePrint({string = v.name, x = sx + 5, y = sy + i})
+					--- Get spell mana cost
+					local mana = false
+					for j = 1, # gameClasses[playerClass].spells do
+						if gameClasses[playerClass].spells[j].name == v.name then
+							mana = gameClasses[playerClass].spells[j].mana
+						end
+					end
+					if mana then
+						consolePrint({string = mana, x = sx + w - string.len(mana), y = sy + i, textColor = {75, 75, 255, 255}})
+					end
+				end
+			end
+
 		end
 	end
 
@@ -1232,6 +1502,10 @@ function playerAddExp(xp)
 		playerLevel = playerLevel + 1
 		playerMenu = 'stats'
 		playerFreeStats = 5
+		if playerLevel == 2 or playerLevel == 3 or playerLevel == 5 or playerLevel == 7 or playerLevel == 9 then
+			playerSpellPoints = playerSpellPoints + 1
+			messageRecieve("You feel like you could be stronger.")
+		end
 	end
 end
 
@@ -1338,6 +1612,29 @@ end
 --- Sets player prev variable to passed value.
 function playerSetPrev(pre)
 	playerPrev = pre
+end
+
+--- playerHaveSpellReq
+--- Checks if the player has the required spells
+function playerHaveSpellReq(spell)
+	if not spell.req then return true end
+	for k,v in ipairs(playerSpellList) do
+		if v.name == spell.req then
+			return v.have
+		end
+	end
+	return false
+end
+
+--- playerHaveSpellLevel
+--- Returns true or false depending on whether the player
+--- is the required level needed to learn a spell.
+function playerHaveSpellLevel(spell)
+	if playerLevel >= spell.level then
+		return true
+	else
+		return false 
+	end
 end
 
 --- Getters

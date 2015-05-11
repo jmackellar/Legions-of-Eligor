@@ -115,6 +115,68 @@ function consoleDraw()
 	love.graphics.draw(windowCanvas)
 end
 
+--- consoleDrawLine
+--- Draws a straight line from x1,y1 to x2,y2
+function consoleDrawLine(args)
+	local s = args.string or 'no-passed-string'
+	local tC = args.textColor or {255, 255, 255, 255}
+	local bC = args.backColor or {0, 0, 0, 255}
+	local x1 = args.x1 or 1
+	local y1 = args.y1 or 1
+	local x2 = args.x2 or 3
+	local y2 = args.y2 or 3
+	local c = args.char or '*'
+	local border = args.border or false
+	local cell = {char = c, textColor = tC, backColor = bC, border = border}
+
+	---- Bresenhams
+	local deltax = x2 - x1
+	local ix = deltax > 0 and 1 or -1
+	deltax = 2 * math.abs(deltax)
+
+	local deltay = y2 - y1
+	local iy = deltay > 0 and 1 or -1
+	deltay = 2 * math.abs(deltay)
+
+	if x1 > 0 and y1 > 0 and x1 <= windowWidth and y1 <= windowHeight then
+		window[x1][y1] = cell
+	end
+
+	if deltax >= deltay then
+		err = deltay - deltax / 2
+
+		while x1 ~= x2 do
+			if (err >= 0) and ((err ~= 0) or (ix > 0)) then
+				err = err - deltax
+				y1 = y1 + iy 
+			end
+
+			err = err + deltay
+			x1 = x1 + ix 
+
+			if x1 > 0 and y1 > 0 and x1 <= windowWidth and y1 <= windowHeight then
+				window[x1][y1] = cell
+			end
+		end
+	else
+		err = deltax - deltay / 2
+
+		while y1 ~= y2 do
+			if (err >= 0) and ((err ~= 0) or (iy > 0)) then
+				err = err - deltay
+				x1 = x1 + ix
+			end
+
+			err = err + deltax
+			y1 = y1 + iy 
+
+			if x1 > 0 and y1 > 0 and x1 <= windowWidth and y1 <= windowHeight then
+				window[x1][y1] = cell
+			end
+		end
+	end
+end
+
 --- consolePrint
 --- Prints a string onto the console.
 --- args : { x(int), y(int), string(string), textColor({int, int, int, int}), backColor({int, int, int, int}) }
@@ -126,13 +188,9 @@ function consolePrint(args)
 	local x = args.x or 1
 	local y = args.y or 1
 	local border = args.border or false
-	--- Log : console coordinates out of bound
-	if x < 1 or x > windowWidth or y < 1 or y > windowHeight then
-		print("WARNING console coordinates out of bound.  console.lua, consolePrint")
-	end
 	for i = 1, string.len(s) do
 		local c = string.sub(s, i, i)
-		if x+(i-1) <= windowWidth and window[x+(i-1)][y] then
+		if x+(i-1) > 0 and x+(i-1) <= windowWidth and window[x+(i-1)][y] then
 			window[x+(i-1)][y] = {char = c, textColor = tC, backColor = bC, border = border}
 		end
 	end
@@ -152,7 +210,7 @@ function consolePut(args)
 	local border = args.border or false
 	--- Log : console coordinates out of bound.
 	if x < 1 or x > windowWidth or y < 1 or y > windowHeight then
-		print("WARNING console coordinates out of bound.  console.lua, consolePut")
+		return
 	end
 	window[x][y] = {char = c, textColor = tC, backColor = bC, border = border}
 	redraw = true 		--- Set redraw so console window updates with change
