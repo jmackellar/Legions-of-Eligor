@@ -1180,7 +1180,7 @@ function playerDrawMenu()
 			consolePut({char = '┘', x = consoleGetWindowWidth(), y = consoleGetWindowHeight(), textColor = {237, 222, 161, 255}})
 		
 			--- Name, Class, Level
-			consolePrint({string = playerName, x = 3, y = 3})
+			consolePrint({string = gameClasses[playerClass].pername, x = 3, y = 3})
 			consolePrint({string = playerClass, x = 3, y = 4, textColor = {237, 222, 161, 255}})
 			consolePrint({string = "Level:", x = 3, y = 5, textColor = {237, 222, 161, 255}})
 			consolePrint({string = playerLevel, x = 10, y = 5})

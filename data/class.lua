@@ -2,6 +2,7 @@ gameClasses = {
 
 	Vagrant = {
 		name = 'Vagrant',
+		pername = 'Keir Ostrason',
 		health = 5,
 		mana = 1,
 		vit = 5,
@@ -62,6 +63,7 @@ gameClasses = {
 		
 	Arcanist = {
 		name = 'Arcanist',
+		pername = 'Uisdean Bluespell',
 		health = 3,
 		mana = 6,
 		vit = 3,
