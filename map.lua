@@ -191,7 +191,7 @@ function mapChangeFloor(dy, save)
 	local s = save or 'yes'
 	if dy == -1 and mapCurrentFloor == 1 then return end
 	if dy == 1 and mapCurrentFloor == mapBranch[mapCurrentBranch].floors then return end
-	if s == 'yes' then mapSave() end
+	if s == 'yes' then mapSave() playerSave() end
 	mapCurrentFloor = mapCurrentFloor + dy
 	mapObjects = { }
 	if not mapLoad() then
