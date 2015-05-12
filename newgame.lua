@@ -50,9 +50,12 @@ function newgameDraw()
 		consolePrint({string = '   Class', x = menuX - 33, y = menuY - 14})
 		local msg = true
 		for y = 1, consoleGetWindowHeight() do
-			consolePut({char = '|', x = 16, y = y, textColor = {222, 207, 120, 255}})
+			consolePut({char = '│', x = 16, y = y, textColor = {222, 207, 120, 255}})
 		end
-		consolePrint({string = "---------------+", x = 1, y = 5, textColor = {222, 207, 120, 255}})
+		for x = 1, 16 do
+			consolePut({char = '─', x = x, y = 5, textColor = {222, 207, 120, 255}})
+		end
+		consolePut({char = '┤', x = 16, y = 5, textColor = {222, 207, 120, 255}})
 		if cursor == 1 then
 			consolePrint({string = 'Vagrant', x = menuX - 33, y = menuY - 10, backColor = {255, 255, 255, 255}, textColor = {0, 0, 0, 255}})
 			consolePrint({string = 'Arcanist', x = menuX - 33, y = menuY - 10 + 1})

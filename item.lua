@@ -152,7 +152,12 @@ function itemDrawInventory()
 	local startY = 2
 	-------------------
 	--- Inventory
-	consolePrint({string = "+---------Inventory---------+", textColor = {237, 222, 161, 255}, x = startX + 1, y = startY})
+	for x = startX + 2, startX + 28 do
+		consolePut({char = '─', textColor = {237, 222, 161, 255}, x = x, y = startY})
+	end
+	consolePut({char = '┌', x = startX + 1, y = startY, textColor = {237, 222, 161, 255}})
+	consolePut({char = '┐', x = startX + 29, y = startY, textColor = {237, 222, 161, 255}})
+	consolePrint({string = "Inventory", textColor = {237, 222, 161, 255}, x = startX + 11, y = startY})
 	startX = startX + 2
 	local cursort = ''
 	local drawY = startY - 1
@@ -160,12 +165,16 @@ function itemDrawInventory()
 		--- update cursort
 		if cursort ~= itemsInventory[i].data.sort then
 			cursort = itemsInventory[i].data.sort
-			consolePrint({string = "|                           |", textColor = {237, 222, 161, 255}, x = startX - 1, y = startY + (drawY)})
+			consolePut({char = '│', textColor = {237, 222, 161, 255}, x = startX - 1, y = startY +(drawY)})
+			consolePut({char = '│', textColor = {237, 222, 161, 255}, x = startX + 27, y = startY +(drawY)})
+			consolePrint({string = "                           ", textColor = {237, 222, 161, 255}, x = startX, y = startY + (drawY)})
 			consolePrint({string = cursort:gsub("^%l", string.upper) .. " ", x = startX + 1, y = startY + (drawY)})
 			drawY = drawY + 1
 		end
 		--- First put blank line in to make background box.
-		consolePrint({string = "|                           |", textColor = {237, 222, 161, 255}, x = startX - 1, y = startY + (drawY)})
+		consolePut({char = '│', textColor = {237, 222, 161, 255}, x = startX - 1, y = startY +(drawY)})
+			consolePut({char = '│', textColor = {237, 222, 161, 255}, x = startX + 27, y = startY +(drawY)})
+			consolePrint({string = "                           ", textColor = {237, 222, 161, 255}, x = startX, y = startY + (drawY)})
 		--- Item name and inventory slot letter.
 		local str = " "
 		if itemsInventoryAction == 'remove' then
@@ -188,18 +197,29 @@ function itemDrawInventory()
 		consolePrint({string = str, textColor = tColor, x = startX + 6, y = startY + (drawY)})
 		drawY = drawY + 1
 	end
-	consolePrint({string = "+---------------------------+", textColor = {237, 222, 161, 255}, x = startX - 1, y = startY + drawY})
+	consolePut({char = '└', x = startX - 1, y = startY + drawY, textColor = {237, 222, 161, 255}})
+	consolePut({char = '┘', x = startX + 27, y = startY + drawY, textColor = {237, 222, 161, 255}})
+	for x = startX, startX + 26 do
+		consolePut({char = '─', textColor = {237, 222, 161, 255}, x = x, y = startY + drawY})
+	end
 	-------------------
 	--- Equipment 		
 	local i = 0
 	startX = startX - 10
-	consolePrint({string = "+--------------Equipment--------------+", textColor = {237, 222, 161, 255}, x = startX + 48, y = startY})
+	for x = startX + 49, startX + 48 + 37 do
+		consolePut({char = '─', x = x, y = startY, textColor = {237, 222, 161, 255}})
+	end
+	consolePut({char = '┌', x = startX + 48, y = startY, textColor = {237, 222, 161, 255}})
+	consolePut({char = '┐', x = startX + 48 + 38, y = startY, textColor = {237, 222, 161, 255}})
+	consolePrint({string = "Equipment", textColor = {237, 222, 161, 255}, x = startX + 48 + 15, y = startY})
 	for j = 1, # itemsEquipmentOrder do
 		for k, v in pairs(itemsEquipment) do
 			if k == itemsEquipmentOrder[j] then
 				--- First increment counter i and put blank line in to make background box.
 				i = i + 1
-				consolePrint({string = "|                                     |", textColor = {237, 222, 161, 255}, x = startX + 48, y = startY + (i)})
+				consolePut({char = '│', x = startX + 48, y = startY + i, textColor = {237, 222, 161, 255}})
+				consolePut({char = '│', x = startX + 86, y = startY + i, textColor = {237, 222, 161, 255}})
+				consolePrint({string = "                                     ", textColor = {237, 222, 161, 255}, x = startX + 49, y = startY + (i)})
 				--- Equipment slot and item name.
 				local add = "  "
 				if k == 'weapon' then
@@ -234,8 +254,11 @@ function itemDrawInventory()
 			end
 		end
 	end
-	consolePrint({string = "+-------------------------------------+", textColor = {237, 222, 161, 255}, x = startX + 48, y = startY + i + 1
-	})
+	for x = startX + 49, startX + 48 + 37 do
+		consolePut({char = '─', x = x, y = startY + i, textColor = {237, 222, 161, 255}})
+	end
+	consolePut({char = '└', x = startX + 48, y = startY + i, textColor = {237, 222, 161, 255}})
+	consolePut({char = '┘', x = startX + 48 + 38, y = startY + i, textColor = {237, 222, 161, 255}})
 end
 
 --- itemThrowUpdate

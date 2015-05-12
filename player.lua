@@ -873,7 +873,7 @@ function playerHaveSpell(name)
 	return false 
 end
 
---- playerDrawMenu
+--- 
 --- Draws the player menu if it is open.
 function playerDrawMenu()
 	if playerMenu then
@@ -1083,17 +1083,17 @@ function playerDrawMenu()
 			local bC = {199, 136, 93, 255}
 			local tC = {89, 60, 41, 255}
 			for x = 1, w do
-				consolePut({char = '-', x = x, y = 1, backColor = bC, textColor = tC})
-				consolePut({char = '-', x = x, y = h, backColor = bC, textColor = tC})
+				consolePut({char = '─', x = x, y = 1, backColor = bC, textColor = tC})
+				consolePut({char = '─', x = x, y = h, backColor = bC, textColor = tC})
 			end
 			for y = 1, h do
-				consolePut({char = '|', x = 1, y = y, backColor = bC, textColor = tC})
-				consolePut({char = '|', x = w, y = y, backColor = bC, textColor = tC})
+				consolePut({char = '│', x = 1, y = y, backColor = bC, textColor = tC})
+				consolePut({char = '│', x = w, y = y, backColor = bC, textColor = tC})
 			end
-			consolePut({char = '+', x = 1, y = 1, backColor = bC, textColor = tC})
-			consolePut({char = '+', x = 1, y = h, backColor = bC, textColor = tC})
-			consolePut({char = '+', x = w, y = 1, backColor = bC, textColor = tC})
-			consolePut({char = '+', x = w, y = h, backColor = bC, textColor = tC})
+			consolePut({char = '┌', x = 1, y = 1, backColor = bC, textColor = tC})
+			consolePut({char = '└', x = 1, y = h, backColor = bC, textColor = tC})
+			consolePut({char = '┐', x = w, y = 1, backColor = bC, textColor = tC})
+			consolePut({char = '┘', x = w, y = h, backColor = bC, textColor = tC})
 
 			--- Message
 			local startX, startY = playerTabletCenter()
@@ -1120,19 +1120,19 @@ function playerDrawMenu()
 					for y = starty, starty + height do
 						consolePut({char = ' ', x = x, y = y})
 						if x == 1 or x == startx + width then
-							consolePut({char = '|', x = startx, y = y, textColor = {237, 222, 161, 255}})
-							consolePut({char = '|', x = startx + width, y = y, textColor = {237, 222, 161, 255}})
+							consolePut({char = '│', x = startx, y = y, textColor = {237, 222, 161, 255}})
+							consolePut({char = '│', x = startx + width, y = y, textColor = {237, 222, 161, 255}})
 						end
 						if y == 1 or y == starty + height then
-							consolePut({char = '-', x = x, y = starty, textColor = {237, 222, 161, 255}})
-							consolePut({char = '-', x = x, y = starty + height, textColor = {237, 222, 161, 255}})
+							consolePut({char = '─', x = x, y = starty, textColor = {237, 222, 161, 255}})
+							consolePut({char = '─', x = x, y = starty + height, textColor = {237, 222, 161, 255}})
 						end
 					end
 				end
-				consolePut({char = '+', x = startx, y = starty, textColor = {237, 222, 161, 255}})
-				consolePut({char = '+', x = startx + width, y = starty, textColor = {237, 222, 161, 255}})
-				consolePut({char = '+', x = startx, y = starty + height, textColor = {237, 222, 161, 255}})
-				consolePut({char = '+', x = startx + width, y = starty + height, textColor = {237, 222, 161, 255}})
+				consolePut({char = '┌', x = startx, y = starty, textColor = {237, 222, 161, 255}})
+				consolePut({char = '┐', x = startx + width, y = starty, textColor = {237, 222, 161, 255}})
+				consolePut({char = '└', x = startx, y = starty + height, textColor = {237, 222, 161, 255}})
+				consolePut({char = '┘', x = startx + width, y = starty + height, textColor = {237, 222, 161, 255}})
 				
 				--- Instructions
 				consolePrint({string = 'Level Up', x = startx + math.floor(width/2) - 3, y = starty, textColor = {237, 222, 161, 255}})
@@ -1167,17 +1167,17 @@ function playerDrawMenu()
 			
 			--- Border
 			for x = 1, consoleGetWindowWidth() do
-				consolePut({char = '-', x = x, y = 1, textColor = {237, 222, 161, 255}})
-				consolePut({char = '-', x = x, y = consoleGetWindowHeight(), textColor = {237, 222, 161, 255}})
+				consolePut({char = '─', x = x, y = 1, textColor = {237, 222, 161, 255}})
+				consolePut({char = '─', x = x, y = consoleGetWindowHeight(), textColor = {237, 222, 161, 255}})
 			end
 			for y = 1, consoleGetWindowHeight() do
-				consolePut({char = '|', x = 1, y = y, textColor = {237, 222, 161, 255}})
-				consolePut({char = '|', x = consoleGetWindowWidth(), y = y, textColor = {237, 222, 161, 255}})
+				consolePut({char = '│', x = 1, y = y, textColor = {237, 222, 161, 255}})
+				consolePut({char = '│', x = consoleGetWindowWidth(), y = y, textColor = {237, 222, 161, 255}})
 			end
-			consolePut({char = '+', x = 1, y = 1, textColor = {237, 222, 161, 255}})
-			consolePut({char = '+', x = consoleGetWindowWidth(), y = 1, textColor = {237, 222, 161, 255}})
-			consolePut({char = '+', x = 1, y = consoleGetWindowHeight(), textColor = {237, 222, 161, 255}})
-			consolePut({char = '+', x = consoleGetWindowWidth(), y = consoleGetWindowHeight(), textColor = {237, 222, 161, 255}})
+			consolePut({char = '┌', x = 1, y = 1, textColor = {237, 222, 161, 255}})
+			consolePut({char = '┐', x = consoleGetWindowWidth(), y = 1, textColor = {237, 222, 161, 255}})
+			consolePut({char = '└', x = 1, y = consoleGetWindowHeight(), textColor = {237, 222, 161, 255}})
+			consolePut({char = '┘', x = consoleGetWindowWidth(), y = consoleGetWindowHeight(), textColor = {237, 222, 161, 255}})
 		
 			--- Name, Class, Level
 			consolePrint({string = playerName, x = 3, y = 3})
@@ -1356,13 +1356,17 @@ function playerDrawHud()
 	consoleFlushRow(startY)
 	consoleFlushRow(startY + 1)
 	--- HUD border
-	consolePrint({string = "----------------------------------------------------------------------------------", x = 1, y = startY - 1})
-	consolePrint({string = "----------------------------------------------------------------------------------", x = 1, y = startY + 2})
+	--consolePrint({string = "----------------------------------------------------------------------------------", x = 1, y = startY - 1})
+	--consolePrint({string = "----------------------------------------------------------------------------------", x = 1, y = startY + 2})
+	for x = 1, 82 do
+		consolePut({char = '─', x = x, y = startY - 1})
+		consolePut({char = '─', x = x, y = startY + 2})
+	end
 	--- Hud
-	consolePut({char = '|', x = 1, y = startY})
-	consolePut({char = '|', x = 1, y = startY+1})
-	consolePut({char = '+', x = 1, y = startY-1})
-	consolePut({char = '+', x = 1, y = startY+2})
+	consolePut({char = '│', x = 1, y = startY})
+	consolePut({char = '│', x = 1, y = startY+1})
+	consolePut({char = '┌', x = 1, y = startY-1})
+	consolePut({char = '└', x = 1, y = startY+2})
 	consolePrint({string = playerClass .. " Level " .. playerLevel, x = 4, y = startY, textColor = {222, 207, 120, 255}})
 	--consolePrint({string = "Experience:", x = 4, y = startY+1, textColor = {222, 207, 120, 255}})
 	--consolePrint({string = playerExp .. "/" .. (((playerLevel)^2) * playerExpBase), x = 15, y = startY+1})
@@ -1381,10 +1385,10 @@ function playerDrawHud()
 			consolePut({char = 'P', x = x, y = startY + 1, backColor = {255, 102, 0, 255}})
 		end	
 	end
-	consolePut({char = '|', x = 22, y = startY})
-	consolePut({char = '|', x = 22, y = startY+1})
-	consolePut({char = '+', x = 22, y = startY-1})
-	consolePut({char = '+', x = 22, y = startY+2})
+	consolePut({char = '│', x = 22, y = startY})
+	consolePut({char = '│', x = 22, y = startY+1})
+	consolePut({char = '┬', x = 22, y = startY-1})
+	consolePut({char = '┴', x = 22, y = startY+2})
 
 	consolePrint({string = "HP:", x = 25, y = startY, textColor = {255, 0, 0, 255}})
 	consolePrint({string = playerHealth .. "/" .. playerHPMax(), x = 28, y = startY})
@@ -1392,10 +1396,10 @@ function playerDrawHud()
 	consolePrint({string = playerMana .. "/" .. playerMPMax(), x = 28, y = startY + 1})
 	consolePrint({string = 'AC:', x = 36, y = startY, textColor = {234, 255, 0, 255}})
 	consolePrint({string = playerArmor + itemGetEquipmentArmor(), x = 39, y = startY})
-	consolePut({char = '|', x = 43, y = startY})
-	consolePut({char = '|', x = 43, y = startY+1})
-	consolePut({char = '+', x = 43, y = startY-1})
-	consolePut({char = '+', x = 43, y = startY+2})
+	consolePut({char = '│', x = 43, y = startY})
+	consolePut({char = '│', x = 43, y = startY+1})
+	consolePut({char = '┬', x = 43, y = startY-1})
+	consolePut({char = '┴', x = 43, y = startY+2})
 	
 	
 	consolePrint({string = "Vit:", x = 46, y = startY, textColor = {224, 119, 119, 255}})
@@ -1406,10 +1410,10 @@ function playerDrawHud()
 	consolePrint({string = playerGetEndur(), x = 57, y = startY})
 	consolePrint({string = "Wil:", x = 53, y = startY+1, textColor = {213, 115, 240, 255}})
 	consolePrint({string = playerGetWill(), x = 57, y = startY+1})	
-	consolePut({char = '|', x = 61, y = startY})
-	consolePut({char = '|', x = 61, y = startY+1})
-	consolePut({char = '+', x = 61, y = startY-1})
-	consolePut({char = '+', x = 61, y = startY+2})
+	consolePut({char = '│', x = 61, y = startY})
+	consolePut({char = '│', x = 61, y = startY+1})
+	consolePut({char = '┬', x = 61, y = startY-1})
+	consolePut({char = '┴', x = 61, y = startY+2})
 
 	--[[consolePrint({string = "AC:", x = 52, y = startY, textColor = {234, 255, 0, 255}})
 	consolePrint({string = playerArmor + itemGetEquipmentArmor(), x = 55, y = startY})
@@ -1424,10 +1428,10 @@ function playerDrawHud()
 	end
 	consolePrint({string = 'Turns:', x = 64, y = startY + 1, textColor = {222, 207, 120, 255}})
 	consolePrint({string = playerTurns, x = 71, y = startY + 1})
-	consolePut({char = '|', x = 80, y = startY})
-	consolePut({char = '|', x = 80, y = startY+1})
-	consolePut({char = '+', x = 80, y = startY-1})
-	consolePut({char = '+', x = 80, y = startY+2})
+	consolePut({char = '│', x = 80, y = startY})
+	consolePut({char = '│', x = 80, y = startY+1})
+	consolePut({char = '┐', x = 80, y = startY-1})
+	consolePut({char = '┘', x = 80, y = startY+2})
 end
 
 --- playerDraw
