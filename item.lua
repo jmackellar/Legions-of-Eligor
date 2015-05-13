@@ -255,10 +255,10 @@ function itemDrawInventory()
 		end
 	end
 	for x = startX + 49, startX + 48 + 37 do
-		consolePut({char = '─', x = x, y = startY + i, textColor = {237, 222, 161, 255}})
+		consolePut({char = '─', x = x, y = startY + i + 1, textColor = {237, 222, 161, 255}})
 	end
-	consolePut({char = '└', x = startX + 48, y = startY + i, textColor = {237, 222, 161, 255}})
-	consolePut({char = '┘', x = startX + 48 + 38, y = startY + i, textColor = {237, 222, 161, 255}})
+	consolePut({char = '└', x = startX + 48, y = startY + i + 1, textColor = {237, 222, 161, 255}})
+	consolePut({char = '┘', x = startX + 48 + 38, y = startY + i + 1, textColor = {237, 222, 161, 255}})
 end
 
 --- itemThrowUpdate
