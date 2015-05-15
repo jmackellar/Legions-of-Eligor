@@ -141,7 +141,8 @@ function creatureAttackedByPlayer(x, y, dam, msg3)
 					end
 				end
 				--- die
-				msg = msg .. "  You killed " .. creatures[i].data.prefix .. creatures[i].data.name .. "."			
+				msg = msg .. "  You killed " .. creatures[i].data.prefix .. creatures[i].data.name .. "."		
+				mapAddCorpse(x, y, creatures[i].data.char, creatures[i].data.bloodColor)	
 				mapDrawTile(x, y)
 				playerAddExp(creatures[i].data.xp)
 				table.remove(creatures, i)
@@ -596,6 +597,15 @@ function creatureIsTileFree(x, y)
 		end
 	end
 	return true
+end
+
+function creatureGetBloodColorAt(x, y)
+	local c = creatureGetCreatureAtTile(x, y)
+	if c then
+		return c.data.bloodColor
+	else
+		return false
+	end
 end
 
 function creatureGetTotalCreatures() return # creatures end

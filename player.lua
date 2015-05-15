@@ -16,7 +16,7 @@ local playerHealthRegenTick = 1
 local playerHealthRegenCount = 3
 
 local playerMana = 100
-local playerManaMax = 100
+local playerManaMax = 100   
 local playerManaRegen = 21
 local playerManaRegenTick = 0
 local playerManaRegenCount = 3
@@ -526,6 +526,10 @@ function playerSpellUnstableConcoction(spell)
 	aeExplosion(sx, sy, 1, {100, 100, 255, 255})
 
 	for k,v in pairs(hits) do
+		local c = creatureGetCreatureAtTile(v.x, v.y)
+		if c then
+			mapSplashBlood(v.x, v.y, sx - v.x, sy - v.y, 40, c.data.bloodColor)
+		end
 		creatureAttackedByPlayer(v.x, v.y, spell.damage + playerScaling(spell.scaling))
 	end
 	
@@ -567,6 +571,10 @@ function playerSpellArcaneDart(spell)
 		r = r + 1
 		if not mapGetWalkThru(sx, sy) or not creatureIsTileFree(sx, sy) then
 			aeProjectile(ssX, ssY, playerDirection.dx, playerDirection.dy, r - 1, 'o', {100, 100, 255, 255})
+			local c = creatureGetCreatureAtTile(sx, sy)
+			if c then
+				mapSplashBlood(sx, sy, playerDirection.dx, playerDirection.dy, 20, c.data.bloodColor)
+			end
 			creatureAttackedByPlayer(sx, sy, spell.damage + playerScaling(spell.scaling))
 			break
 		end
@@ -581,6 +589,10 @@ end
 function playerSpellDoubleStrike(spell)
 	local sx = playerX + playerDirection.dx
 	local sy = playerY + playerDirection.dy
+	local mon = creatureGetCreatureAtTile(sx, sy)
+	if mon then
+		mapSplashBlood(sx, sy, playerDirection.dx, playerDirection.dy, 30, mon.data.bloodColor)
+	end
 	messageRecieve(spell.castmsg)
 	creatureAttackedByPlayer(sx, sy, playerCalcDamage())
 	creatureAttackedByPlayer(sx, sy, playerCalcDamage())
@@ -594,11 +606,23 @@ end
 function playerSpellSpinSlice(spell)
 	local sx = playerX
 	local sy = playerY
+	local mon = false
+	local dx = 0
+	local dy = 0
+	local i = 0
+	local dtable = {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 0}, {0, 1}, {1, -1}, {1, 0}, {1, 1}}
 	--- We want the message to be seen before
 	--- any hit messages.  Immersion!!!
 	messageRecieve(spell.castmsg)
 	for xx = sx-1, sx+1 do
 		for yy = sy-1, sy+1 do
+			i = i + 1
+			mon = creatureGetCreatureAtTile(xx, yy)
+			dx = dtable[i][1]
+			dy = dtable[i][2]
+			if mon then
+				mapSplashBlood(xx, yy, dx, dy, 35, mon.data.bloodColor)
+			end
 			creatureAttackedByPlayer(xx, yy, playerCalcDamage())
 		end
 	end
@@ -798,6 +822,7 @@ function playerMoveBy(dx, dy)
 			itemDidPlayerWalkOverItem(newX, newY)
 			mapDidPlayerWalkOverObject(newX, newY)
 		else
+			mapSplashBlood(newX, newY, dx, dy, 10, creatureGetBloodColorAt(newX, newY))
 			creatureAttackedByPlayer(newX, newY, playerCalcDamage())
 			playerCastFog()
 			gameFlipPlayerTurn()

@@ -7,6 +7,7 @@ mapTiles = {
 		seeThru = false,
 		backColor = {0, 0, 0, 255},
 		textColor = {255, 255, 255, 255},
+		noGore = true,
 		},
 
 	floor = {
@@ -52,6 +53,7 @@ mapTiles = {
 		seeThru = false,
 		backColor = {102, 70, 0, 255},
 		textColor = {204, 152, 41, 255},
+		noGore = true,
 		},
 		
 	opendoor = {
@@ -61,6 +63,7 @@ mapTiles = {
 		seeThru = true,
 		backColor = {61, 34, 7, 255},
 		textColor = {204, 152, 41, 255},
+		noGore = true,
 		},
 		
 	upstairs = {
@@ -70,6 +73,7 @@ mapTiles = {
 		seeThru = true,
 		backColor = {0, 0, 0, 255},
 		textColor = {255, 255, 255, 255},
+		noGore = true,
 		},
 		
 	downstairs = {
@@ -79,6 +83,7 @@ mapTiles = {
 		seeThru = true,
 		backColor = {0, 0, 0, 255},
 		textColor = {255, 255, 255, 255},
+		noGore = true,
 		},
 		
 	connection = {
@@ -88,6 +93,7 @@ mapTiles = {
 		seeThru = true,
 		backColor = {0, 0, 0, 255},
 		textColor = {120, 255, 255, 255},
+		noGore = true,
 		},
 		
 	fence = {
@@ -142,6 +148,7 @@ mapTiles = {
 		seeThru = true,
 		backColor = {0, 0, 0, 255},
 		textColor = {255, 255, 255, 255},
+		noGore = true,
 		interaction = 'identify',
 		charge = 3,
 		},
@@ -153,6 +160,7 @@ mapTiles = {
 		seeThru = true,
 		backColor = {0, 0, 0, 255},
 		textColor = {246, 255, 0, 255},
+		noGore = true,
 		interaction = 'read',
 		},
 		

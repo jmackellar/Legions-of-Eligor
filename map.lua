@@ -348,15 +348,50 @@ function mapDrawTile(x, y)
 		if mapFog[x][y].lit then		
 			--- If mapTile is currently visible to the player then draw the tile lit up
 			consolePut({x = xx, y = yy, char = map[x][y].char, backColor = map[x][y].backColor, textColor = tC})
+			if not map[x][y].noGore then mapDrawBlood(x, y, true) end
 		elseif mapFog[x][y].seen then
 			local tc = {tC[1], tC[2], tC[3], 100}
 			consolePut({x = xx, y = yy, char = map[x][y].char, backColor = map[x][y].backColor, textColor = tc})
+			if not map[x][y].noGore then mapDrawBlood(x, y, false) end
 		else
 			consolePut({x = xx, y = yy, char = ' ', backColor = {0, 0, 0, 255}, textColor = {0, 0, 0, 255}})
 		end
 	else
 		local tC = map[x][y].textColor
 		consolePut({x = xx, y = yy, char = map[x][y].char, backColor = map[x][y].backColor, textColor = tC})
+	end
+end
+
+--- mapDrawBlood
+--- Draws the blood and gore of the passed tile.
+function mapDrawBlood(x, y, lit)
+	local bC = {0, 0, 0, 255}
+	if map[x][y].blood then
+		local a = 255
+		local blood = map[x][y].blood
+		local rgbval = math.min(math.ceil(42.5 * blood.val), 255)
+		local negval = rgbval * -1
+		if not lit then a = 100 end
+		local BC = map[x][y].backColor
+		local tC = map[x][y].textColor
+		local tc = {tC[1], tC[2], tC[3], a}
+		local vals = {blood.color[1], blood.color[2], blood.color[3]}
+		for i = 1, # vals do
+			if BC[i] < vals[i] then
+				bC[i] = BC[i] + rgbval 
+				if bC[i] > vals[i] then bC[i] = vals[i] end
+			elseif BC[i] > vals[i] then
+				bC[i] = BC[i] - rgbval 
+				if bC[i] < vals[i] then bC[i] = vals[i] end
+			end
+		end
+		bC[4] = 255
+		consolePut({x = mapStartX + (x - 1), y = mapStartY + (y-1), char = map[x][y].char, backColor = bC, textColor = tc})
+	end
+	if map[x][y].blood and map[x][y].blood.corpse then
+		if lit then a = 255 end
+		if not lit then a = 100 end
+		consolePut({char = map[x][y].blood.corpse, x = mapStartX + (x - 1), y = mapStartY + (y-1), backColor = bC, textColor = {0, 0, 0, a}})
 	end
 end
 
@@ -1837,6 +1872,82 @@ function mapCreatureSpawn()
 			creatureSpawn(x, y, c.name)
 		end
 	end
+end
+
+--- mapAddCorpse
+--- Adds a corpse to the map passed on passed values
+function mapAddCorpse(x, y, char, color)
+	local tile = { }
+	for k,v in pairs(map[x][y]) do
+		tile[k] = v 
+	end
+	if not tile.blood then
+		tile['blood'] = {val = 4, corpse = char, color = color} 
+	else
+		tile.blood.corpse = char
+		tile.blood.color = color
+		if tile.blood.val < 4 then
+			tile.blood.val = 4
+		end
+	end
+	map[x][y] = tile
+end
+
+--- mapSplashBlood
+--- Spalshes blood on the ground in target direction
+function mapSplashBlood(startX, startY, dX, dY, amnt, color)
+	local dist = math.ceil(6 * (amnt / 100))
+	local splat = 4
+	local maxSplats = math.ceil(10 * (amnt / 100))
+	local drawX = startX
+	local drawY = startY
+	local splatmult = dist 
+	local var = 45
+	local angle = 0
+	if not color then
+		color = {255, 0, 0}
+	end
+	if dX == 1 and dY == 0 then angle = 0 end
+	if dX == -1 and dY == 0 then angle = 180 end
+	if dX == -1 and dY == -1 then angle = 225 end
+	if dX == -1 and dY == 1 then angle = 130 end
+	if dX == 1 and dY == -1 then angle = 315 end
+	if dX == 1 and dY == 1 then angle = 45 end
+	if dX == 0 and dY == -1 then angle = 270 end
+	if dX == 0 and dY == 1 then angle = 90 end
+	mapTileBloodSplash(drawX, drawY, 1, color)
+	for i = 1, maxSplats do
+		drawX = startX + 0.5
+		drawY = startY + 0.5
+		local variancy = 0
+		if i > 1 then
+			variancy = love.math.random(var * -1, var)
+			print(variancy)
+		end
+		angle = angle + variancy
+		for range = 1, (love.math.random(1, dist)) do
+			drawX = drawX + math.cos(angle * (math.pi / 180))
+			drawY = drawY + math.sin(angle * (math.pi / 180))
+			if not map[math.floor(drawX)][math.floor(drawY)].walkThru then break end
+		end
+		if drawX > 0 and drawY > 0 and drawX <= mapWidth and drawY <= mapHeight then
+			mapTileBloodSplash(math.floor(drawX), math.floor(drawY), math.max(1, splat - i), color)
+		end
+	end
+end
+
+--- mapTileBloodSplash
+function mapTileBloodSplash(drawX, drawY, amnt, color)
+	local tile = { }	
+	for k,v in pairs(map[drawX][drawY]) do
+		tile[k] = v 
+	end
+	if not tile.blood then
+		tile['blood'] = {val = math.min(6, amnt), corpse = false, color = color}
+	else
+		tile.blood.val = math.min(6, tile.blood.val + amnt)
+	end
+	map[drawX][drawY] = tile
 end
 
 --- Getters
