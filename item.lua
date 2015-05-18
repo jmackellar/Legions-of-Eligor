@@ -193,6 +193,8 @@ function itemDrawInventory()
 		local tColor = {255, 255, 255, 255}
 		if itemsInventory[i].data.isMagic then
 			tColor = magicItems.mColors.invColor
+		elseif itemsInventory[i].data.isQuest then
+			tColor = magicItems.qColors.invColor
 		end
 		consolePrint({string = str, textColor = tColor, x = startX + 6, y = startY + (drawY)})
 		drawY = drawY + 1

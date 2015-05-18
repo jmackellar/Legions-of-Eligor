@@ -335,6 +335,7 @@ gameItems = {
 		manacost = 1,
 		msg = 'You gaze into the mirror and feel a warping sensation.',
 		nomanamsg = 'You gaze into the mirror.  Nothing happens.',
+		isQuest = true,
 		backColor = {0, 0, 0, 255},
 		textColor = {150, 150, 255, 255},
 		},

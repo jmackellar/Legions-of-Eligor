@@ -1,6 +1,8 @@
 magicItems = {
 
 	mColors = {backColor = {92, 140, 145}, textColor = {255, 255, 255, 255}, invColor = {59, 252, 255, 255} },
+	qColors = {backCOlor = {233, 110, 255}, textColor = {255, 255, 255, 255}, invColor = {233, 110, 255}, },
+
 	mItems = {
 		{name = 'shortsword', type = 'sword'},
 		{name = 'dagger', type = 'dagger'},
