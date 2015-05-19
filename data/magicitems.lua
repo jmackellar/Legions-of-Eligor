@@ -1,5 +1,14 @@
 magicItems = {
 
+	keyToString = {damagebonus = {key = 'Damage Bonus', color = {234, 255, 0, 255}},
+				   vit = {key = 'Vitality', color = {224, 119, 119, 255}},
+				   ment = {key = 'Mentality', color = {119, 224, 119, 255}},
+				   endur = {key = 'Endurance', color = {119, 224, 119, 255}},
+				   will = {key = 'Willpower', color = {119, 119, 224, 255}},
+				   speed = {key = 'Speed', color = {234, 255, 0, 255}},
+				   armor = {key = 'Armor', color = {234, 255, 0, 255}},
+				   },
+
 	mColors = {backColor = {92, 140, 145}, textColor = {255, 255, 255, 255}, invColor = {59, 252, 255, 255} },
 	qColors = {backCOlor = {233, 110, 255}, textColor = {255, 255, 255, 255}, invColor = {233, 110, 255}, },
 

@@ -1675,3 +1675,4 @@ function playerGetDirectionVar() return playerDirection end
 function playerGetSpeed() return playerSpeed + playerGetMod('speed') + itemGetEquipmentVal('speed') end
 function playerGetHealth() return playerHealth end
 function playerGetMana() return playerMana end
+function playerGetArmor() return playerArmor end

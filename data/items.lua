@@ -21,6 +21,10 @@ gameItems = {
 		char = '/',
 		backColor = {0, 0, 0, 255},
 		textColor = {220, 220, 220, 255},
+		desc = {'A dulled iron dagger.  The tip is rusted over',
+	            'and its handle feels loose.  Doubles as a',
+	            'strong projectile weapon.',
+	            },
 		},
 	
 	shortsword = {
@@ -34,6 +38,10 @@ gameItems = {
 		char = '/',
 		backColor = {0, 0, 0, 255},
 		textColor = {190, 190, 190, 255},
+		desc = {'A common shortsword with no redeemable',
+	            'qualities.  The metal looks cheap, and its',
+	            'craftsmenship is questionable.',
+	            },
 		},
 		
 	shockblade = {
@@ -68,6 +76,9 @@ gameItems = {
 		char = '[',
 		backColor = {0, 0, 0, 255},
 		textColor = {0, 255, 0, 255},
+		desc = {'A tunic made of torn and stained cotton. It\'s',
+				'a tight fit, and offers little protection.'
+				},
 		},
 		
 	----------------------------------------------
@@ -88,6 +99,10 @@ gameItems = {
 		char = '}',
 		backColor = {0, 0, 0, 255},
 		textColor = {255, 152, 97, 255},
+		desc = {'A cape built to weather the storm and keep',
+				'the wearer warm.  It\'s use as armor however',
+				'is rather limited.',
+				},
 		},
 		
 	----------------------------------------------
@@ -108,6 +123,9 @@ gameItems = {
 		char = '{',
 		backColor = {0, 0, 0, 255},
 		textColor = {255, 255, 255, 255},
+		desc = {'A pair of paints made to cover your groin,',
+				'and not to protect it from swords and arrows',
+				},
 		},
 		
 	----------------------------------------------
@@ -127,6 +145,9 @@ gameItems = {
 		char = '_',
 		backColor = {0, 0, 0, 255},
 		textColor = {255, 152, 97, 255},
+		desc = {'A pair of sandels.  Does more to impede you',
+				'rather than to help you',
+				},
 		},
 		
 	----------------------------------------------
@@ -146,6 +167,9 @@ gameItems = {
 		char = '}',
 		backColor = {0, 0, 0, 255},
 		textColor = {152, 255, 97},
+		desc = {'A pair of thin leather gloves that protect',
+				'your hands.'
+				},
 		},
 		
 	----------------------------------------------
@@ -168,6 +192,10 @@ gameItems = {
 		breakonthrow = true,
 		backColor = {0, 0, 0, 255},
 		textColor = {255, 240, 185, 255},
+		desc = {'A glass bottle full of an unappealing liquid.',
+				'The bottle is stopped by a rubber cork on top,',
+				'and isn\'t labelled in any way.',
+				},
 		},
 		
 	potionmanagain = {
@@ -184,6 +212,10 @@ gameItems = {
 		breakonthrow = true,
 		backColor = {0, 0, 0, 255},
 		textColor = {255, 240, 185, 255},
+		desc = {'A glass bottle full of an unappealing liquid.',
+				'The bottle is stopped by a rubber cork on',
+				'and isn\'t labelled in any way.',
+				},
 		},
 		
 	potionpoison = {
@@ -202,6 +234,10 @@ gameItems = {
 		char = '!',
 		backColor = {0, 0, 0, 255},
 		textColor = {255, 240, 185, 255},
+		desc = {'A glass bottle full of an unappealing liquid.',
+				'The bottle is stopped by a rubber cork on',
+				'and isn\'t labelled in any way.',
+				},
 		},
 		
 	potionspeed = {
@@ -220,6 +256,10 @@ gameItems = {
 		char = '!',
 		backColor = {0, 0, 0, 255},
 		textColor = {255, 240, 185, 255},
+		desc = {'A glass bottle full of an unappealing liquid.',
+				'The bottle is stopped by a rubber cork on',
+				'and isn\'t labelled in any way.',
+				},
 		},
 		
 	potionslow = {
@@ -238,6 +278,10 @@ gameItems = {
 		char = '!',
 		backColor = {0, 0, 0, 255},
 		textColor = {255, 240, 185, 255},
+		desc = {'A glass bottle full of an unappealing liquid.',
+				'The bottle is stopped by a rubber cork on',
+				'and isn\'t labelled in any way.',
+				},
 		},
 		
 	----------------------------------------------
@@ -256,6 +300,7 @@ gameItems = {
 		throwbreakchance = 0,
 		backColor = {0, 0, 0, 255},
 		textColor = {196, 164, 112, 255},
+		desc = {'A rusted key that unlocks the Storehouse.',},
 		},
 
 	housekey = {
@@ -267,6 +312,9 @@ gameItems = {
 		throwbreakchance = 0,
 		backColor = {0, 0, 0, 255},
 		textColor = {196, 164, 112, 255},
+		desc = {'The key to the locked house in the Dragon\'s',
+				'Pass outpost on the surface.',
+				},
 		},
 		
 	----------------------------------------------
@@ -288,6 +336,9 @@ gameItems = {
 		char = '\\',
 		backColor = {0, 0, 0, 255},
 		textColor = {255, 0, 0, 255},
+		desc = {'A bandage capable of stopping small bleeding',
+				'and covereing minor cuts.',
+				},
 		},
 		
 	stone = {
@@ -314,6 +365,9 @@ gameItems = {
 		throwbreakchance = 5,
 		backColor = {0, 0, 0, 255},
 		textColor = {255, 255, 0, 255},
+		desc = {'A strong projectile, but tends to easily',
+				'break on contact.',
+				},
 		},
 
 	----------------------------------------------
@@ -338,5 +392,9 @@ gameItems = {
 		isQuest = true,
 		backColor = {0, 0, 0, 255},
 		textColor = {150, 150, 255, 255},
+		desc = {'A strange mirror from an ancient time, covered',
+				'jewels and adorned with silver.  Gazing into it',
+				'makes your presence feel temporal.',
+				},
 		},
 }

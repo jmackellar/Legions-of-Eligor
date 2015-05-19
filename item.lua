@@ -66,7 +66,21 @@ function itemKeypressed(key)
 		-------------------------
 		--- Looking at inventory.
 		if itemsInventoryAction == 'look' and key then
-			itemInventoryOpenFlip()
+			if key == 'return' or key == ' ' then
+				itemInventoryOpenFlip()
+			else
+				if itemKeyIsLetter(key) and itemsInventory[itemKeyIsLetter(key)] then 
+					itemsInventoryAction = 'desc'
+					itemsInventoryDesc = itemKeyIsLetter(key)
+				end
+			end
+		-------------------------
+		--- Describing an item
+		elseif itemsInventoryAction == 'desc' then 
+			if key then 
+				itemsInventoryAction = 'look'
+				gameSetRedrawAll()
+			end
 		-------------------------
 		--- Dropping an item from inventory.
 		elseif itemsInventoryAction == 'drop' then
@@ -261,6 +275,96 @@ function itemDrawInventory()
 	end
 	consolePut({char = '└', x = startX + 48, y = startY + i + 1, textColor = {237, 222, 161, 255}})
 	consolePut({char = '┘', x = startX + 48 + 38, y = startY + i + 1, textColor = {237, 222, 161, 255}})
+	if itemsInventoryAction == 'desc' then
+		itemDrawDescription()
+	end
+end
+
+--- itemDrawDescription
+--- Draws items description box with all stats and information.
+function itemDrawDescription()
+	--- locals
+	local sx = 15
+	local sy = 3
+	local width = 50
+	local height = 19
+	local item = itemsInventory[itemsInventoryDesc]
+	local name = item.data.name
+	local nColor = {255, 255, 255, 255}
+	if item.data.idname and itemIsIdentified(item) then
+		name = item.data.idname
+	end
+	if item.data.isMagic then
+		nColor = magicItems.mColors.invColor
+	end
+
+	--- Window box
+	for x = sx, sx + width do
+		for y = sy, sy + height do
+			consolePut({char = ' ', x = x, y = y})
+			if x < sx + 1 or x > sx + width - 1 then
+				consolePut({char = '│', x = x, y = y, textColor = {237, 222, 161, 255}})
+			end
+			if y < sy + 1 or y > sy + height - 1 then
+				consolePut({char = '─', x = x, y = y, textColor = {237, 222, 161, 255}})
+			end
+		end
+	end
+	consolePut({char = '┌', x = sx, y = sy, textColor = {237, 222, 161, 255}})
+	consolePut({char = '└', x = sx, y = sy + height, textColor = {237, 222, 161, 255}})
+	consolePut({char = '┐', x = sx + width, y = sy, textColor = {237, 222, 161, 255}})
+	consolePut({char = '┘', x = sx + width, y = sy + height, textColor = {237, 222, 161, 255}})
+
+	--- Information
+	consolePrint({string = name:gsub("^%l", string.upper), x = sx + 3, y = sy + 2, textColor = nColor})
+	consolePut({char = item.data.char, x = sx + 5 + string.len(name), y = sy + 2, textColor = item.data.textColor, backColor = item.data.backColor})
+	consolePrint({string = item.data.sort:gsub("^%l", string.upper), x = sx + 3, y = sy + 3})
+	if item.data.slot and item.data.slot ~= 'weapon' then
+		consolePrint({string = ': ' .. item.data.slot:gsub("^%l", string.upper), x = sx + 4 + string.len(item.data.sort), y = sy + 3})
+	end
+
+	--- Attack information
+	if item.data.sort == 'weapons' then
+		local dMin = ((1 + item.data.damage.bonus) * item.data.damage.dice)
+		local dMax = ((item.data.damage.sides + item.data.damage.bonus) * item.data.damage.dice)
+		consolePrint({string = 'Attack Damage', x = sx + 3, y = sy + 6, textColor = {234, 255, 0, 255}})
+		consolePrint({string = '(' .. dMin .. '-' .. dMax .. ')', x = sx + 5, y = sy + 7})
+	elseif item.data.sort == 'armor' then
+		local arm = playerGetArmor() + itemGetEquipmentArmor()
+		local drmin = 0
+		local drmax = 0
+		for i = 1, arm do
+			if i < (arm * 0.55) then
+				drmin = drmin + 1
+			end
+			drmax = drmax + 1
+		end
+		consolePrint({string = 'Armor:', x = sx + 3, y = sy + 6, textColor = {234, 255, 0, 255}})
+		consolePrint({string = item.data.armor, x = sx + 10, y = sy + 6})
+		consolePrint({string = 'Damage Reduction', x = sx + 3, y = sy + 7, textColor = {234, 255, 0, 255}})
+		consolePrint({string = '(' .. drmin .. '-' .. drmax .. ')', x = sx + 5, y = sy + 8})
+	end
+
+	--- Magic properties
+	local i = 0
+	if item.data.mPrefix and itemIsIdentified(item) then
+		consolePrint({string = 'Affixes', x = sx + 30, y = sy + 2})
+		for k,v in pairs(item.data.mPrefix.val) do
+			if magicItems.keyToString[k] then
+				consolePrint({string = magicItems.keyToString[k].key .. ': ' .. v, x = sx + 27, y = sy + 3 + i, textColor = magicItems.keyToString[k].color})
+			else
+				consolePrint({string = k .. ': ' .. v, x = sx + 27, y = sy + 3 + i})
+			end
+			i = i + 1
+		end
+	end
+
+	--- Description
+	if item.data.desc then
+		for i = 1, # item.data.desc do
+			consolePrint({string = item.data.desc[i], x = sx + 3, y = sy + 12 + i})
+		end
+	end
 end
 
 --- itemThrowUpdate
@@ -579,6 +683,9 @@ function itemGenerateSpecial()
 						item[k] = val
 					end
 				end
+
+				--- Point back to original prefix
+				item['mPrefix'] = prefix
 				
 				--- Apply color changes
 				item.backColor = magicItems.mColors.backColor
