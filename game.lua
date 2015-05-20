@@ -48,7 +48,7 @@ function gameClearSave()
 end
 
 function gameUpdate(dt)
-
+	
 	aeUpdateEffects(dt)
 	creatureUpdate(dt)
 	playerUpdate(dt)
@@ -100,8 +100,9 @@ function gameKeypressed(key)
 				if playerTurn then
 					if playerKeypressed(key) then return end
 				end
+			else
+				messageKeypressed(key)
 			end
-			messageKeypressed(key)
 		else
 			messageKeypressed(key)
 		end

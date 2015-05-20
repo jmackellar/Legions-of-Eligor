@@ -3,7 +3,7 @@
 --- related to the player.
 
 local playerName = 'Jesse'
-local playerLevel = 1
+local playerLevel = 10
 local playerExp = 0
 local playerExpBase = 7
 local playerClass = 'Vagrant'
@@ -22,7 +22,7 @@ local playerManaRegenTick = 0
 local playerManaRegenCount = 3
 
 local playerSpellList = { }
-local playerSpellPoints = 0
+local playerSpellPoints = 100
 
 local playerX = 40
 local playerY = 13
@@ -51,6 +51,7 @@ local playerCastingSpell = false
 
 local playerModifiers = { }
 local alphabet = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'}
+local alphabet2 = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'i', 'j', 'k', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'}
 
 --- playerInit
 --- Setups the player data.
@@ -212,8 +213,8 @@ function playerKeypressed(key)
 	elseif playerMenu == 'spelllist' then
 		if not playerMenuSpellList.spell then
 			if key then
-				for i = 1, # alphabet do
-					if key == alphabet[i] then
+				for i = 1, # alphabet2 do
+					if key == alphabet2[i] then
 						if gameClasses[playerClass].spells[i] then
 							playerMenuSpellList.spell = gameClasses[playerClass].spells[i]
 							return
@@ -405,8 +406,9 @@ function playerCastSpell(i)
 			if not spell.direction or playerDirection then
 				--------------------------
 				------- Vagrant
+				if spell.name == 'Temporal Backstab' then playerSpellTemporalBackstab(spell) end
 				if spell.name == 'Roll' then playerSpellRoll(spell) end
-				if spell.name == 'Shoutout' then playerSpellShoutout(spell) end
+				if spell.name == 'Ostrason Heritage' then playerSpellShoutout(spell) end
 				if spell.name == 'Spin Slice' then playerSpellSpinSlice(spell) end
 				if spell.name == 'Double Strike' then playerSpellDoubleStrike(spell) end
 				--------------------------
@@ -422,7 +424,9 @@ function playerCastSpell(i)
 				playerCastingSpell = false
 				playerDirection = false
 				playerMana = playerMana - spell.mana
-				playerMenu = false
+				if playerMenu ~= 'stats' then
+					playerMenu = false
+				end
 				return true
 			end
 		else
@@ -436,6 +440,68 @@ function playerCastSpell(i)
 		end
 	end
 	return false
+end
+
+--- playerSpellTemporalBackstab
+--- Teleport to nearest seen enemy and stab them for huge damage.
+function playerSpellTemporalBackstab(spell)
+	local sx = playerX
+	local sy = playerY
+	local monsters = { }
+	local monster = false
+	local jumped = false
+	--- Find all nearby seen monsters
+	for x = sx - spell.dist, sx + spell.dist do
+		for y = sy - spell.dist, sy + spell.dist do
+			monster = creatureGetCreatureAtTile(x, y)
+			if monster then
+				table.insert(monsters, monster)
+			end
+		end
+	end
+	--- Order the monster list by distance from player
+	for i = 1, # monsters do
+		for k = i, # monsters do
+			local d1 = math.sqrt( (monsters[i].x - sx)^2 + (monsters[i].y - sy)^2 )
+			local d2 = math.sqrt( (monsters[k].x - sx)^2 + (monsters[k].y - sy)^2 )
+			if d2 < d1 then
+				local temp = monsters[i]
+				monsters[i] = monsters[k]
+				monsters[k] = temp 
+			end
+		end
+	end
+	--- Jump to the nearest open enemy and hit them
+	repeat
+		for i = 1, # monsters do
+			monster = monsters[i]
+			--- Find a free tile
+			local free = false
+			for xx = monster.x - 1, monster.x + 1 do
+				for yy = monster.y - 1, monster.y + 1 do
+					if not creatureGetCreatureAtTile(xx, yy) and mapGetWalkThru(xx, yy) then
+						sx = xx
+						sy = yy
+						jumped = true
+						break
+					end
+				end
+			end
+			if jumped then break end
+		end
+		if jumped then
+			playerX = sx
+			playerY = sy 
+			messageRecieve(spell.castmsg)
+			creatureAttackedByPlayer(monster.x, monster.y, playerCalcDamage() * (spell.damagescale + playerScaling(spell.scaling)))
+		else
+			messageRecieve("You can\'t blink right now.")
+			break
+		end
+	until jumped
+	playerCastFog()
+	gameFlipPlayerTurn()
+	gameSetRedrawAll()
 end
 
 --- playerSpellCyclone
@@ -987,7 +1053,7 @@ function playerDrawMenu()
 				consolePut({char = '┐', x = x + 2 + math.max(string.len(spell.name)+2, string.len("   Level:" .. spell.level)), y = y, textColor = color})
 				consolePut({char = '┘', x = x + 2 + math.max(string.len(spell.name)+2, string.len("   Level:" .. spell.level)), y = y+3, textColor = color})
 				--- Spell Name and Letter
-				consolePrint({string = '[' .. string.upper(alphabet[alpha]) .. ']', x = x + 1, y = y + 1, textColor = {255, 157, 0, 255}})
+				consolePrint({string = '[' .. string.upper(alphabet2[alpha]) .. ']', x = x + 1, y = y + 1, textColor = {255, 157, 0, 255}})
 				consolePrint({string = spell.name, x = x + 4, y = y + 1})
 				--- Level requirement
 				local lColor = {255, 75, 75, 255}
@@ -1012,6 +1078,8 @@ function playerDrawMenu()
 					local ex = 8 + ((spell.level - 1) * 25) - playerMenuSpellList.view - 1
 					local ey = spell.y * 6 + 1
 					if req.y == spell.y then
+						y = req.y * 6 + 1
+					elseif req.y == 3 and spell.y == 2 then
 						y = req.y * 6 + 1
 					end
 					consoleDrawLine({char = '*', x1 = x, y1 = y, x2 = ex, y2 = ey, textColor = color})
@@ -1065,9 +1133,12 @@ function playerDrawMenu()
 				consolePrint({string = spell.level, x = sx + w - 2 - string.len(spell.level), y = sy + 1})
 
 				--- Mana Cost
-				consolePrint({string = 'Mana:', x = sx + w - 10 - string.len('level:' .. spell.level), y = sy + 1, textColor = {75, 75, 255, 255}})
-				consolePrint({string = spell.mana, x = sx + w - 5 - string.len('level:' .. spell.level), y = sy + 1})
-
+				if spell.mana then
+					consolePrint({string = 'Mana:', x = sx + w - 10 - string.len('level:' .. spell.level), y = sy + 1, textColor = {75, 75, 255, 255}})
+					consolePrint({string = spell.mana, x = sx + w - 5 - string.len('level:' .. spell.level), y = sy + 1})
+				elseif spell.passive then
+					consolePrint({string = 'Passive', x = sx + w - 10 - string.len('level:' .. spell.level), y = sy + 1})
+				end
 				--- Spell Description
 				for i = 1, # spell.desc do
 					consolePrint({string = spell.desc[i], x = sx + 2, y = sy + 2 + i})
@@ -1676,3 +1747,4 @@ function playerGetSpeed() return playerSpeed + playerGetMod('speed') + itemGetEq
 function playerGetHealth() return playerHealth end
 function playerGetMana() return playerMana end
 function playerGetArmor() return playerArmor end
+function playerGetMenu() return playerMenu end

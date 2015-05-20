@@ -15,29 +15,18 @@ gameClasses = {
 							weapon = "shortsword",
 							},
 		startingItems = {'bandage', 'dagger'},
-		spells = { {name = 'Roll', direction = true, dist = 5, mana = 5, level = 1, req = false, y = 1,
+		spells = { 	{name = 'Temporal Backstab', direction = false, dist = 12, mana = 5, level = 1, req = false, y = 1, damagescale = 2,
 					desc = {
-						'Roll forward 5 spaces in the target',
-						'direction.  After rolling forward,',
-						'you ready your weapon and do extra',
-						'damage for the next 2 turns.',
-					},
-					castmsg = 'You roll forward.  You pounce off the ground and raise your weapon.',
-					scaling = {endur = 0.50, will = 0.1},
-					scaledesc = 'Increases extra damage after rolling.',
-
-					},
-					{name = 'Spin Slice', direction = false, dist = 1, mana = 5, level = 2, req = 'Roll', y = 1,
-					desc = {
-						'Spin in a circle while holding your',
-						'weapon out.  Your weapon will strike',
-						'all adjacent enemies for melee',
+						'Blink behind the nearest enemy and',
+						'stab them in the back for massive',
 						'damage.',
 					},
-					castmsg = 'You spin around swinging in a circle.',
+					castmsg = 'You blink forward and strike it in the back.',
+					scaling  = {endur = 0.50},
+					scaledesc = 'Increases backstab damage.',
 					},
 
-					{name = 'Double Strike', direction = true, mana = 3, level = 3, req = 'Roll', y = 3,
+					{name = 'Double Strike', direction = true, mana = 3, level = 1, req = false, y = 3,
 					desc = {
 						'Strike the targeted tile twice in',
 						'one turn with your weapon.  All hit',
@@ -47,7 +36,66 @@ gameClasses = {
 					castmsg = 'You swing twice.',
 					},
 
-					{name = 'Shoutout', dist = 5, armor = -6, mana = 1, level = 3, turns = 15, req = 'Spin Slice', y = 1,
+					{name = 'Spell Sword', passive = true, level = 2, req = 'Temporal Backstab', y = 1, damage = 5,
+					desc = {
+						'Casting spells temporarily increases',
+						'your attack damage by 5 for 3 turns.',
+					},
+					scaling = {endur = 0.15, will = 0.15},
+					scaledesc = 'Increases bonus damage.',
+					},
+
+					{name = 'Roll', direction = true, dist = 5, mana = 5, level = 2, req = false, y = 2,
+					desc = {
+						'Roll forward 5 spaces in the target',
+						'direction.  After rolling forward,',
+						'you ready your weapon and do extra',
+						'damage for the next 2 turns.',
+					},
+					castmsg = 'You roll forward.  You pounce off the ground and raise your weapon.',
+					scaling = {endur = 0.50, will = 0.1},
+					scaledesc = 'Increases extra damage after rolling.',
+					},
+
+					{name = 'Spell Charge', passive = true, level = 3, req = 'Spell Sword', y = 1, managain = 1,
+					desc = {
+						'Melee attacks recharge your mana.',
+					},
+					scaling = {will = 0.20},
+					scaledesc = 'Increases mana gain.',
+					},
+
+					{name = 'Shredder', passive = true, level = 3, y = 3, req = 'Double Strike', armor = 1,
+					desc = {
+						'Your melee attacks shred through',
+						'your enemies armor.',
+					},
+					scaling = {endur = 0.15},
+					scaledesc = 'Increases armor shred.',
+					},
+
+					{name = 'Spin Slice', direction = false, dist = 1, mana = 5, level = 3, req = 'Roll', y = 2,
+					desc = {
+						'Spin in a circle while holding your',
+						'weapon out.  Your weapon will strike',
+						'all adjacent enemies for melee',
+						'damage.',
+					},
+					castmsg = 'You spin around swinging in a circle.',
+					},
+
+					{name = 'Dragon\'s Flame', direction = false, dist = 6, mana = 10, level = 4, req = false, y = 1,
+					desc = {
+						'Surrounds yourself with the flames',
+						'of dragons, which burn nearby enemies',
+						'every turn.',
+					},
+					castmsg = 'Your surround yourself in the Dragon\'s Flame.',
+					scaling = {endur = 0.10, will = 0.10},
+					scaledesc = 'Increaes flame damage.',
+					},
+
+					{name = 'Ostrason Heritage', dist = 5, armor = -6, mana = 1, level = 4, turns = 15, req = 'Shredder', y = 2,
 					desc = {
 						'Let out a commanding shout which',
 						'lowers the armor of nearby enemies',
@@ -56,6 +104,13 @@ gameClasses = {
 					castmsg = 'You let out a commanding shout.',
 					scaling = {endur = 0.15},
 					scaledesc = 'Increases armor loss.'
+					},
+
+					{name = 'Great Strike', passive = true, stun = 25, level = 4, y = 3, req = 'Shredder',
+					desc = {
+						'Gives your melee attacks a chance',
+						'to stun enemies on hit.',
+					},
 					},
 
 					},
