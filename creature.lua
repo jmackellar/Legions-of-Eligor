@@ -58,52 +58,55 @@ end
 function creatureTurn()
 	gameFlipPlayerTurn()
 	for i = # creatures, 1, -1 do
-		--- Set creatures speed check to players speed value.
-		--- If creatures speed check is greater than or equal to their
-		--- speed value then they take turns until the speed value is
-		--- greater than the speed check.
-		creatures[i].speed = (creatures[i].speed + creatureGetModVal(creatures[i], 'speed') ) + playerGetSpeed()
 		--- Tick down modifiers every turn
 		creatureTickMod(creatures[i])
-		while creatures[i].speed >= creatures[i].data.speed do
-			if creatures[i].seen then
-				--- Creature AI 
-				
-				--- If the creature has been seen and is out of range of the
-				--- player for a set time then revert seen to false.
-				if not mapFog[creatures[i].x][creatures[i].y].lit then
-					creatures[i].lastseen = creatures[i].lastseen + 1
-					if creatures[i].lastseen >= 15 then
-						creatures[i].seen = false
-						creatures[i].lastseen = 0
+		--- If the creature is stunned then don't take a turn
+		if creatureGetModVal(creatures[i], 'stun') < 1 then
+			--- Set creatures speed check to players speed value.
+			--- If creatures speed check is greater than or equal to their
+			--- speed value then they take turns until the speed value is
+			--- greater than the speed check.
+			creatures[i].speed = (creatures[i].speed + creatureGetModVal(creatures[i], 'speed') ) + playerGetSpeed()
+			while creatures[i].speed >= creatures[i].data.speed do
+				if creatures[i].seen then
+					--- Creature AI 
+					
+					--- If the creature has been seen and is out of range of the
+					--- player for a set time then revert seen to false.
+					if not mapFog[creatures[i].x][creatures[i].y].lit then
+						creatures[i].lastseen = creatures[i].lastseen + 1
+						if creatures[i].lastseen >= 15 then
+							creatures[i].seen = false
+							creatures[i].lastseen = 0
+						end
 					end
+					
+					--- Modifiers may change what AI the creature is using
+					--- for a few turns.  If the creature doesn't have any
+					--- AI modifiers then use the default AI for that creature
+					--- instead.
+					local ai = creatureGetModVal(creatures[i], 'ai')
+					if ai == 1 then 
+						ai = 'grunt'
+					elseif ai == 0 then
+						ai = creatures[i].data.ai
+					end
+					
+					--- Take turn passed on current AI state
+					if ai == 'grunt' then
+						creatureGrunt(creatures[i])
+					elseif ai == 'ranged' then
+						creatureRanged(creatures[i])
+					elseif ai == 'scared' then
+						creatureScared(creatures[i])
+					end
+				else
+					creatures[i].lastseen = 0
+					creatureWander(creatures[i])
 				end
-				
-				--- Modifiers may change what AI the creature is using
-				--- for a few turns.  If the creature doesn't have any
-				--- AI modifiers then use the default AI for that creature
-				--- instead.
-				local ai = creatureGetModVal(creatures[i], 'ai')
-				if ai == 1 then 
-					ai = 'grunt'
-				elseif ai == 0 then
-					ai = creatures[i].data.ai
-				end
-				
-				--- Take turn passed on current AI state
-				if ai == 'grunt' then
-					creatureGrunt(creatures[i])
-				elseif ai == 'ranged' then
-					creatureRanged(creatures[i])
-				elseif ai == 'scared' then
-					creatureScared(creatures[i])
-				end
-			else
-				creatures[i].lastseen = 0
-				creatureWander(creatures[i])
+				--- Subtract speed check by speed value
+				creatures[i].speed = creatures[i].speed - creatures[i].data.speed
 			end
-			--- Subtract speed check by speed value
-			creatures[i].speed = creatures[i].speed - creatures[i].data.speed
 		end
 	end
 end
@@ -147,7 +150,9 @@ function creatureAttackedByPlayer(x, y, dam, msg3)
 				playerAddExp(creatures[i].data.xp)
 				table.remove(creatures, i)
 			end
-			messageRecieve(msg)
+			if string.len(msg) > 0 then
+				messageRecieve(msg)
+			end
 			return
 		end
 	end

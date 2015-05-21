@@ -367,21 +367,14 @@ function playerCastSpell(i)
 	--- requires a direction then this step is not needed, so thus
 	--- we skip it then.
 	if not playerDirection then
-		local name = false
-		local ii = 0
+		local spells = { }
 		for k,v in ipairs(playerSpellList) do
-			if v.have then
-				ii = ii + 1
-				if ii == i then
-					name = v.name
-					break
-				end
+			if v.have and not playerIsSpellPassive(v.name) then
+				table.insert(spells, v.name)
 			end
 		end
-		if not name then return end
-
 		for j = 1, # gameClasses[playerClass].spells do
-			if gameClasses[playerClass].spells[j].name == name then
+			if gameClasses[playerClass].spells[j].name == spells[i] then
 				i = j
 				break
 			end
@@ -411,6 +404,7 @@ function playerCastSpell(i)
 				if spell.name == 'Ostrason Heritage' then playerSpellShoutout(spell) end
 				if spell.name == 'Spin Slice' then playerSpellSpinSlice(spell) end
 				if spell.name == 'Double Strike' then playerSpellDoubleStrike(spell) end
+				if spell.name == 'Dragon\'s Flame' then playerSpellDragonsFlame(spell) end
 				--------------------------
 				------- Arcanist
 				if spell.name == 'Arcane Dart' then playerSpellArcaneDart(spell) end
@@ -427,6 +421,8 @@ function playerCastSpell(i)
 				if playerMenu ~= 'stats' then
 					playerMenu = false
 				end
+				--- Check for on spell cast affects from passive abilities or items
+				playerCastedSpell(spell)
 				return true
 			end
 		else
@@ -440,6 +436,26 @@ function playerCastSpell(i)
 		end
 	end
 	return false
+end
+
+--- playerCastedSpell
+--- When the player casts a spell, this function is called and applies
+--- any affects that are triggered by spell casting.
+function playerCastedSpell(spell)
+	if playerHaveSpell('Spell Sword') then
+		local spell2 = playerGetSpellData('Spell Sword')
+		playerAddMod({mod = 'dam', turn = spell2.turn, val = spell2.damage + playerScaling(spell2.scaling)})
+	end
+end
+
+--- playerSpellDragonsFlame
+--- Surrounds player with fire that burns nearby enemies.
+function playerSpellDragonsFlame(spell)
+	local mod = {mod = 'dragonsflame', turn = spell.turn, val = spell.damage + playerScaling(spell.scaling), msgend = spell.msgend, range = spell.range}
+	playerAddMod(mod)
+	messageRecieve(spell.castmsg)
+	gameFlipPlayerTurn()
+	gameSetRedrawAll()
 end
 
 --- playerSpellTemporalBackstab
@@ -479,7 +495,7 @@ function playerSpellTemporalBackstab(spell)
 			local free = false
 			for xx = monster.x - 1, monster.x + 1 do
 				for yy = monster.y - 1, monster.y + 1 do
-					if not creatureGetCreatureAtTile(xx, yy) and mapGetWalkThru(xx, yy) then
+					if not creatureGetCreatureAtTile(xx, yy) and mapGetWalkThru(xx, yy) and mapGetTileLit(xx, yy) then
 						sx = xx
 						sy = yy
 						jumped = true
@@ -660,8 +676,8 @@ function playerSpellDoubleStrike(spell)
 		mapSplashBlood(sx, sy, playerDirection.dx, playerDirection.dy, 30, mon.data.bloodColor)
 	end
 	messageRecieve(spell.castmsg)
-	creatureAttackedByPlayer(sx, sy, playerCalcDamage())
-	creatureAttackedByPlayer(sx, sy, playerCalcDamage())
+	playerMelee(sx, sy)
+	playerMelee(sx, sy)
 	gameFlipPlayerTurn()
 	playerCastFog()
 	gameSetRedrawAll()
@@ -823,7 +839,7 @@ end
 --- playerModifierUseTurn
 --- Logic for modifiers that perform actions every turn
 function playerModifierUseTurn(mod)
-	if mod.mod == 'cyclone' then
+	if mod.mod == 'cyclone' or mod.mod == 'dragonsflame' then
 		playerModAOEDamage(mod.range, mod.val)
 	end
 end
@@ -834,7 +850,7 @@ function playerModAOEDamage(range, dam)
 	for x = playerX - range, playerX + range do
 		for y = playerY - range, playerY + range do
 			if x >= 1 and y >= 1 and x <= mapGetWidth() and y <= mapGetHeight() then
-				creatureAttackedByPlayer(x, y, dam)
+				creatureAttackedByPlayer(x, y, dam, "")
 			end
 		end
 	end
@@ -889,9 +905,34 @@ function playerMoveBy(dx, dy)
 			mapDidPlayerWalkOverObject(newX, newY)
 		else
 			mapSplashBlood(newX, newY, dx, dy, 10, creatureGetBloodColorAt(newX, newY))
-			creatureAttackedByPlayer(newX, newY, playerCalcDamage())
+			playerMelee(newX, newY)
 			playerCastFog()
 			gameFlipPlayerTurn()
+		end
+	end
+end
+
+--- playerMelee
+--- Basic player melee attack.
+function playerMelee(x, y)
+	creatureAttackedByPlayer(x, y, playerCalcDamage())
+	local c = creatureGetCreatureAtTile(x, y)
+	if c then 
+		if playerHaveSpell('Spell Charge') then
+			local spell = playerGetSpellData('Spell Charge') 
+			playerManaGain(spell.managain + playerScaling(spell.scaling), spell.managain + playerScaling(spell.scaling))
+		end
+		if playerHaveSpell('Shredder') then
+			local spell = playerGetSpellData('Shredder')
+			creatureAddModAt({mod = 'armor', val = spell.armor + playerScaling(spell.scaling), turn = spell.turn}, x, y)
+		end
+		if playerHaveSpell('Great Strike') then
+			local spell = playerGetSpellData('Great Strike')
+			local dice = love.math.random(1, 100)
+			if dice <= spell.stun then
+				creatureAddModAt({mod = 'stun', val = 1, turn = 2}, x, y)
+				messageRecieve("You stun " .. c.data.prefix .. " " .. c.data.name .. ".")
+			end
 		end
 	end
 end
@@ -1376,7 +1417,7 @@ function playerDrawMenu()
 
 			--- Determine how many spells we have
 			for k,v in ipairs(playerSpellList) do
-				if v.have then
+				if v.have and not playerIsSpellPassive(v.name) then
 					count = count + 1
 				end
 			end
@@ -1402,7 +1443,7 @@ function playerDrawMenu()
 			--- Print spells now
 			local i = 0
 			for k,v in ipairs(playerSpellList) do
-				if v.have then
+				if v.have and not playerIsSpellPassive(v.name) then
 					i = i + 1
 					consolePrint({string = '[' .. string.upper(alphabet[i]) .. ']', x = sx + 1, y = sy + i, textColor = {237, 222, 161, 255}})
 					consolePrint({string = v.name, x = sx + 5, y = sy + i})
@@ -1714,6 +1755,29 @@ function playerSetPrev(pre)
 	playerPrev = pre
 end
 
+--- playerGetSpellData
+--- Finds a spell and returns its data.
+function playerGetSpellData(name)
+	for i = 1, # gameClasses[playerClass].spells do
+		if gameClasses[playerClass].spells[i].name == name then
+			return gameClasses[playerClass].spells[i] 
+		end
+	end
+	return false
+end
+
+--- playerHaveSpell
+--- Takes a passed string and checks if the player has a learned
+--- a spell whose name matches the string.
+function playerHaveSpell(name)
+	for k,v in ipairs(playerSpellList) do
+		if v.name == name then
+			return v.have 
+		end
+	end
+	return false
+end
+
 --- playerHaveSpellReq
 --- Checks if the player has the required spells
 function playerHaveSpellReq(spell)
@@ -1732,6 +1796,17 @@ end
 function playerHaveSpellLevel(spell)
 	if playerLevel >= spell.level then
 		return true
+	else
+		return false 
+	end
+end
+
+--- playerIsSpellPassive
+--- Returns true if spell is passive
+function playerIsSpellPassive(name)
+	local spell = playerGetSpellData(name)
+	if spell then
+		return spell.passive 
 	else
 		return false 
 	end

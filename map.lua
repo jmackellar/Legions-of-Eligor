@@ -1961,6 +1961,7 @@ function mapGetPlayerSY() return mapPlayerSY end
 function mapGetTile(x, y) return map[x][y] end
 function mapGetTileName(x, y) return map[x][y].name end
 function mapGetTileSeen(x, y) return mapFog[x][y].seen end
+function mapGetTileLit(x, y) return mapFog[x][y].lit end
 --- setters
 function mapSetCurrentBranch(arg) mapCurrentBranch = arg end
 function mapSetCurrentFloor(arg) mapCurrentFloor = arg end

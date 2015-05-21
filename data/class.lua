@@ -36,10 +36,12 @@ gameClasses = {
 					castmsg = 'You swing twice.',
 					},
 
-					{name = 'Spell Sword', passive = true, level = 2, req = 'Temporal Backstab', y = 1, damage = 5,
+					{name = 'Spell Sword', passive = true, level = 2, req = 'Temporal Backstab', y = 1, damage = 8, turn = 4,
 					desc = {
-						'Casting spells temporarily increases',
-						'your attack damage by 5 for 3 turns.',
+						'Casting a spell calls upon your',
+						'wandering heritage, causing your',
+						'attack damage to be increases for 4',
+						'turns.',
 					},
 					scaling = {endur = 0.15, will = 0.15},
 					scaledesc = 'Increases bonus damage.',
@@ -59,16 +61,21 @@ gameClasses = {
 
 					{name = 'Spell Charge', passive = true, level = 3, req = 'Spell Sword', y = 1, managain = 1,
 					desc = {
-						'Melee attacks recharge your mana.',
+						'A hidden sword technique passed down',
+						'through the Ostrason lineage causes',
+						'your melee attacks to recharge your',
+						'mana by 1 point per attack.',
 					},
 					scaling = {will = 0.20},
 					scaledesc = 'Increases mana gain.',
 					},
 
-					{name = 'Shredder', passive = true, level = 3, y = 3, req = 'Double Strike', armor = 1,
+					{name = 'Shredder', passive = true, level = 3, y = 3, req = 'Double Strike', armor = 1, turn = 10,
 					desc = {
-						'Your melee attacks shred through',
-						'your enemies armor.',
+						'A sharp blade not only cuts through',
+						'demon flesh, but also clothing and',
+						'armor.  Your melee attacks reduce the',
+						'enemy\'s armor by 1 point.',
 					},
 					scaling = {endur = 0.15},
 					scaledesc = 'Increases armor shred.',
@@ -84,13 +91,15 @@ gameClasses = {
 					castmsg = 'You spin around swinging in a circle.',
 					},
 
-					{name = 'Dragon\'s Flame', direction = false, dist = 6, mana = 10, level = 4, req = false, y = 1,
+					{name = 'Dragon\'s Flame', direction = false, dist = 6, mana = 10, level = 4, req = false, y = 1, 
+					turn = 10, damage = 3, range = 3,
 					desc = {
 						'Surrounds yourself with the flames',
 						'of dragons, which burn nearby enemies',
 						'every turn.',
 					},
 					castmsg = 'Your surround yourself in the Dragon\'s Flame.',
+					msgend = 'The flames of the dragons dies out.',
 					scaling = {endur = 0.10, will = 0.10},
 					scaledesc = 'Increaes flame damage.',
 					},
@@ -108,9 +117,11 @@ gameClasses = {
 
 					{name = 'Great Strike', passive = true, stun = 25, level = 4, y = 3, req = 'Shredder',
 					desc = {
-						'Gives your melee attacks a chance',
-						'to stun enemies on hit.',
-					},
+						'A sharp swing to the head has the',
+						'potential of disorienting the target.',
+						'Your melee attacks have a 25% chance',
+						'to stun the target for 2 turns.',					
+						},
 					},
 
 					},
