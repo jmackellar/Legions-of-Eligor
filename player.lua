@@ -22,7 +22,7 @@ local playerManaRegenTick = 0
 local playerManaRegenCount = 3
 
 local playerSpellList = { }
-local playerSpellPoints = 100
+local playerSpellPoints = 0
 
 local playerX = 40
 local playerY = 13
@@ -252,7 +252,9 @@ function playerKeypressed(key)
 			gameSetRedrawAll()
 		end
 		if playerCastingSpell then
-			return playerCastSpell(playerCastingSpell)
+			local returner = playerCastSpell(playerCastingSpell)
+			playerCastingSpell = false
+			return returner
 		end
 		if key then
 			for i = 1, # alphabet do
