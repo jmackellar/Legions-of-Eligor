@@ -15,14 +15,14 @@ gameClasses = {
 							weapon = "shortsword",
 							},
 		startingItems = {'bandage', 'dagger'},
-		spells = { 	{name = 'Temporal Backstab', direction = false, dist = 12, mana = 5, level = 1, req = false, y = 1, damagescale = 2,
+		spells = { 	{name = 'Temporal Backstab', direction = false, dist = 12, mana = 5, level = 1, req = false, y = 1, damagescale = 1.25,
 					desc = {
 						'Blink behind the nearest enemy and',
 						'stab them in the back for massive',
 						'damage.',
 					},
 					castmsg = 'You blink forward and strike it in the back.',
-					scaling  = {endur = 0.50},
+					scaling  = {endur = 0.05},
 					scaledesc = 'Increases backstab damage.',
 					},
 

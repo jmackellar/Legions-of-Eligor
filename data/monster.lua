@@ -93,7 +93,7 @@ gameMonsters = {
 		health = 15,
 		armor = 0,
 		damage = {dice = 3, sides = 2, bonus = 2},
-		spells = { {name = 'mapeffect', shape = 'square', size = 2, target = 'player', cooldown = 7,
+		spells = { {name = 'mapeffect', shape = 'square', size = 2, target = 'player', cooldown = 11,
 					effect = {name = 'Fire', turn = 5, dam = 3, char = '^', 
 							  backColor = {255, 0, 0, 255}, textColor = {255, 188, 117},
 							  castmsg = "sets the ground on fire.",
