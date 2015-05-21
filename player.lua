@@ -382,7 +382,7 @@ function playerCastSpell(i)
 	end
 
 	--- Check if the spell exists and the player is able to cast it
-	if gameClasses[playerClass].spells[i] then
+	if gameClasses[playerClass].spells[i] and playerHaveSpell(gameClasses[playerClass].spells[i].name) then
 		--- Now check mana cost.
 		if gameClasses[playerClass].spells[i].mana <= playerMana then
 			local spell = gameClasses[playerClass].spells[i]
@@ -408,9 +408,11 @@ function playerCastSpell(i)
 				--------------------------
 				------- Arcanist
 				if spell.name == 'Arcane Dart' then playerSpellArcaneDart(spell) end
-				if spell.name == 'Unstable Concoction' then playerSpellUnstableConcoction(spell) end
+				if spell.name == 'Unstable Energy' then playerSpellUnstableEnergy(spell) end
 				if spell.name == 'Mystic Wind' then playerSpellMysticWind(spell) end
 				if spell.name == 'Cyclone' then playerSpellCyclone(spell) end
+				if spell.name == 'Anti-Personal Dart' then playerSpellAntiPersonalDart(spell) end
+				if spell.name == 'Arcane Flak' then playerSpellArcaneFlak(spell) end
 				--------------------------
 				--- Spell has been cast.  Turn off getting direction, 
 				--- Subtract mana, close spell menu, and end player turn.
@@ -576,37 +578,43 @@ function playerSpellMysticWind(spell)
 	gameSetRedrawAll()
 end
 
+--- playerSpellArcaneFlak
+--- Modifies Arcane Dart to stun enemies on contact
+function playerSpellArcaneFlak(spell)
+	playerAddMod({mod = 'arcane dart', val = 3, turn = spell.turn, msgend = spell.msgend})
+	messageRecieve(spell.castmsg)
+	gameFlipPlayerTurn()
+	gameSetRedrawAll()
+end
+
+--- playerSpellAntiPersonalDart
+--- Modifies Arcane Dart to pierce through enemies.
+function playerSpellAntiPersonalDart(spell)
+	playerAddMod({mod = 'arcane dart', val = 2, turn = spell.turn, msgend = spell.msgend})
+	messageRecieve(spell.castmsg)
+	gameFlipPlayerTurn()
+	gameSetRedrawAll()
+end
+
+--- playerSpellUnstableEnergy
+--- Modifies Arcane Dart to explode on contact.
+function playerSpellUnstableEnergy(spell)
+	playerAddMod({mod = 'arcane dart', val = 1, turn = spell.turn, msgend = spell.msgend})
+	messageRecieve(spell.castmsg)
+	gameFlipPlayerTurn()
+	gameSetRedrawAll()
+end
+
 --- playerSpellUnstableConcoction
 --- Projectile that explodes on contact.  AoE damage
-function playerSpellUnstableConcoction(spell)
-	local sx = playerX
-	local sy = playerY
-	local ssX = playerX + playerDirection.dx
-	local ssY = playerY + playerDirection.dy
-	local r = 0
+function playerSpellUnstableConcoction(sx, sy, spell)
 	local hits = { }
-	
-	--- Print message.
-	messageRecieve(spell.castmsg)
-	
-	--- Shoot dart
-	for range = 1, spell.dist do
-		sx = sx + playerDirection.dx
-		sy = sy + playerDirection.dy
-		r = r + 1
-		if not mapGetWalkThru(sx, sy) or not creatureIsTileFree(sx, sy) then
-			for xx = sx - 1, sx + 1 do
-				for yy = sy - 1, sy + 1 do
-					table.insert(hits, {x = xx, y = yy})
-				end
-			end
-			break
+	for xx = sx - 1, sx + 1 do
+		for yy = sy - 1, sy + 1 do
+			table.insert(hits, {x = xx, y = yy})
 		end
-	end	
-	
-	aeProjectile(ssX, ssY, playerDirection.dx, playerDirection.dy, r - 1, 'o', {100, 100, 255, 255})
+	end
 	aeExplosion(sx, sy, 1, {100, 100, 255, 255})
-
 	for k,v in pairs(hits) do
 		local c = creatureGetCreatureAtTile(v.x, v.y)
 		if c then
@@ -614,9 +622,6 @@ function playerSpellUnstableConcoction(spell)
 		end
 		creatureAttackedByPlayer(v.x, v.y, spell.damage + playerScaling(spell.scaling))
 	end
-	
-	gameFlipPlayerTurn()
-	gameSetRedrawAll()
 end
 
 --- playerSpellAranceDart
@@ -651,16 +656,30 @@ function playerSpellArcaneDart(spell)
 		sx = sx + playerDirection.dx
 		sy = sy + playerDirection.dy
 		r = r + 1
-		if not mapGetWalkThru(sx, sy) or not creatureIsTileFree(sx, sy) then
-			aeProjectile(ssX, ssY, playerDirection.dx, playerDirection.dy, r - 1, 'o', {100, 100, 255, 255})
+		if not creatureIsTileFree(sx, sy) then
 			local c = creatureGetCreatureAtTile(sx, sy)
 			if c then
 				mapSplashBlood(sx, sy, playerDirection.dx, playerDirection.dy, 20, c.data.bloodColor)
+				if playerHaveSpell('Arcane Freeze') then
+				creatureAddModAt({mod = 'speed', turn = 5, val = 25}, sx, sy)
+				end
+				creatureAttackedByPlayer(sx, sy, spell.damage + playerScaling(spell.scaling))
+				if playerGetMod('arcane dart') == 1 then
+					playerSpellUnstableConcoction(sx, sy, playerGetSpellData('Unstable Energy'))
+				end
+				if playerGetMod('arcane dart') == 3 then
+					creatureAddModAt({mod = 'stun', turn = 2, val = 1}, sx, sy)
+				end
 			end
-			creatureAttackedByPlayer(sx, sy, spell.damage + playerScaling(spell.scaling))
+			if playerGetMod('arcane dart') ~= 2 then
+				break
+			end
+		end
+		if not mapGetWalkThru(sx, sy) then
 			break
 		end
-	end	
+	end
+	aeProjectile(ssX, ssY, playerDirection.dx, playerDirection.dy, r - 1, 'o', {100, 100, 255, 255})
 	
 	gameFlipPlayerTurn()
 	gameSetRedrawAll()
@@ -915,8 +934,22 @@ end
 --- playerMelee
 --- Basic player melee attack.
 function playerMelee(x, y)
-	creatureAttackedByPlayer(x, y, playerCalcDamage())
+	local damage = playerCalcDamage()
 	local c = creatureGetCreatureAtTile(x, y)
+
+	--- Before hit passives
+	if c then 
+		if playerHaveSpell('Depleted Batteries') then
+			local spell = playerGetSpellData('Depleted Batteries')
+			local missing = 100 - math.floor((playerMana / playerMPMax()) * 100)
+			damage = damage + (missing * (spell.damage + playerScaling(spell.scaling)))
+		end
+	end
+
+	--- Hit!
+	creatureAttackedByPlayer(x, y, damage)
+	
+	--- After hit passives
 	if c then 
 		if playerHaveSpell('Spell Charge') then
 			local spell = playerGetSpellData('Spell Charge') 
@@ -975,7 +1008,19 @@ end
 --- playerRecieveDamage
 --- Takes passed damage value and subtracts it from player health.
 function playerRecieveDamage(dam)
-	playerHealth = playerHealth - math.max(0, dam)
+	if playerHaveSpell('Arcane Shield') then
+		if playerMana >= dam * 0.35 then
+			playerMana = math.ceil(playerMana - dam * 0.35)
+			playerHealth = math.ceil(playerHealth - dam * 0.75)
+		elseif playerMana < dam * 0.35 then
+			playerMana = math.ceil(playerMana - dam * 0.35)
+			playerHealth = math.ceil(playerHealth - math.abs(playerMana))
+			playerHealth = math.ceil(playerHealth - dam * 0.75)
+			playerMana = 0
+		end
+	else
+		playerHealth = playerHealth - math.max(0, dam)
+	end
 	--- did the player die?  if so game fucking over.
 	if playerHealth < 1 then
 		messageRecieve("You have died...")
@@ -1704,16 +1749,20 @@ end
 --- scaled attributes
 function playerScaling(scale)
 	local bonus = 0
+	local scaleplus = 0
 	if not scale then return bonus end
+	if playerHaveSpell('Arcane Study') then
+		scaleplus = scaleplus + 0.10
+	end
 	for k,v in pairs(scale) do
 		if k == 'vit' then
-			bonus = bonus + math.floor(playerGetVit() * v)
+			bonus = bonus + math.floor(playerGetVit() * (v + scaleplus))
 		elseif k == 'endur' then
-			bonus = bonus + math.floor(playerGetEndur() * v)
+			bonus = bonus + math.floor(playerGetEndur() * (v + scaleplus))
 		elseif k == 'ment' then
-			bonus = bonus + math.floor(playerGetMent() * v)
+			bonus = bonus + math.floor(playerGetMent() * (v + scaleplus))
 		elseif k == 'will' then
-			bonus = bonus + math.floor(playerGetWill() * v)
+			bonus = bonus + math.floor(playerGetWill() * (v + scaleplus))
 		end
 	end
 	return bonus

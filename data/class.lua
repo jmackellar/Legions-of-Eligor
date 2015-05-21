@@ -141,7 +141,19 @@ gameClasses = {
 							 back = "cape",
 							 },
 		startingItems = {'dart', 'dart', 'dart'},
-		spells = {	{name = 'Arcane Dart', direction = true, dist = 7, mana = 5, level = 1, damage = 4, y = 2,
+		spells = {	{name = 'Mystic Wind', direction = true, dist = 6, mana = 4, level = 1, damage = 2, y = 1, req = false,
+					desc = {
+						'Creates a gust of wind in the',
+						'target direction which blows back',
+						'and deals minor damage to the',
+						'first enemy it hits.',
+					},
+					castmsg = 'A strong wind roars by you.',
+					scaling = {will = 0.10},
+					scaledesc = 'Increases spell damage.',
+					},
+
+					{name = 'Arcane Dart', direction = true, dist = 7, mana = 5, level = 1, damage = 4, y = 3,
 					chaintime = 5,
 					desc = {
 						'Fires a single bolt of energy which',
@@ -155,30 +167,40 @@ gameClasses = {
 					scaledesc = 'Increases spell damage.'
 					},
 
-					{name = 'Unstable Concoction', direction = true, dist = 6, mana = 12, level = 2, damage = 6, y = 1, req = 'Arcane Dart',
+					{name = 'Depleted Batteries', passive = true, level = 2, y = 1, req = 'Mystic Wind', damage = 0.10,
 					desc = {
-						'Throws a ball of energy which',
-						'explodes on contact dealing',
-						'damage in an area around itself.',
+						'An Arcanist reserves the ability to',
+						'channel his lack of magical into his',
+						'swordplay.  You gain attack damage',
+						'for missing mana.',
 					},
-					castmsg = 'You throw a ball of magical energy.  It explodes!',
+					scaling = {endur = 0.05},
+					scaledesc = 'Increases attack damage.',
+					},
+
+					{name = 'Unstable Energy', turn = 10, mana = 8, level = 2, damage = 6, y = 2, req = 'Arcane Dart',
+					desc = {
+						'Modifies your Arcane Darts to explode',
+						'on contact with enemies, damaging',
+						'everything within the area.',
+					},
+					castmsg = 'You modify your Arcane Darts to explode on contact.',
+					msgend = 'Your Arcane Darts revert back to being normal.',
 					scaling = {ment = 0.25, will = 0.25},
 					scaledesc = 'Increases spell damage.'
 					},
 
-					{name = 'Mystic Wind', direction = true, dist = 6, mana = 4, level = 3, damage = 2, y = 3, req = 'Arcane Dart',
+					{name = 'Anti-Personal Dart', mana = 8, turn= 10, level = 2, y = 3, req = 'Arcane Dart',
 					desc = {
-						'Creates a gust of wind in the',
-						'target direction which blows back',
-						'and deals minor damage to the',
-						'first enemy it hits.',
+						'Modifies your Arcane Darts to pierce',
+						'through enemies, damaging everything',
+						'in a line.',
 					},
-					castmsg = 'A strong wind roars by you.',
-					scaling = {will = 0.10},
-					scaledesc = 'Increases spell damage.',
+					castmsg = 'You modify your Arcane Darts to pierce enemies.',
+					msgend = 'Your Arcane Darts revert back to being normal.',
 					},
 
-					{name = 'Cyclone', range = 6, mana = 8, level = 4, damage = 3, turn = 8, y = 3, req = 'Mystic Wind',
+					{name = 'Cyclone', range = 6, mana = 8, level = 3, damage = 3, turn = 8, y = 1, req = 'Depleted Batteries',
 					desc = {
 						'Conjure a powerful cyclone that',
 						'surrounds you for 8 turns and',
@@ -190,6 +212,48 @@ gameClasses = {
 					scaling = {ment = 0.15},
 					scaledesc = 'Increases spell damage.'
 					},
+
+					{name = 'Arcane Freeze', passive = true, level = 3, y = 2, req = 'Unstable Energy',
+					desc = {
+						'The Arcane Arts where originally',
+						'derived from the Frost Arts.  You',
+						'can use this link to add a chilling',
+						'touch to your Arcane Darts, causing',
+						'them to slow enemies on hit.',					},
+					},
+
+					{name = 'Arcane Study', passive = true, level = 4, y = 1, req = false,
+					desc = {
+						'Through rigorous studies, the Arcanist',
+						'learns his art.  With further studying',
+						'the Arcanist can fine tune his spells',
+						'for further destruction.  Your spells',
+						'all scale by 10% more.'
+					},
+					},
+
+					{name = 'Arcane Shield', passive = true, level = 4, y = 2, req = false,
+					desc = {
+						'An Arcanist can manifest his mental',
+						'energy as a physical shield to protect',
+						'himself.  35% of all damage is',
+						'absorbed by your mana, and the rest',
+						'damages your health like normal.',
+					},
+					},
+
+					{name = 'Arcane Flak', mana = 8, level = 4, y = 3, turn = 10, req = 'Anti-Personal Dart',
+					desc = {
+						'Some jobs call for a heavy tool, or',
+						'in some cases, call for a heavy',
+						'weapon.  Your Arcane Darts harden',
+						'and gain the ability to stun enemies',
+						'on hit.',
+					},
+					castmsg = 'You modify your Arcane Darts to stun enemies.',
+					msgend = 'Your Arcane Darts revert back to being normal.',
+					},
+
 					},
 		},
 		
