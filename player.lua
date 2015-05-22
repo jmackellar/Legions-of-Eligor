@@ -53,6 +53,9 @@ local playerModifiers = { }
 local alphabet = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'}
 local alphabet2 = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'i', 'j', 'k', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'}
 
+--- Cool Shit!
+local playerGodMode = false
+
 --- playerInit
 --- Setups the player data.
 function playerInit(name, level, health, mana, vit, ment, endur, will, class)
@@ -97,7 +100,7 @@ end
 --- Key input that affects the player.
 function playerKeypressed(key)
 	--- if player is dead then dont allow any movement
-	if playerHealth < 1 then return end
+	if playerHealth < 1 and not playerGodMode then return end
 	--- if player has to give a direction don't allow any other inputs
 	if playerGetDirection then
 		local dx = 0
@@ -1024,7 +1027,10 @@ function playerRecieveDamage(dam)
 		playerHealth = playerHealth - math.max(0, dam)
 	end
 	--- did the player die?  if so game fucking over.
-	if playerHealth < 1 then
+	if playerHealth < 1 then 
+		playerHealth = 0
+	end
+	if playerHealth < 1 and not playerGodMode then
 		messageRecieve("You have died...")
 		messageRecieve("Game Over")
 		gameClearSave()
@@ -1863,6 +1869,11 @@ function playerIsSpellPassive(name)
 	end
 end
 
+--- playerSetGodMode
+function playerSetGodMode(bool)
+	playerGodMode = bool
+end
+
 --- Getters
 function playerGetViewRadius() return playerViewRadius end
 function playerGetPrev() return playerPrev end
@@ -1874,3 +1885,4 @@ function playerGetHealth() return playerHealth end
 function playerGetMana() return playerMana end
 function playerGetArmor() return playerArmor end
 function playerGetMenu() return playerMenu end
+function playerGetGodMode() return playerGodMode end

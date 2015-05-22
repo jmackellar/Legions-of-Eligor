@@ -55,6 +55,26 @@ function creatureCalcDamage(c)
 	return d
 end
 
+--- creatureSetSerialAt
+--- Sets the creature at x,y to have the passed serial
+function creatureSetSerialAt(x, y, serial)
+	local c = creatureGetCreatureAtTile(x, y)
+	if c then
+		c['packserial'] = serial 
+	end
+end
+
+--- creaturesMessagePack
+--- Pass a serial #, and then set all creatures with that pack serial #
+--- to have seen the player.
+function creaturesMessagePack(serial)
+	for i = 1, # creatures do
+		if creatures[i].packserial and creatures[i].packserial == serial then
+			creatures[i].seen = true 
+		end
+	end
+end
+
 function creatureTurn()
 	gameFlipPlayerTurn()
 	for i = # creatures, 1, -1 do
@@ -69,6 +89,14 @@ function creatureTurn()
 			creatures[i].speed = (creatures[i].speed + creatureGetModVal(creatures[i], 'speed') ) + playerGetSpeed()
 			while creatures[i].speed >= creatures[i].data.speed do
 				if creatures[i].seen then
+
+					--- If the creature is part of a pack then
+					--- it needs to alert its packmembers where
+					--- the player is
+					if creatures[i].packserial then
+						creaturesMessagePack(creatures[i].packserial)
+					end
+
 					--- Creature AI 
 					
 					--- If the creature has been seen and is out of range of the
@@ -178,6 +206,7 @@ function creatureWander(c)
 	local path = c.dijkstra
 	for x = c.x - 1, c.x + 1 do
 		for y = c.y - 1, c.y + 1 do
+			if not path[x][y] or not path[c.x][c.y] then return end
 			if path[x][y] < path[c.x][c.y] then
 				if c.x > x then dx = - 1 elseif c.x < x then dx = 1 else dx = 0 end
 				if c.y > y then dy = - 1 elseif c.y < y then dy = 1 else dy = 0 end
@@ -576,7 +605,10 @@ function creatureGrunt(c)
 end
 
 function creatureSpawn(x, y, name)
+	print(name)
 	if gameMonsters[name] and x > 0 and y > 0 and x <= mapGetWidth() and y <= mapGetHeight() and mapGetWalkThru(x, y) then
+		print(creatureIsTileFree(x, y), playerIsTileFree(x, y))
+		print(x, y, playerGetX(), playerGetY())
 		if creatureIsTileFree(x, y) and playerIsTileFree(x, y) then
 			table.insert(creatures, {data = gameMonsters[name], lastseen = 0, health = gameMonsters[name].health, x = x, y = y, speed = 0, seen = false, mod = { }})
 			gameSetRedrawCreature()

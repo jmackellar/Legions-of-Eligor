@@ -2,11 +2,10 @@
 --- Debug menu to toggle debug settings on or off,
 --- and other debug tools
 
-local debugMenuParent = { 'Flags', 'Map Gen', 'Map Movement', 'Spawn Creature' }
-local debugMenuFlags = { {'debugDrawCellBorders', false}, {'debugQuickKill', true}, {'debugDisableFog', false} }
-local debugMenuMapGen = { 'NEW SEED', 'mapGenBigRoom', 'mapGenCave', 'mapGenDungeon', }
-local debugMapMovement = { 'Floor -1', 'Floor +1', 'Location: Dungeon', 'Location: Caves', 'Location: Jails', }
-local debugMenuSpawn = { 'Fox', 'Firefly' }
+local debugMenuParent = { 'Flags', 'Map Movement', 'Spawn Creature' }
+local debugMenuFlags = { {'debugDrawCellBorders', false}, {'debugQuickKill', true}, {'debugDisableFog', false}, {'godMode', false} }
+local debugMapMovement = { 'New Seed', 'Floor -1', 'Floor +1', 'Location: Outpost', 'Location: Graves', 'Location: Hallway', }
+local debugMenuSpawn = { 'Clear Creatures', 'Level Pack' }
 
 local debugMenuDir = 'parent'
 local debugMenuOpen = false
@@ -27,10 +26,10 @@ function debugtoolsKeypressed(key)
 	
 	if debugMenuOpen then
 	
-		if key == 'up' or key == 'kp8' then
+		if key == 'up' or key == 'kp8' or key == 'k' then
 			debugMenuCursor = debugMenuCursor - 1
 			if debugMenuCursor < 1 then debugMenuCursor = 1 end
-		elseif key == 'down' or key == 'kp2' then
+		elseif key == 'down' or key == 'kp2' or key == 'j' then
 			debugMenuCursor = debugMenuCursor + 1
 			debugCursorBelowItemCheck()
 		end
@@ -43,9 +42,6 @@ function debugtoolsKeypressed(key)
 					local choice = debugMenuParent[debugMenuCursor]
 					if choice == 'Flags' then
 						debugMenuDir = 'flags'
-						debugMenuCursor = 1
-					elseif choice == 'Map Gen' then
-						debugMenuDir = 'mapgen'
 						debugMenuCursor = 1
 					elseif choice == 'Spawn Creature' then
 						debugMenuDir = 'spawn'
@@ -87,6 +83,14 @@ function debugtoolsKeypressed(key)
 							choice[2] = true
 							gameSetRedrawAll()
 						end
+					elseif choice[1] == 'godMode' then
+						if playerGetGodMode() then 
+							choice[2] = false
+							playerSetGodMode(false)
+						else
+							choice[2] = true
+							playerSetGodMode(true)
+						end
 					end
 				end
 				
@@ -94,9 +98,12 @@ function debugtoolsKeypressed(key)
 			elseif debugMenuDir == 'spawn' then
 				if debugMenuSpawn[debugMenuCursor] then
 					local choice = debugMenuSpawn[debugMenuCursor]
-					local xx = playerGetX() + math.random(-3, 3)
-					local yy = playerGetY() + math.random(-3, 3)
-					creatureSpawn(xx, yy, choice)
+					if choice == 'Level Pack' then
+						mapSpawnLevelPack(playerGetX(), playerGetY(), 5)
+					elseif choice == 'Clear Creatures' then
+						creatureClearAll()
+						gameSetRedrawAll()
+					end
 				end
 				
 			--- Map movement directory
@@ -107,27 +114,8 @@ function debugtoolsKeypressed(key)
 						mapChangeFloor(1)
 					elseif choice == 'Floor -1' then
 						mapChangeFloor(-1)
-					elseif choice == 'Location: Dungeon' then
-						mapChangeBranch('Dungeon')
-					elseif choice == 'Location: Caves' then
-						mapChangeBranch('Caves')
-					elseif choice == 'Location: Jails' then
-						mapChangeBranch('Jails')
-					end
-				end
-				
-			--- Map gen directory
-			elseif debugMenuDir == 'mapgen' then
-				if debugMenuMapGen[debugMenuCursor] then
-					local choice = debugMenuMapGen[debugMenuCursor]
-					if choice == 'NEW SEED' then
-						math.randomseed(os.time() * math.random())
-					elseif choice == 'mapGenBigRoom' then
-						mapGenBigRoom(mapGetWidth(), mapGetHeight())
-					elseif choice == 'mapGenCave' then
-						mapGenCave(mapGetWidth(), mapGetHeight())
-					elseif choice == 'mapGenDungeon' then
-						mapGenDungeon(mapGetWidth(), mapGetHeight())
+					elseif string.sub(choice, 1, 10) == 'Location: ' then
+						mapChangeBranch(string.sub(choice, 11), true, true)
 					end
 				end
 				

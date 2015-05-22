@@ -64,6 +64,68 @@ function mapDrawEffects()
 	gameSetRedrawCreature()
 end
 
+--- mapSpawnLevelPack
+--- Spawns a pack of monsters that pertain to the specific level. 
+--- The pack should include a lot of popcorn and 1 or 2 strong enemies
+function mapSpawnLevelPack(x, y, range)
+	--- Unique pack serial
+	local serial = love.math.random(1, 10000)
+	---------------------
+	------ Pack Builder
+	---------------------
+	--- Figure out what normal creatures we can use and what rare creatures we can use
+	local c = mapBranch[mapCurrentBranch].creatures 
+	local r = mapBranch[mapCurrentBranch].rareCreatures
+	if # c == 0 then return end --- Safety Kill Switch
+	--- Decide how many creatures we want the pack to be in total
+	local cMin = math.ceil(mapBranch[mapCurrentBranch].minCreatures / 4)
+	local cMax = math.ceil(mapBranch[mapCurrentBranch].maxCreatures / 4)
+	local total = math.random(cMin, cMax)
+	--- Determine which normal creatures to use and how many of each
+	local types = love.math.random(1, math.min(3, # c)) --- # of different normal monsters
+	local cNums = mapGetRandomNonSameInts(types, 1, types)
+	local mons = { }
+	local cEach = 0
+	for i = 1, # c do
+		table.insert(mons, c[cNums[i]])
+	end
+	cEach = math.ceil(total / # mons)
+	--- Determine which rare creatures to use and how many of each
+	local rTypes = 0
+	local rNums = { }
+	local rMons = { }
+	if # r > 0 then
+		rTypes = love.math.random(1, math.min(2, # r))
+		rNums = mapGetRandomNonSameInts(rTypes, 1, rTypes)
+		for i = 1, # r do
+			table.insert(rMons, r[rNums[i]])
+		end
+	end
+	---------------------
+	------- Pack Placer
+	---------------------
+	--- Place rare monsters first in the center of the pack
+	if # rMons > 0 then
+		for i = 1, # rMons do
+			local sx, sy = mapClosestWalkableTileTo(x, y)
+			if sx and sy then
+				creatureSpawn(sx, sy, rMons[i].name)
+				creatureSetSerialAt(sx, sy, serial)
+			end
+		end
+	end
+	--- Place normal creatures now around the rare monsters
+	for i = 1, # mons do
+		for k = 1, cEach do
+			local sx, sy = mapClosestWalkableTileTo(x, y)
+			if sx and sy then
+				creatureSpawn(sx, sy, mons[i].name)
+				creatureSetSerialAt(sx, sy, serial)
+			end
+		end
+	end
+end
+
 --- mapGenerateCreatures
 --- spawns the maps creatures.
 function mapGenerateCreatures()
@@ -230,9 +292,11 @@ end
 
 --- mapChangeBranch
 --- changes map branch
-function mapChangeBranch(branch, save)
+function mapChangeBranch(branch, save, debug)
 	local s = save or true
+	local d = debug or false
 	if s then mapSave() end
+	if d then playerSetPrev('random') end
 	mapCurrentBranch = branch
 	mapCurrentFloor = 0
 	mapChangeFloor(1, false)
@@ -1856,6 +1920,53 @@ end
 function mapGetRandomDijkstra()
 	local path = mapDijkstra[math.random(1, # mapDijkstra)]
 	return path
+end
+
+--- mapGetRandomNonSameInts
+--- Rolls num numbers between min and max that dont match
+function mapGetRandomNonSameInts(num, min, max)
+	local n = { }
+	repeat
+		local i = love.math.random(min, max)
+		if # n == 0 then 
+			table.insert(n, i)
+		else
+			local place = true
+			for k = 1, # n do
+				if n == i then 
+					place = false
+				end
+			end
+			if place then
+				table.insert(n, i)
+			end
+		end
+	until # n == num
+	return n
+end
+
+--- mapClosestWalkableTileTo
+--- Finds the closest tile to the passed coordinates that is walkable, 
+--- and doesn't have a creature or player on that tile.
+function mapClosestWalkableTileTo(x, y)
+	local xx = x
+	local yy = y
+	local r = 1
+	while true do
+		for xx = x - r, x + r do
+			for yy = y - r, y + r do
+				if map[xx][yy].walkThru then
+					if creatureIsTileFree(xx, yy) and playerIsTileFree(xx, yy) then
+						return xx, yy
+					end
+				end
+			end
+		end
+		r = r + 1
+		if r > 40 then
+			return false
+		end
+	end
 end
 
 --- mapCreatureSpawn

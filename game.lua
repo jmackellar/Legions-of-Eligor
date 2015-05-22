@@ -48,7 +48,7 @@ function gameClearSave()
 end
 
 function gameUpdate(dt)
-	
+
 	aeUpdateEffects(dt)
 	creatureUpdate(dt)
 	playerUpdate(dt)
@@ -93,7 +93,7 @@ end
 
 function gameKeypressed(key)
 	if not aeHasEffects() then
-		if playerGetHealth() > 0 then
+		if playerGetHealth() > 0 or playerGetGodMode() then
 			if itemKeypressed(key) then return end
 			if not messageGetRestrictKeypress() then
 				if debugGetMenuOpen() then return end
