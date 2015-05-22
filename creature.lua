@@ -61,6 +61,7 @@ function creatureSetSerialAt(x, y, serial)
 	local c = creatureGetCreatureAtTile(x, y)
 	if c then
 		c['packserial'] = serial 
+		c['packarea'] = {x, y}
 	end
 end
 
@@ -211,6 +212,21 @@ function creatureWander(c)
 				if c.x > x then dx = - 1 elseif c.x < x then dx = 1 else dx = 0 end
 				if c.y > y then dy = - 1 elseif c.y < y then dy = 1 else dy = 0 end
 			end
+		end
+	end
+
+	--- If the creature is in a pack then 
+	--- they must always be within their
+	--- packs starting area and aren't allowed
+	--- to wander around.
+	if c.packserial and c.packarea then
+		c.x = c.x + dx
+		if c.x > math.abs(c.x - c.packarea[1]) then
+			c.x = c.x - dx - dx
+		end
+		c.y = c.y + dy 
+		if c.y > math.abs(c.y - c.packarea[2]) then 
+			c.y = c.y - dy - dy 
 		end
 	end
 

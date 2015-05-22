@@ -9,6 +9,7 @@ local mapHeight = 20
 local map = { }
 local mapSeen = { }
 local mapEffect = { }
+local mapPackSpots = { }
 
 local mapDijkstra = { }
 
@@ -67,7 +68,7 @@ end
 --- mapSpawnLevelPack
 --- Spawns a pack of monsters that pertain to the specific level. 
 --- The pack should include a lot of popcorn and 1 or 2 strong enemies
-function mapSpawnLevelPack(x, y, range)
+function mapSpawnLevelPack(x, y)
 	--- Unique pack serial
 	local serial = love.math.random(1, 10000)
 	---------------------
@@ -78,8 +79,8 @@ function mapSpawnLevelPack(x, y, range)
 	local r = mapBranch[mapCurrentBranch].rareCreatures
 	if # c == 0 then return end --- Safety Kill Switch
 	--- Decide how many creatures we want the pack to be in total
-	local cMin = math.ceil(mapBranch[mapCurrentBranch].minCreatures / 4)
-	local cMax = math.ceil(mapBranch[mapCurrentBranch].maxCreatures / 4)
+	local cMin = math.ceil(mapBranch[mapCurrentBranch].minCreatures / 5)
+	local cMax = math.ceil(mapBranch[mapCurrentBranch].maxCreatures / 5)
 	local total = math.random(cMin, cMax)
 	--- Determine which normal creatures to use and how many of each
 	local types = love.math.random(1, math.min(3, # c)) --- # of different normal monsters
@@ -175,6 +176,25 @@ function mapGenerateCreatures()
 			end
 		end
 	end
+	--- Generate Packs
+	if mapBranch[mapCurrentBranch].minPacks and mapBranch[mapCurrentBranch].maxPacks then
+		local pNum = love.math.random(mapBranch[mapCurrentBranch].minPacks, mapBranch[mapCurrentBranch].maxPacks)
+		for i = 1, pNum do
+			if mapPackSpots and mapPackSpots[i] then
+				mapSpawnLevelPack(mapPackSpots[i][1], mapPackSpots[i][2])
+			else
+				local placed = false
+				while not placed do
+					local x = love.math.random(2, mapWidth - 1)
+					local y = love.math.random(2, mapHeight - 1)
+					if map[x][y].walkThru and creatureIsTileFree(x, y) and playerIsTileFree(x, y) then
+						placed = true 
+						mapSpawnLevelPack(x, y)
+					end
+				end
+			end
+		end
+	end
 end
 
 --- mapSaveCreatures
@@ -256,6 +276,7 @@ function mapChangeFloor(dy, save)
 	if s == 'yes' then mapSave() playerSave() end
 	mapCurrentFloor = mapCurrentFloor + dy
 	mapObjects = { }
+	mapPackSpots = { }
 	if not mapLoad() then
 		--- a map for this level doesnt already exist, generate a new one
 		if mapBranch[mapCurrentBranch].gen == 'mapGenCave' then
@@ -1180,6 +1201,7 @@ function mapGenDungeon(w, h)
 	end
 	--- place rooms onto map
 	for i = 1, # rooms do
+		table.insert(mapPackSpots, {math.floor(rooms[i].x + rooms[i].w / 2), math.floor(rooms[i].y + rooms[i].h / 2)})
 		for x = rooms[i].x, rooms[i].x + rooms[i].w do
 			map[x][rooms[i].y] = mapTiles.smoothwall
 			map[x][rooms[i].y + rooms[i].h] = mapTiles.smoothwall
